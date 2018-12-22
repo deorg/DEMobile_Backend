@@ -1,0 +1,6 @@
+namespace DeMobile.Areas.HelpPage.ModelDescriptions
+{
+    public class SimpleTypeModelDescription : ModelDescription
+    {
+    }
+}
