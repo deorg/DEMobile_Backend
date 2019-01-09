@@ -7,9 +7,9 @@ namespace DeMobile.Models.AppModel
 {
     public class Notification
     {
-        public int noti_id { get; set; }
-        public string con_id { get; set; }
-        public string content { get; set; }
-        public DateTime send_dt { get; set; }
+        public int SMS010_PK { get; set; }
+        public string CON_NO { get; set; }
+        public string SMS_NOTE { get; set; }
+        public DateTime SMS_TIME { get; set; }
     }
 }

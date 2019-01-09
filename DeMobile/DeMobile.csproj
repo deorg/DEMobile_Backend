@@ -228,6 +228,7 @@
     <Compile Include="Models\AppModel\Notification.cs" />
     <Compile Include="Models\AppModel\ConPayment.cs" />
     <Compile Include="Models\DataRepository.cs" />
+    <Compile Include="Models\PaymentGateway\CpPaymentReq.cs" />
     <Compile Include="Models\Report\BrhSaleInfo.cs" />
     <Compile Include="Models\Report\MonthlyMeeting.cs" />
     <Compile Include="Models\PaymentGateway\PaymentReq.cs" />

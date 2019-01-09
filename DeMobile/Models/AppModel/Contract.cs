@@ -13,5 +13,7 @@ namespace DeMobile.Models.AppModel
         public int PAY_AMT { get; set; }
         public int PERIOD { get; set; }
         public int BAL_AMT { get; set; }
+        public DateTime CON_DATE { get; set; }
+        public int DISC_AMT { get; set; }
     }
 }

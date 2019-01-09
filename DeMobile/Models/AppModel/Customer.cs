@@ -7,9 +7,9 @@ namespace DeMobile.Models.AppModel
 {
     public class Customer
     {
-        public int cust_no { get; set; }
-        public string cust_name { get; set; }
-        public string citizen_id { get; set; }
-        public string phone_no { get; set; }
+        public int CUST_NO { get; set; }
+        public string CUST_NAME { get; set; }
+        public string CITIZEN_NO { get; set; }
+        public string TEL { get; set; }
     }
 }

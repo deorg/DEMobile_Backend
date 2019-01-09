@@ -22,10 +22,10 @@ namespace DeMobile.Services
             {
                 data.Add(new Notification
                 {
-                    noti_id = reader.GetInt32(0),
-                    con_id = reader.GetString(1),
-                    content = reader.GetString(2),
-                    send_dt = reader.GetDateTime(3)
+                    SMS010_PK = reader.GetInt32(0),
+                    CON_NO = reader.GetString(1),
+                    SMS_NOTE = reader.GetString(2),
+                    SMS_TIME = reader.GetDateTime(3)
                 });
             }
             reader.Dispose();
@@ -59,7 +59,7 @@ namespace DeMobile.Services
         {
             oracle = new Database();
             List<Contract> data = new List<Contract>();
-            string cmd = $@"SELECT L.CON_NO, CON_CUST_NO CUST_NO, TOT_AMT, PAY_AMT, PERIOD, BAL_AMT
+            string cmd = $@"SELECT L.CON_NO, CON_CUST_NO CUST_NO, TOT_AMT, PAY_AMT, PERIOD, BAL_AMT, CON_DATE, DISC_AMT
                             FROM   LOAN_CARDV L, VW_CON_CUSTOMER_CO C
                             WHERE  L.CON_NO = C.CON_NO AND LNC_STS = 'A' AND CON_CUST_NO = {id}
                             ORDER BY CON_DATE
@@ -74,7 +74,9 @@ namespace DeMobile.Services
                     TOT_AMT = reader.GetInt32(2),
                     PAY_AMT = reader.GetInt32(3),
                     PERIOD = reader.GetInt32(4),
-                    BAL_AMT = reader.GetInt32(5)
+                    BAL_AMT = reader.GetInt32(5),
+                    CON_DATE = reader.GetDateTime(6),
+                    DISC_AMT = reader.GetInt32(7)
                 });
             }
             reader.Dispose();
@@ -89,7 +91,7 @@ namespace DeMobile.Services
                             WHERE  CUST_NO = {id}";
             var reader = oracle.SqlExcute(cmd);
             reader.Read();
-            var data = new Customer { cust_no = reader.GetInt32(0), cust_name = reader.GetString(1), citizen_id = reader.GetString(2), phone_no = reader.GetString(3) };
+            var data = new Customer { CUST_NO = reader.GetInt32(0), CUST_NAME = reader.GetString(1), CITIZEN_NO = reader.GetString(2), TEL = reader.GetString(3) };
             //while (reader.Read())
             //{
             //    data.Add(new MonthlyMeeting
