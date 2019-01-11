@@ -16,7 +16,7 @@ namespace DeMobile.Services
             List<Notification> data = new List<Notification>();
             string cmd = $@"SELECT SMS010_PK, CON_NO, NOTE SMS_NOTE, CREATED_TIME SMS_TIME
                             FROM   SMS010
-                            WHERE  CUST_NO = {id} AND CREATED_TIME > TRUNC(SYSDATE,'YY')";
+                            WHERE  CUST_NO = {id} AND CREATED_TIME > TRUNC(SYSDATE-90,'MM')";
             var reader = oracle.SqlExcute(cmd);
             while (reader.Read())
             {

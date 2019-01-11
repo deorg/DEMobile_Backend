@@ -11,13 +11,30 @@ using System.Text;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Web.Configuration;
+using DeMobile.Concrete;
 
 namespace DeMobile.Services
 {
     public class Payment
     {
         private HttpClient client;
-        private string host = "https://uatappsrv2.modern-pay.com";
+        private string host = Constants.ChillPay.Uat.Host;
+        private string merchantCode = Constants.ChillPay.Uat.MerchantCode;
+        private int currecyCode = Constants.ChillPay.Uat.Currency;
+        private string langCode = Constants.ChillPay.Uat.LangCode;
+        private int routeNo = Constants.ChillPay.Uat.RouteNo;
+        private string apiKey = Constants.ChillPay.Uat.ApiKey;
+        private string md5SecretKey = Constants.ChillPay.Uat.Md5SecretKey;
+
+        private string paymentUrl = Constants.ChillPay.Uat.Api.CreatePayment;
+        private string checkStatusUrl = Constants.ChillPay.Uat.Api.CheckPaymentStatus;
+
+        //private string host = Constants.ChillPay.Production.Host;
+        //private string merchantCode = Constants.ChillPay.Production.MerchantCode;
+        //private string apiKey = Constants.ChillPay.Production.ApiKey;
+        //private string md5SecretKey = Constants.ChillPay.Production.Md5SecretKey;
+
         private static bool AllwaysGoodCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors policyErrors)
         {
             return true;
@@ -32,21 +49,23 @@ namespace DeMobile.Services
         }
         public PaymentRes createPayment(PaymentReq value)
         {
-            string sumData = "M000052" + value.OrderNo + value.CustomerId + value.Amount.ToString() + value.PhoneNumber + value.Description + value.ChannelCode + "764" + "TH" + "1" + "183.89.168.20" + "nLZAHCaxlMX9FHpUzSAov0dhTV2TXlAxb47j1GCM5fmRFK6lFBrVq3btTu4yxFWk" + "RyFYDwI3Se9y6_2FiBF4o2_hYgccTvjkt5TBo9mBmDor4IXNB46j5Fj3mIt7BjF_tviacnelruOrioqOpEY5G56qeL1a_xQb6zG1LFq0vq9rLAc2zHDoxpeHPOZE6tbDpYFeQRM_Wqt7vcIefg22S9b3cvIqXMR1Boy9JOlPHuy1n0SmM4AorOMF7T3AabnDRlQAZfKr8SQkyT8yEZR7g1vDKGLaiX6vD9BSPBEbGNb2GBuGdagd3SC1HM2e8Dc";
+            string[] sumArr = { merchantCode, value.OrderNo, value.CustomerId, value.Amount.ToString(), value.PhoneNumber, value.Description, value.ChannelCode, currecyCode.ToString(), langCode, routeNo.ToString(), "183.89.168.20", apiKey, md5SecretKey };
+            string sumData = string.Concat(sumArr);
+            //string sumData = "M000052" + value.OrderNo + value.CustomerId + value.Amount.ToString() + value.PhoneNumber + value.Description + value.ChannelCode + "764" + "TH" + "1" + "183.89.168.20" + "nLZAHCaxlMX9FHpUzSAov0dhTV2TXlAxb47j1GCM5fmRFK6lFBrVq3btTu4yxFWk" + "RyFYDwI3Se9y6_2FiBF4o2_hYgccTvjkt5TBo9mBmDor4IXNB46j5Fj3mIt7BjF_tviacnelruOrioqOpEY5G56qeL1a_xQb6zG1LFq0vq9rLAc2zHDoxpeHPOZE6tbDpYFeQRM_Wqt7vcIefg22S9b3cvIqXMR1Boy9JOlPHuy1n0SmM4AorOMF7T3AabnDRlQAZfKr8SQkyT8yEZR7g1vDKGLaiX6vD9BSPBEbGNb2GBuGdagd3SC1HM2e8Dc";
             string checkSum = CreateMD5(sumData);
             CpPaymentReq req = new CpPaymentReq();
-            req.MerchantCode = "M000052";
+            req.MerchantCode = merchantCode;
             req.OrderNo = value.OrderNo;
             req.CustomerId = value.CustomerId;
             req.Amount = value.Amount;
             req.PhoneNumber = "";
             req.Description = value.Description;
             req.ChannelCode = value.ChannelCode;
-            req.Currency = 764;
-            req.LangCode = "TH";
-            req.RouteNo = 1;
+            req.Currency = currecyCode;
+            req.LangCode = langCode;
+            req.RouteNo = routeNo;
             req.IPAddress = "183.89.168.20";
-            req.ApiKey = "nLZAHCaxlMX9FHpUzSAov0dhTV2TXlAxb47j1GCM5fmRFK6lFBrVq3btTu4yxFWk";
+            req.ApiKey = apiKey;
             req.CheckSum = checkSum.ToLower();
             try
             {
@@ -55,7 +74,7 @@ namespace DeMobile.Services
                 ConnectCP();
                 var action = JsonConvert.SerializeObject(req);
                 var content = new StringContent(action, Encoding.UTF8, "application/json");
-                var response = client.PostAsync("api/v1/Payment/", content);
+                var response = client.PostAsync(paymentUrl, content);
 
                 if (response.Result.IsSuccessStatusCode)
                 {
@@ -70,6 +89,40 @@ namespace DeMobile.Services
                 }
             }
             catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
+        }
+        public PaymentStatusRes getPaymentStatus(CpPaymentStatusReq value)
+        {
+            string[] sumArr = { value.MerchantCode, value.TransactionId, apiKey, md5SecretKey };
+            string sumData = string.Concat(sumArr);
+            //string sumData = "M000052" + value.OrderNo + value.CustomerId + value.Amount.ToString() + value.PhoneNumber + value.Description + value.ChannelCode + "764" + "TH" + "1" + "183.89.168.20" + "nLZAHCaxlMX9FHpUzSAov0dhTV2TXlAxb47j1GCM5fmRFK6lFBrVq3btTu4yxFWk" + "RyFYDwI3Se9y6_2FiBF4o2_hYgccTvjkt5TBo9mBmDor4IXNB46j5Fj3mIt7BjF_tviacnelruOrioqOpEY5G56qeL1a_xQb6zG1LFq0vq9rLAc2zHDoxpeHPOZE6tbDpYFeQRM_Wqt7vcIefg22S9b3cvIqXMR1Boy9JOlPHuy1n0SmM4AorOMF7T3AabnDRlQAZfKr8SQkyT8yEZR7g1vDKGLaiX6vD9BSPBEbGNb2GBuGdagd3SC1HM2e8Dc";
+            string checkSum = CreateMD5(sumData);
+            value.CheckSum = checkSum.ToLower();
+            try
+            {
+                string postBody = JsonConvert.SerializeObject(value);
+                PaymentStatusRes responseObj;
+                ConnectCP();
+                var action = JsonConvert.SerializeObject(value);
+                var content = new StringContent(action, Encoding.UTF8, "application/json");
+                var response = client.PostAsync(checkStatusUrl, content);
+
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    Console.WriteLine(response.Result.Content.ReadAsStringAsync().Result);
+                    responseObj = JsonConvert.DeserializeObject<PaymentStatusRes>(response.Result.Content.ReadAsStringAsync().Result);
+                    return responseObj;
+                }
+                else
+                {
+                    Console.WriteLine("Error at Create new payment : " + response.Result.Content.ReadAsStringAsync().Result);
+                    return null;
+                }
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return null;

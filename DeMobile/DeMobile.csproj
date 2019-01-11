@@ -213,6 +213,7 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Concrete\Constants.cs" />
     <Compile Include="Concrete\Database.cs" />
     <Compile Include="Controllers\AuthenticationController.cs" />
     <Compile Include="Controllers\ChatController.cs" />
@@ -223,12 +224,14 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\ChatHub.cs" />
+    <Compile Include="Hubs\TransactionHub.cs" />
     <Compile Include="Models\AppModel\Contract.cs" />
     <Compile Include="Models\AppModel\Customer.cs" />
     <Compile Include="Models\AppModel\Notification.cs" />
     <Compile Include="Models\AppModel\ConPayment.cs" />
     <Compile Include="Models\DataRepository.cs" />
     <Compile Include="Models\PaymentGateway\CpPaymentReq.cs" />
+    <Compile Include="Models\PaymentGateway\CpPaymentStatusReq.cs" />
     <Compile Include="Models\Report\BrhSaleInfo.cs" />
     <Compile Include="Models\Report\MonthlyMeeting.cs" />
     <Compile Include="Models\PaymentGateway\PaymentReq.cs" />
@@ -255,6 +258,7 @@
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
+    <Content Include="HtmlPage1.html" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Areas\HelpPage\Views\Web.config" />

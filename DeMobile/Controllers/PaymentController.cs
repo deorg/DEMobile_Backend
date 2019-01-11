@@ -1,4 +1,6 @@
-﻿using DeMobile.Models.PaymentGateway;
+﻿using DeMobile.Hubs;
+using DeMobile.Models;
+using DeMobile.Models.PaymentGateway;
 using DeMobile.Services;
 using System;
 using System.Collections.Generic;
@@ -37,6 +39,20 @@ namespace DeMobile.Controllers
                 return Json(new { return_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
             else
                 return Json(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
+        }
+        [Route("api/payment/notify")]
+        public IHttpActionResult PostSendMessage([FromBody]NotifyPayment value)
+        {
+            TransactionHub hub = new TransactionHub();
+            hub.SendMessage(value.connectionId, value.success);
+            return Json(new { result = "sent" });
+        }
+        [Route("api/payment/notify/chillpay")]
+        public IHttpActionResult PostNotifyChillpay([FromBody]PaymentNotify value)
+        {
+            TransactionHub hub = new TransactionHub();
+            hub.NotifyPayment(value);
+            return Json(new { result = "sent" });
         }
     }
 }
