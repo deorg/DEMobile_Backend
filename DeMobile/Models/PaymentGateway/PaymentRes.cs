@@ -58,7 +58,7 @@ namespace DeMobile.Models.PaymentGateway
         public string BankCode { get; set; }
         public string PaymentDate { get; set; }
         public int PaymentStatus { get; set; }
-        public int BankRefCode { get; set; }
+        public string BankRefCode { get; set; }
         public int MerchantResponseStatus { get; set; }
         public string MerchantResponseMessage { get; set; }
         public string CurrentDate { get; set; }

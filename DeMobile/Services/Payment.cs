@@ -13,6 +13,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Web.Configuration;
 using DeMobile.Concrete;
+using DeMobile.Models.AppModel;
 
 namespace DeMobile.Services
 {
@@ -30,6 +31,8 @@ namespace DeMobile.Services
         private string paymentUrl = Constants.ChillPay.Uat.Api.CreatePayment;
         private string checkStatusUrl = Constants.ChillPay.Uat.Api.CheckPaymentStatus;
 
+        private string host2 = "https://api.line.me";
+
         //private string host = Constants.ChillPay.Production.Host;
         //private string merchantCode = Constants.ChillPay.Production.MerchantCode;
         //private string apiKey = Constants.ChillPay.Production.ApiKey;
@@ -46,6 +49,50 @@ namespace DeMobile.Services
             client = new HttpClient();
             client.BaseAddress = new Uri(host);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        }
+        private void ConnectLine()
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(AllwaysGoodCertificate);
+            client = new HttpClient();
+            client.BaseAddress = new Uri(host2);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Add("Authorization", "Bearer i0NdEjILrlbWZUfsjjGWMRfh8qXtt0USpM87WuIHs5135Qu/fU/kkr0HgX80Q0RJduLr/pU9Q05/ZFMtbX6YhNRZSj75rEbv8nzmzycV+84WzGBJ+L1sTKeq8/lH+i2sBMW4rR1Q4C54U4eOjk6W5AdB04t89/1O/w1cDnyilFU=");
+        }
+        public void sendMessageToLine()
+        {
+            LineNoti msg = new LineNoti();
+            List<string> to = new List<string>();
+            List<LineMessage> lmsg = new List<LineMessage>();
+            to.Add("U7c8a8a90f9727517c12e2bec78288fb3");
+            lmsg.Add(new LineMessage { type = "text", text = "test" });
+            msg.to = to;
+            msg.messages = lmsg;
+            
+            try
+            {
+                string postBody = JsonConvert.SerializeObject(msg);
+                string result;
+                ConnectLine();
+                var action = JsonConvert.SerializeObject(msg);
+                var content = new StringContent(action, Encoding.UTF8, "application/json");
+                var response = client.PostAsync("v2/bot/message/multicast", content);
+
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    Console.WriteLine(response.Result.Content.ReadAsStringAsync().Result);
+                    result = response.Result.Content.ReadAsStringAsync().Result;
+                    Console.WriteLine(result);
+                }
+                else
+                {
+                    Console.WriteLine("Error at Create new payment : " + response.Result.Content.ReadAsStringAsync().Result);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
         public PaymentRes createPayment(PaymentReq value)
         {

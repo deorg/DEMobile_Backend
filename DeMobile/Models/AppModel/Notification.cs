@@ -12,4 +12,14 @@ namespace DeMobile.Models.AppModel
         public string SMS_NOTE { get; set; }
         public DateTime SMS_TIME { get; set; }
     }
+    public class LineNoti
+    {
+        public List<string> to { get; set; }
+        public List<LineMessage> messages { get; set; }
+    }
+    public class LineMessage
+    {
+        public string type { get; set; }
+        public string text { get; set; }
+    }
 }
