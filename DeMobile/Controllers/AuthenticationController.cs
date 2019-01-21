@@ -10,30 +10,58 @@ namespace DeMobile.Controllers
         [Route("api/customer/profile")]
         public IHttpActionResult GetProfile(int id)
         {
-            Authen cust = new Authen();
-            var result = cust.getProfile(id);
-            return Json(result);
+            User cust = new User();
+            try
+            {
+                var result = cust.getProfile(id);
+                return Json(result);
+            }
+            catch(Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
         }
         [Route("api/customer/sms")]
         public IHttpActionResult GetSms(int id)
         {
-            Authen sms = new Authen();
-            var result = sms.getNotification(id);
-            return Json(result);
+            User sms = new User();
+            try
+            {
+                var result = sms.getNotification(id);
+                return Json(result);
+            }
+            catch(Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
         }
         [Route("api/customer/contract")]
         public IHttpActionResult GetContract(int id)
         {
-            Authen contract = new Authen();
-            var result = contract.getContract(id);
-            return Json(result);
+            User contract = new User();
+            try
+            {
+                var result = contract.getContract(id);
+                return Json(result);
+            }
+            catch(Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
         }
         [Route("api/customer/payment")]
         public IHttpActionResult GetPayment(string no)
         {
-            Authen payment = new Authen();
-            var result = payment.getPayment(no);
-            return Json(result);
+            User payment = new User();
+            try
+            {
+                var result = payment.getPayment(no);
+                return Json(result);
+            }
+            catch(Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
         }
     }
 }

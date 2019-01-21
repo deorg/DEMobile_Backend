@@ -94,9 +94,9 @@ namespace DeMobile.Services
                 Console.WriteLine(e.Message);
             }
         }
-        public PaymentRes createPayment(PaymentReq value)
+        public PaymentRes createPayment(PaymentReq value, string ip)
         {
-            string[] sumArr = { merchantCode, value.OrderNo, value.CustomerId, value.Amount.ToString(), value.PhoneNumber, value.Description, value.ChannelCode, currecyCode.ToString(), langCode, routeNo.ToString(), "183.89.168.20", apiKey, md5SecretKey };
+            string[] sumArr = { merchantCode, value.OrderNo, value.CustomerId, value.Amount.ToString(), value.PhoneNumber, value.Description, value.ChannelCode, currecyCode.ToString(), langCode, routeNo.ToString(), ip, apiKey, md5SecretKey };
             string sumData = string.Concat(sumArr);
             //string sumData = "M000052" + value.OrderNo + value.CustomerId + value.Amount.ToString() + value.PhoneNumber + value.Description + value.ChannelCode + "764" + "TH" + "1" + "183.89.168.20" + "nLZAHCaxlMX9FHpUzSAov0dhTV2TXlAxb47j1GCM5fmRFK6lFBrVq3btTu4yxFWk" + "RyFYDwI3Se9y6_2FiBF4o2_hYgccTvjkt5TBo9mBmDor4IXNB46j5Fj3mIt7BjF_tviacnelruOrioqOpEY5G56qeL1a_xQb6zG1LFq0vq9rLAc2zHDoxpeHPOZE6tbDpYFeQRM_Wqt7vcIefg22S9b3cvIqXMR1Boy9JOlPHuy1n0SmM4AorOMF7T3AabnDRlQAZfKr8SQkyT8yEZR7g1vDKGLaiX6vD9BSPBEbGNb2GBuGdagd3SC1HM2e8Dc";
             string checkSum = CreateMD5(sumData);
@@ -111,7 +111,7 @@ namespace DeMobile.Services
             req.Currency = currecyCode;
             req.LangCode = langCode;
             req.RouteNo = routeNo;
-            req.IPAddress = "183.89.168.20";
+            req.IPAddress = ip;
             req.ApiKey = apiKey;
             req.CheckSum = checkSum.ToLower();
             try

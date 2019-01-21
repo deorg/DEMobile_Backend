@@ -9,7 +9,7 @@ namespace DeMobile.Models.AppModel
     {
         public int CUST_NO { get; set; }
         public string CUST_NAME { get; set; }
-        public string CITIZEN_NO { get; set; }
+        public string CITIZEN_NO { get; set; } 
         public string TEL { get; set; }
     }
 }

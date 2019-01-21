@@ -15,18 +15,18 @@ namespace DeMobile.Controllers
 {
     public class PaymentController : ApiController
     {
-        [Route("api/payment/newpayment")]
-        public IHttpActionResult PostNewPayment([FromBody]PaymentReq value)
-        {
-            Payment payment = new Payment();
-            if (!ModelState.IsValid)
-                return BadRequest("Invalid parameter!");
-            PaymentRes res = payment.createPayment(value);
-            if (res == null)
-                return Json(new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
-            else
-                return Json(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
-        }
+        //[Route("api/payment/newpayment")]
+        //public IHttpActionResult PostNewPayment([FromBody]PaymentReq value)
+        //{
+        //    Payment payment = new Payment();
+        //    if (!ModelState.IsValid)
+        //        return BadRequest("Invalid parameter!");
+        //    PaymentRes res = payment.createPayment(value);
+        //    if (res == null)
+        //        return Json(new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
+        //    else
+        //        return Json(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
+        //}
         [Route("api/payment/newpayment2")]
         public IHttpActionResult PostNewPayment2([FromBody]PaymentReq value)
         {
@@ -36,7 +36,7 @@ namespace DeMobile.Controllers
             Payment payment = new Payment();
             if (!ModelState.IsValid)
                 return BadRequest("Invalid parameter!");
-            PaymentRes res = payment.createPayment(value);
+            PaymentRes res = payment.createPayment(value, IPAddress);
             if (res == null)
                 return Json(new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
             else
@@ -67,7 +67,7 @@ namespace DeMobile.Controllers
         {
             TransactionHub hub = new TransactionHub();
             hub.NotifyPayment(value);
-            return Json(new { result = "sent" });
+            return Ok();
         }
         [Route("api/line/test")]
         public IHttpActionResult GetLine()
