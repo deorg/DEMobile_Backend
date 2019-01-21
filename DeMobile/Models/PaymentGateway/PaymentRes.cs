@@ -33,7 +33,7 @@ namespace DeMobile.Models.PaymentGateway
     {
         public int Code { get; set; }
         public string Message { get; set; }
-        public string TransactionId { get; set; }
+        public int TransactionId { get; set; }
         public int Amount { get; set; }
         public string OrderNo { get; set; }
         public string CustomerId { get; set; }
