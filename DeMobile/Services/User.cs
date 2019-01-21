@@ -111,7 +111,63 @@ namespace DeMobile.Services
             oracle.OracleDisconnect();
             return data;
         }
-        public Customer getProfile(int id)
+        public Customer getProfileByPhoneNO(string phone)
+        {
+            oracle = new Database();
+            string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
+                            FROM CUSTOMER 
+                            WHERE TEL = '{phone}'";
+            var reader = oracle.SqlExcute(cmd);
+            reader.Read();
+            if (reader.HasRows)
+            {
+                var data = new Customer
+                {
+                    CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                    CUST_NAME = (string)reader["CUST_NAME"],
+                    CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
+                    TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"]
+                };
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return data;
+            }
+            else
+            {
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return null;
+            }
+        }
+        public Customer getProfileByCitizenNo(string citizen)
+        {
+            oracle = new Database();
+            string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
+                            FROM CUSTOMER 
+                            WHERE CITIZEN_NO = '{citizen}'";
+            var reader = oracle.SqlExcute(cmd);
+            reader.Read();
+            if (reader.HasRows)
+            {
+                var data = new Customer
+                {
+                    CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                    CUST_NAME = (string)reader["CUST_NAME"],
+                    CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
+                    TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"]
+                };
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return data;
+            }
+            else
+            {
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return null;
+            }
+        }
+        public Customer getProfileById(int id)
         {
             oracle = new Database();
             string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL

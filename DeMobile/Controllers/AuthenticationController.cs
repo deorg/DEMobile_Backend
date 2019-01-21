@@ -1,4 +1,5 @@
-﻿using DeMobile.Services;
+﻿using DeMobile.Models.AppModel;
+using DeMobile.Services;
 using System;
 
 using System.Web.Http;
@@ -7,18 +8,39 @@ namespace DeMobile.Controllers
 {
     public class AuthenticationController : ApiController
     {
+        [Route("api/authen/register")]
+        public IHttpActionResult PostRegister([FromBody]Register data)
+        {
+            User cust = new User();
+            try
+            {
+                var result = cust.getProfileByCitizenNo(data.citizen_no);
+                var result2 = cust.getProfileByPhoneNO(data.phone_no);
+                if ((result != null) && (result2 != null))
+                    return Json(result);
+                else
+                    return BadRequest("Not found customer!");
+            }
+            catch (Exception e)
+            {
+                return InternalServerError(e);
+            }
+        }
         [Route("api/customer/profile")]
         public IHttpActionResult GetProfile(int id)
         {
             User cust = new User();
             try
             {
-                var result = cust.getProfile(id);
-                return Json(result);
+                var result = cust.getProfileById(id);
+                if (result != null)
+                    return Json(result);
+                else
+                    return BadRequest("Not found customer!");
             }
             catch(Exception e)
             {
-                return Json(new { error = e.Message });
+                return InternalServerError(e);
             }
         }
         [Route("api/customer/sms")]
@@ -46,7 +68,7 @@ namespace DeMobile.Controllers
             }
             catch(Exception e)
             {
-                return Json(new { error = e.Message });
+                return InternalServerError(e);
             }
         }
         [Route("api/customer/payment")]
@@ -60,7 +82,7 @@ namespace DeMobile.Controllers
             }
             catch(Exception e)
             {
-                return Json(new { error = e.Message });
+                return InternalServerError(e);
             }
         }
     }
