@@ -35,7 +35,7 @@ namespace DeMobile.Services
                             AND BRH_ID< 66
                             GROUP BY BRH_ID, MDATE
                             ORDER BY BRH_ID";
-            var reader = oracle.SqlExcute(cmd);
+            var reader = oracle.SqlQuery(cmd);
             reader.Read();
             while (reader.Read())
             {

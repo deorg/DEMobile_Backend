@@ -31,7 +31,7 @@ namespace DeMobile.Controllers
         public IHttpActionResult PostNewPayment2([FromBody]PaymentReq value)
         {
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
-            value.OrderNo = "test001";
+            //value.OrderNo = "test001";
             value.Description = "testAPI";
             Payment payment = new Payment();
             if (!ModelState.IsValid)
@@ -42,18 +42,27 @@ namespace DeMobile.Controllers
             else
                 return Json(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
         }
-        [Route("api/payment/getbankcode")]
+        [Route("api/test/getdate")]
+        public IHttpActionResult GetDate()
+        {
+            //string date = "20180712173122";
+            //var newDate = DateTime.ParseExact(date, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+            Payment payment = new Payment();
+            return Ok(payment.testSaveDate());
+        }
+        [Route("api/payment/getchannel")]
         public IHttpActionResult GetBankCode()
         {
-            BankCode[] banks = new BankCode[]
+            try
             {
-                new BankCode { Code = "internetbank_bay",  Remark = "ธนาคารกรุงศรีอยุธยา" },
-                new BankCode { Code = "internetbank_bbl", Remark = "ธนาคารกรุงเทพ" },
-                new BankCode { Code = "internetbank_scb", Remark = "ธนาคารไทยพาณิช" },
-                new BankCode { Code = "internetbank_ktb", Remark = "ธนาคารกรุงไทย" },
-                new BankCode { Code = "payplus_kbank", Remark = "ธนาคารกสิกรไทย" }
-            };
-            return Json(new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
+                Payment payment = new Payment();
+                var banks = payment.getChanneCode();
+                return Json(new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
+            }
+            catch(Exception e)
+            {
+                return InternalServerError(e.InnerException);
+            }
         }
         [Route("api/payment/notify")]
         public IHttpActionResult PostSendMessage([FromBody]NotifyPayment value)

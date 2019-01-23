@@ -8,9 +8,12 @@ namespace DeMobile.Models.PaymentGateway
 {
     public class PaymentReq
     {
-        public string OrderNo { get; set; }
         [Required]
-        public string CustomerId { get; set; }
+        public int CustomerId { get; set; }
+        [Required]
+        public string ContractNo { get; set; }
+        [Required]
+        public string DeviceId { get; set; }
         [Required]
         public int Amount { get; set; }
         public string PhoneNumber { get; set; } = "";

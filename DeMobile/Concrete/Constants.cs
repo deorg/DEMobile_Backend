@@ -11,11 +11,11 @@ namespace DeMobile.Concrete
         {
             public static class Development
             {
-                public const string Host = "192.168.1.10";
+                public const string Host = "35.247.128.114";
                 public const string Port = "1521";
-                public const string Source = "HPDB";
-                public const string Username = "DE";
-                public const string Password = "DE";
+                public const string Source = "DEORCL";
+                public const string Username = "DMOBILE";
+                public const string Password = "DMOBILE";
             }
             public static class Production
             {

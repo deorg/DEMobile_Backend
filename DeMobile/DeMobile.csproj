@@ -224,6 +224,8 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Concrete\Constants.cs" />
     <Compile Include="Concrete\Database.cs" />
+    <Compile Include="Services\Notification.cs" />
+    <Compile Include="Services\Security.cs" />
     <Compile Include="Controllers\AuthenticationController.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -241,7 +243,7 @@
     <Compile Include="Models\AppModel\ConPayment.cs" />
     <Compile Include="Models\AppModel\Register.cs" />
     <Compile Include="Models\DataRepository.cs" />
-    <Compile Include="Models\PaymentGateway\BankCode.cs" />
+    <Compile Include="Models\PaymentGateway\ChannelCode.cs" />
     <Compile Include="Models\PaymentGateway\CpPaymentReq.cs" />
     <Compile Include="Models\Report\BrhSaleInfo.cs" />
     <Compile Include="Models\Report\MonthlyMeeting.cs" />

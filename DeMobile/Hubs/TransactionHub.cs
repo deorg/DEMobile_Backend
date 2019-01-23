@@ -14,7 +14,7 @@ namespace DeMobile.Hubs
         {
             string username = Context.User.Identity.Name;
             string connectId = Context.ConnectionId;
-            Clients.All.Login(new { message = $"{connectId} is online!" });
+            Clients.Caller.Login(connectId);
             return base.OnConnected();
         }
         public override Task OnDisconnected(bool stopCalled)
@@ -23,6 +23,11 @@ namespace DeMobile.Hubs
             string connectId = Context.ConnectionId;
             return base.OnDisconnected(stopCalled);
         }
+        //public void GetConnectionID()
+        //{
+        //    string connectId = Context.ConnectionId;
+        //    Clients.Client(connectId).Login(new { username = temp.Username, message = msg });
+        //}
         public void SendMessage(string connectionId, bool status)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<TransactionHub>();

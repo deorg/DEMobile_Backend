@@ -1,5 +1,6 @@
 ﻿using DeMobile.Concrete;
 using DeMobile.Models.AppModel;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +11,24 @@ namespace DeMobile.Services
     public class User
     {
         private Database oracle;
-        public List<Notification> getNotification(int id)
+        public List<SMS010> getNotification(int id)
         {
             oracle = new Database();
-            List<Notification> data = new List<Notification>();
+            List<SMS010> data = new List<SMS010>();
+            //string cmd = $@"SELECT SMS010_PK, CON_NO, SMS_NOTE, SMS_TIME
+            //                FROM   SMS010
+            //                WHERE  CUST_NO = {id}";
+            //var reader = oracle.SqlQuery(cmd);
             string cmd = $@"SELECT SMS010_PK, CON_NO, SMS_NOTE, SMS_TIME
-                            FROM   SMS
-                            WHERE  CUST_NO = {id}";
-            var reader = oracle.SqlExcute(cmd);
+                            FROM   SMS010
+                            WHERE  CUST_NO = :id";
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("id", id));
+            //var reader = oracle.SqlQuery(cmd);
+            var reader = oracle.SqlQueryWithParams(cmd, parameter);
             while (reader.Read())
             {
-                data.Add(new Notification
+                data.Add(new SMS010
                 {
                     SMS010_PK = Int32.Parse(reader["SMS010_PK"].ToString()),
                     CON_NO = (string)reader["CON_NO"],
@@ -46,7 +54,7 @@ namespace DeMobile.Services
                             FROM   VW_LOAN_LEDGER_CO
                             WHERE  LNC_NO = '{no}'
                             ORDER BY LNL_SEQ DESC";
-            var reader = oracle.SqlExcute(cmd);
+            var reader = oracle.SqlQuery(cmd);
             while (reader.Read())
             {
                 data.Add(new ConPayment {
@@ -54,13 +62,6 @@ namespace DeMobile.Services
                     PAY_DATE = (DateTime)reader["PAY_DATE"],
                     PAY_AMT = Int32.Parse(reader["PAY_AMT"].ToString())
                 });
-
-                //data.Add(new ConPayment
-                //{
-                //    CON_NO = reader.GetString(0),
-                //    PAY_DATE = reader.GetDateTime(1),
-                //    PAY_AMT = reader.GetInt32(2)
-                //});
             }
             if (data.Count == 0)
             {
@@ -86,7 +87,7 @@ namespace DeMobile.Services
             //                WHERE  L.CON_NO = C.CON_NO AND LNC_STS = 'A' AND CON_CUST_NO = {id}
             //                ORDER BY CON_DATE
             //                ";
-            var reader = oracle.SqlExcute(cmd);
+            var reader = oracle.SqlQuery(cmd);
             while (reader.Read())
             {
                 data.Add(new Contract
@@ -117,7 +118,7 @@ namespace DeMobile.Services
             string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
                             FROM CUSTOMER 
                             WHERE TEL = '{phone}'";
-            var reader = oracle.SqlExcute(cmd);
+            var reader = oracle.SqlQuery(cmd);
             reader.Read();
             if (reader.HasRows)
             {
@@ -145,7 +146,7 @@ namespace DeMobile.Services
             string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
                             FROM CUSTOMER 
                             WHERE CITIZEN_NO = '{citizen}'";
-            var reader = oracle.SqlExcute(cmd);
+            var reader = oracle.SqlQuery(cmd);
             reader.Read();
             if (reader.HasRows)
             {
@@ -167,6 +168,22 @@ namespace DeMobile.Services
                 return null;
             }
         }
+        public bool checkCurrentDevice(Register regis)
+        {
+            oracle = new Database();
+            string cmd = $@"SELECT * FROM MPAY020 WHERE DEVICE_ID = '{regis.device_id}'";
+            var reader = oracle.SqlQuery(cmd);
+            reader.Read();
+            return reader.HasRows;
+        }
+        public int registerDevice(Register regis, int cust_no)
+        {
+            oracle = new Database();
+            string cmd = $@"INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS) VALUES('{regis.device_id}', {cust_no}, 'ACT')";
+            var result = oracle.SqlExcute(cmd);
+            oracle.OracleDisconnect();
+            return result;
+        }
         public Customer getProfileById(int id)
         {
             oracle = new Database();
@@ -176,7 +193,7 @@ namespace DeMobile.Services
             //string cmd = $@"SELECT CUST_NO, CUST_FIRSTNAME||' '||CUST_LASTNAME CUST_NAME, CUST_CITIZEN_NO CITIZEN_NO, TEL_SMS TEL
             //                FROM   CUSTOMER
             //                WHERE  CUST_NO = {id}";
-            var reader = oracle.SqlExcute(cmd);
+            var reader = oracle.SqlQuery(cmd);
             reader.Read();
             if (reader.HasRows)
             {
@@ -197,27 +214,6 @@ namespace DeMobile.Services
                 oracle.OracleDisconnect();
                 return null;
             }
-            //while (reader.Read())
-            //{
-            //    data.Add(new MonthlyMeeting
-            //    {
-            //        brhId = reader["BRH_ID"].ToString(),
-            //        saleAmt = reader.GetDouble(1),
-            //        payAmt = reader.GetDouble(2),
-            //        difTarAmt = reader.GetDouble(3),
-            //        accSaleAmt = reader.GetDouble(4),
-            //        accPayAmt = reader.GetDouble(5),
-            //        accTarAmt = reader.GetDouble(6),
-            //        tarAmt = reader.GetDouble(7),
-            //        losPdoAmt = reader.GetDouble(8),
-            //        pdoAmt = reader.GetDouble(9),
-            //        OcustPdoAmt = reader.GetDouble(10),
-            //        NcustPdoAmt = reader.GetDouble(11),
-            //        fRemainAmt = reader.GetDouble(12),
-            //        mgrName = reader["MGRS_Name"] == DBNull.Value ? "" : reader["MGRS_Name"].ToString()
-            //    });
-            //}
-            
         }
     }
 }

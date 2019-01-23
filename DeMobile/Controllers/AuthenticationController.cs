@@ -17,13 +17,24 @@ namespace DeMobile.Controllers
                 var result = cust.getProfileByCitizenNo(data.citizen_no);
                 var result2 = cust.getProfileByPhoneNO(data.phone_no);
                 if ((result != null) && (result2 != null))
-                    return Json(result);
+                {
+                    var currentDevice = cust.checkCurrentDevice(data);
+                    if (currentDevice)
+                        return BadRequest("This device already has been registered!");
+                    else
+                    {
+                        var resInset = cust.registerDevice(data, result.CUST_NO);
+                        //Notification otp = new Notification();
+                        //otp.sendOTP(result.CUST_NO);
+                        return Ok();
+                    }
+                }
                 else
                     return BadRequest("Not found customer!");
             }
             catch (Exception e)
             {
-                return InternalServerError(e);
+                return Json(e.Message);
             }
         }
         [Route("api/customer/profile")]
