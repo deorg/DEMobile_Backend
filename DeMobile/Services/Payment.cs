@@ -172,20 +172,20 @@ namespace DeMobile.Services
                         responseObj = JsonConvert.DeserializeObject<PaymentRes>(response.Result.Content.ReadAsStringAsync().Result);
                         var lastTransaction = saveTransaction(responseObj);
                         if(responseObj.Status == 0 && responseObj.Code == 200)
-                            updateStatusOrder(lastOrder, "ACT");
+                            setStatusOrder(lastOrder, "ACT");
                         if(responseObj.Status != 0)
                         {
                             if (responseObj.Status == 1)
-                                updateStatusOrder(lastOrder, "FAL");
-                            else 
-                                updateStatusOrder(lastOrder, "ERR");
+                                setStatusOrder(lastOrder, "FAL");
+                            else
+                                setStatusOrder(lastOrder, "ERR");
                         }
                         if(responseObj.Code != 200)
                         {
                             if (responseObj.Code < 2007)
-                                updateStatusOrder(lastOrder, "CAN");
+                                setStatusOrder(lastOrder, "CAN");
                             else
-                                updateStatusOrder(lastOrder, "ERR");
+                                setStatusOrder(lastOrder, "ERR");
                         }
                         return responseObj;
                     }
@@ -204,19 +204,23 @@ namespace DeMobile.Services
                 return null;
             }
         }
-        public PaymentStatusRes getPaymentStatus(CpPaymentStatusReq value)
+        public PaymentStatusRes getPaymentStatus(int transactionId)
         {
-            string[] sumArr = { value.MerchantCode, value.TransactionId, apiKey, md5SecretKey };
+            string[] sumArr = { merchantCode, transactionId.ToString(), apiKey, md5SecretKey };
             string sumData = string.Concat(sumArr);
             //string sumData = "M000052" + value.OrderNo + value.CustomerId + value.Amount.ToString() + value.PhoneNumber + value.Description + value.ChannelCode + "764" + "TH" + "1" + "183.89.168.20" + "nLZAHCaxlMX9FHpUzSAov0dhTV2TXlAxb47j1GCM5fmRFK6lFBrVq3btTu4yxFWk" + "RyFYDwI3Se9y6_2FiBF4o2_hYgccTvjkt5TBo9mBmDor4IXNB46j5Fj3mIt7BjF_tviacnelruOrioqOpEY5G56qeL1a_xQb6zG1LFq0vq9rLAc2zHDoxpeHPOZE6tbDpYFeQRM_Wqt7vcIefg22S9b3cvIqXMR1Boy9JOlPHuy1n0SmM4AorOMF7T3AabnDRlQAZfKr8SQkyT8yEZR7g1vDKGLaiX6vD9BSPBEbGNb2GBuGdagd3SC1HM2e8Dc";
             string checkSum = CreateMD5(sumData);
-            value.CheckSum = checkSum.ToLower();
+            CpPaymentStatusReq req = new CpPaymentStatusReq();
+            req.MerchantCode = merchantCode;
+            req.TransactionId = transactionId;
+            req.ApiKey = apiKey;
+            req.CheckSum = checkSum.ToLower();
             try
             {
-                string postBody = JsonConvert.SerializeObject(value);
+                string postBody = JsonConvert.SerializeObject(req);
                 PaymentStatusRes responseObj;
                 ConnectCP();
-                var action = JsonConvert.SerializeObject(value);
+                var action = JsonConvert.SerializeObject(req);
                 var content = new StringContent(action, Encoding.UTF8, "application/json");
                 var response = client.PostAsync(checkStatusUrl, content);
 
@@ -224,6 +228,25 @@ namespace DeMobile.Services
                 {
                     Console.WriteLine(response.Result.Content.ReadAsStringAsync().Result);
                     responseObj = JsonConvert.DeserializeObject<PaymentStatusRes>(response.Result.Content.ReadAsStringAsync().Result);
+                    if (responseObj.Code == 200 && responseObj.PaymentStatus == 0)
+                        setStatusOrder(Int32.Parse(responseObj.OrderNo), "SUC");
+                    else if(responseObj.Code == 200 && responseObj.PaymentStatus != 0)
+                    {
+                        if (responseObj.PaymentStatus == 1)
+                            setStatusOrder(Int32.Parse(responseObj.OrderNo), "FAL");
+                        else if (responseObj.PaymentStatus == 2 || responseObj.PaymentStatus == 4)
+                            setStatusOrder(Int32.Parse(responseObj.OrderNo), "CAN");
+                        else if (responseObj.PaymentStatus == 3)
+                            setStatusOrder(Int32.Parse(responseObj.OrderNo), "ERR");
+                    }
+                    else if (responseObj.Code != 200)
+                    {
+                        if (responseObj.Code < 2007)
+                            setStatusOrder(Int32.Parse(responseObj.OrderNo), "CAN");
+                        else
+                            setStatusOrder(Int32.Parse(responseObj.OrderNo), "ERR");
+                    }
+                    updateTransaction(responseObj);
                     return responseObj;
                 }
                 else
@@ -255,13 +278,34 @@ namespace DeMobile.Services
                 return sb.ToString();
             }
         }
-        public void updateStatusOrder(int order_no, string status)
+        public void setStatusOrder(int order_no, string status)
         {
             oracle = new Database();
             List<OracleParameter> parameter = new List<OracleParameter>();
             parameter.Add(new OracleParameter("order_no", order_no));
             parameter.Add(new OracleParameter("status", status));
             oracle.SqlExecuteWithParams(SqlCmd.Payment.setStatusOrder, parameter);
+            oracle.OracleDisconnect();
+        }
+        public void updateTransaction(PaymentStatusRes value)
+        {
+            oracle = new Database();
+            DateTime paymentTime;
+            if(!string.IsNullOrEmpty(value.PaymentDate))
+                paymentTime = DateTime.ParseExact(value.PaymentDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("trans_no", value.TransactionId));
+            parameter.Add(new OracleParameter("trans_status_id", value.Code));
+            parameter.Add(new OracleParameter("bank_ref_code", value.BankRefCode));
+            parameter.Add(new OracleParameter("result_status_id", value.PaymentStatus));
+            if (!string.IsNullOrEmpty(value.PaymentDate))
+            {
+                paymentTime = DateTime.ParseExact(value.PaymentDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                parameter.Add(new OracleParameter("payment_time", paymentTime));
+            }
+            else
+                parameter.Add(new OracleParameter("payment_time", null));
+            oracle.SqlExecuteWithParams(SqlCmd.Payment.updateTransaction, parameter);
             oracle.OracleDisconnect();
         }
         public int createOrder(PaymentReq value, string ip)

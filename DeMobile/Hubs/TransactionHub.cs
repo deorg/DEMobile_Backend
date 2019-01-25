@@ -33,7 +33,7 @@ namespace DeMobile.Hubs
             var context = GlobalHost.ConnectionManager.GetHubContext<TransactionHub>();
             context.Clients.Client(connectionId).Notify(new { status = status });
         }
-        public void NotifyPayment(PaymentNotify value)
+        public void NotifyPayment(PaymentStatusRes value)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<TransactionHub>();
             context.Clients.All.Notify(value);

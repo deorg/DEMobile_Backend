@@ -9,17 +9,17 @@ namespace DeMobile.Concrete
 {
     public class Database
     {
-        private static string host = Constants.OracleDb.Development.Host;
-        private static string port = Constants.OracleDb.Development.Port;
-        private static string username = Constants.OracleDb.Development.Username;
-        private static string password = Constants.OracleDb.Development.Password;
-        private static string database = Constants.OracleDb.Development.Source;
+        //private static string host = Constants.OracleDb.Development.Host;
+        //private static string port = Constants.OracleDb.Development.Port;
+        //private static string username = Constants.OracleDb.Development.Username;
+        //private static string password = Constants.OracleDb.Development.Password;
+        //private static string database = Constants.OracleDb.Development.Source;
 
-        //private static string host = Constants.OracleDb.Production.Host;
-        //private static string port = Constants.OracleDb.Production.Port;
-        //private static string username = Constants.OracleDb.Production.Username;
-        //private static string password = Constants.OracleDb.Production.Password;
-        //private static string database = Constants.OracleDb.Production.Source;
+        private static string host = Constants.OracleDb.Production.Host;
+        private static string port = Constants.OracleDb.Production.Port;
+        private static string username = Constants.OracleDb.Production.Username;
+        private static string password = Constants.OracleDb.Production.Password;
+        private static string database = Constants.OracleDb.Production.Source;
 
         private static string conString = $"User Id={username};Password={password};Data Source={host}:{port}/{database};";
         private OracleConnection con;

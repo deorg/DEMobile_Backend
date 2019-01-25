@@ -24,6 +24,7 @@ namespace DeMobile.Concrete
             public const string createOrder = "INSERT INTO MPAY100(CUST_NO, CON_NO, DEVICE_ID, CHANNEL_ID, PAY_AMT, TEL, IP_ADDR, DESCRIPTION) VALUES(:custId, :contractNo, :deviceId, :channelCode, :amount, :phone, :ip, :description) RETURNING ORDER_NO INTO :order_no";
             public const string setStatusOrder = "UPDATE MPAY100 SET ORDER_STATUS = :status WHERE ORDER_NO = :order_no";
             public const string saveTransaction = "INSERT INTO MPAY110(TRANS_NO, ORDER_NO, CUST_NO, CHANNEL_ID, REQ_STATUS_ID, TRANS_STATUS_ID, PAY_AMT, RETURN_URL, PAYMENT_URL, IP_ADDR, TOKEN, CREATED_TIME, EXPIRE_TIME) VALUES(:transNo, :orderNo, :custNo, :channelId, :reqStatus, :tranStatus, :amount, :returnUrl, :paymentUrl, :ip, :token, :createTime, :expireTime) RETURNING TRANS_NO INTO :trans_no";
+            public const string updateTransaction = "UPDATE MPAY110 SET TRANS_STATUS_ID = :trans_status_id, BANK_REF_CODE = :bank_ref_code, RESULT_STATUS_ID = :result_status_id, PAYMENT_TIME = :payment_time WHERE TRANS_NO = :trans_no";
         }
         public static class Notification
         {

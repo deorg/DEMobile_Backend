@@ -36,11 +36,32 @@ namespace DeMobile.Controllers
             Payment payment = new Payment();
             if (!ModelState.IsValid)
                 return BadRequest("Invalid parameter!");
-            PaymentRes res = payment.createPayment(value, IPAddress);
-            if (res == null)
-                return Json(new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
-            else
-                return Json(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
+            try
+            {
+                PaymentRes res = payment.createPayment(value, IPAddress);
+                if (res == null)
+                    return Json(new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
+                else
+                    return Json(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
+            }
+            catch(Exception e)
+            {
+                return InternalServerError(e.InnerException);
+            }
+        }
+        [Route("api/payment/getstatus")]
+        public IHttpActionResult GetPaymentStatus(int trans_no)
+        {
+            Payment payment = new Payment();
+            try
+            {
+                PaymentStatusRes res = payment.getPaymentStatus(trans_no);
+                return Ok(res);
+            }
+            catch(Exception e)
+            {
+                return InternalServerError(e.InnerException);
+            }
         }
         [Route("api/test/getdate")]
         public IHttpActionResult GetDate()
@@ -72,8 +93,29 @@ namespace DeMobile.Controllers
             return Json(new { result = "sent" });
         }
         [Route("api/payment/notify/chillpay")]
-        public IHttpActionResult PostNotifyChillpay([FromBody]PaymentNotify value)
+        public IHttpActionResult PostNotifyChillpay([FromBody]PaymentStatusRes value)
         {
+            Payment payment = new Payment();
+            if (value.Code == 200 && value.PaymentStatus == 0)
+                payment.setStatusOrder(Int32.Parse(value.OrderNo), "SUC");
+            else if (value.Code == 200 && value.PaymentStatus != 0)
+            {
+                if (value.PaymentStatus == 1)
+                    payment.setStatusOrder(Int32.Parse(value.OrderNo), "FAL");
+                else if (value.PaymentStatus == 2 || value.PaymentStatus == 4)
+                    payment.setStatusOrder(Int32.Parse(value.OrderNo), "CAN");
+                else if (value.PaymentStatus == 3)
+                    payment.setStatusOrder(Int32.Parse(value.OrderNo), "ERR");
+            }
+            else if (value.Code != 200)
+            {
+                if (value.Code < 2007)
+                    payment.setStatusOrder(Int32.Parse(value.OrderNo), "CAN");
+                else
+                    payment.setStatusOrder(Int32.Parse(value.OrderNo), "ERR");
+            }
+            payment.updateTransaction(value);
+
             TransactionHub hub = new TransactionHub();
             hub.NotifyPayment(value);
             return Ok();
