@@ -18,7 +18,7 @@ namespace DeMobile.Controllers
                 var result2 = cust.getProfileByPhoneNO(data.phone_no);
                 if ((result != null) && (result2 != null))
                 {
-                    var currentDevice = cust.checkCurrentDevice(data);
+                    var currentDevice = cust.checkCurrentDevice(data.device_id);
                     if (currentDevice)
                         return BadRequest("This device already has been registered!");
                     else

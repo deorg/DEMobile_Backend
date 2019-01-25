@@ -15,17 +15,10 @@ namespace DeMobile.Services
         {
             oracle = new Database();
             List<SMS010> data = new List<SMS010>();
-            //string cmd = $@"SELECT SMS010_PK, CON_NO, SMS_NOTE, SMS_TIME
-            //                FROM   SMS010
-            //                WHERE  CUST_NO = {id}";
-            //var reader = oracle.SqlQuery(cmd);
-            string cmd = $@"SELECT SMS010_PK, CON_NO, SMS_NOTE, SMS_TIME
-                            FROM   SMS010
-                            WHERE  CUST_NO = :id";
             List<OracleParameter> parameter = new List<OracleParameter>();
-            parameter.Add(new OracleParameter("id", id));
+            parameter.Add(new OracleParameter("cust_no", id));
             //var reader = oracle.SqlQuery(cmd);
-            var reader = oracle.SqlQueryWithParams(cmd, parameter);
+            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getSms, parameter);
             while (reader.Read())
             {
                 data.Add(new SMS010
@@ -77,17 +70,10 @@ namespace DeMobile.Services
         {
             oracle = new Database();
             List<Contract> data = new List<Contract>();
-            string cmd = $@"SELECT CON_NO, CUST_NO, TOT_AMT, PAY_AMT, PERIOD, BAL_AMT, CON_DATE, DISC_AMT
-                            FROM   CONTRACT
-                            WHERE  CUST_NO = {id}
-                            ORDER BY CON_DATE
-                            ";
-            //string cmd = $@"SELECT L.CON_NO, CON_CUST_NO CUST_NO, TOT_AMT, PAY_AMT, PERIOD, BAL_AMT, CON_DATE, DISC_AMT
-            //                FROM   LOAN_CARDV L, VW_CON_CUSTOMER_CO C
-            //                WHERE  L.CON_NO = C.CON_NO AND LNC_STS = 'A' AND CON_CUST_NO = {id}
-            //                ORDER BY CON_DATE
-            //                ";
-            var reader = oracle.SqlQuery(cmd);
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("cust_no", id));
+            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getContract, parameter);
+            //var reader = oracle.SqlQuery(cmd);
             while (reader.Read())
             {
                 data.Add(new Contract
@@ -115,10 +101,13 @@ namespace DeMobile.Services
         public Customer getProfileByPhoneNO(string phone)
         {
             oracle = new Database();
-            string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
-                            FROM CUSTOMER 
-                            WHERE TEL = '{phone}'";
-            var reader = oracle.SqlQuery(cmd);
+            //string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
+            //                FROM CUSTOMER 
+            //                WHERE TEL = '{phone}'";
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("tel", phone));
+            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getProfileByPhone, parameter);
+            //var reader = oracle.SqlQuery(cmd);
             reader.Read();
             if (reader.HasRows)
             {
@@ -143,10 +132,13 @@ namespace DeMobile.Services
         public Customer getProfileByCitizenNo(string citizen)
         {
             oracle = new Database();
-            string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
-                            FROM CUSTOMER 
-                            WHERE CITIZEN_NO = '{citizen}'";
-            var reader = oracle.SqlQuery(cmd);
+            //string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
+            //                FROM CUSTOMER 
+            //                WHERE CITIZEN_NO = '{citizen}'";
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("citizen_no", citizen));
+            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getProfileByCitizen, parameter);
+            //var reader = oracle.SqlQuery(cmd);
             reader.Read();
             if (reader.HasRows)
             {
@@ -168,11 +160,13 @@ namespace DeMobile.Services
                 return null;
             }
         }
-        public bool checkCurrentDevice(Register regis)
+        public bool checkCurrentDevice(string id)
         {
             oracle = new Database();
-            string cmd = $@"SELECT * FROM MPAY020 WHERE DEVICE_ID = '{regis.device_id}'";
-            var reader = oracle.SqlQuery(cmd);
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("device_id", id));
+            var reader = oracle.SqlQueryWithParams(SqlCmd.User.checkCurrentDevice, parameter);
+            //var reader = oracle.SqlQuery(cmd);
             reader.Read();
             return reader.HasRows;
         }
@@ -187,13 +181,10 @@ namespace DeMobile.Services
         public Customer getProfileById(int id)
         {
             oracle = new Database();
-            string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
-                            FROM   CUSTOMER
-                            WHERE  CUST_NO = {id}";
-            //string cmd = $@"SELECT CUST_NO, CUST_FIRSTNAME||' '||CUST_LASTNAME CUST_NAME, CUST_CITIZEN_NO CITIZEN_NO, TEL_SMS TEL
-            //                FROM   CUSTOMER
-            //                WHERE  CUST_NO = {id}";
-            var reader = oracle.SqlQuery(cmd);
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("cust_no", id));
+            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getProfileById, parameter);
+            //var reader = oracle.SqlQuery(cmd);
             reader.Read();
             if (reader.HasRows)
             {

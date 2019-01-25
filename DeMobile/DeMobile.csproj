@@ -224,6 +224,8 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Concrete\Constants.cs" />
     <Compile Include="Concrete\Database.cs" />
+    <Compile Include="Concrete\SqlCmd.cs" />
+    <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Services\Notification.cs" />
     <Compile Include="Services\Security.cs" />
     <Compile Include="Controllers\AuthenticationController.cs" />

@@ -24,6 +24,12 @@ namespace DeMobile.Models.AppModel
         public string STATUS { get; set; }
     }
 
+    public class ConfirmOTP
+    {
+        public int cust_no { get; set; }
+        public string otp { get; set; }
+    }
+
     public class LineNoti
     {
         public List<string> to { get; set; }

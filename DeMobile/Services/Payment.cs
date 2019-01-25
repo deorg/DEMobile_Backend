@@ -77,8 +77,8 @@ namespace DeMobile.Services
         {
             oracle = new Database();
             List<ChannelCode> data = new List<ChannelCode>();
-            string cmd = $@"SELECT * FROM MPAY010";
-            var reader = oracle.SqlQuery(cmd);
+            //string cmd = $@"SELECT * FROM MPAY010";
+            var reader = oracle.SqlQuery(SqlCmd.Payment.getChannelCode);
             while (reader.Read())
             {
                 data.Add(new ChannelCode
@@ -170,7 +170,23 @@ namespace DeMobile.Services
                     {
                         Console.WriteLine(response.Result.Content.ReadAsStringAsync().Result);
                         responseObj = JsonConvert.DeserializeObject<PaymentRes>(response.Result.Content.ReadAsStringAsync().Result);
-                        saveTransaction(responseObj);
+                        var lastTransaction = saveTransaction(responseObj);
+                        if(responseObj.Status == 0 && responseObj.Code == 200)
+                            updateStatusOrder(lastOrder, "ACT");
+                        if(responseObj.Status != 0)
+                        {
+                            if (responseObj.Status == 1)
+                                updateStatusOrder(lastOrder, "FAL");
+                            else 
+                                updateStatusOrder(lastOrder, "ERR");
+                        }
+                        if(responseObj.Code != 200)
+                        {
+                            if (responseObj.Code < 2007)
+                                updateStatusOrder(lastOrder, "CAN");
+                            else
+                                updateStatusOrder(lastOrder, "ERR");
+                        }
                         return responseObj;
                     }
                     else
@@ -239,13 +255,22 @@ namespace DeMobile.Services
                 return sb.ToString();
             }
         }
+        public void updateStatusOrder(int order_no, string status)
+        {
+            oracle = new Database();
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("order_no", order_no));
+            parameter.Add(new OracleParameter("status", status));
+            oracle.SqlExecuteWithParams(SqlCmd.Payment.setStatusOrder, parameter);
+            oracle.OracleDisconnect();
+        }
         public int createOrder(PaymentReq value, string ip)
         {
             try
             {
                 oracle = new Database();
-                string cmd = $@"INSERT INTO  MPAY100(CUST_NO, CON_NO, DEVICE_ID, CHANNEL_ID, PAY_AMT, TEL, IP_ADDR, DESCRIPTION)
-                                VALUES(:custId, :contractNo, :deviceId, :channelCode, :amount, :phone, :ip, :description) RETURNING ORDER_NO INTO :order_no";
+                //string cmd = $@"INSERT INTO  MPAY100(CUST_NO, CON_NO, DEVICE_ID, CHANNEL_ID, PAY_AMT, TEL, IP_ADDR, DESCRIPTION)
+                //                VALUES(:custId, :contractNo, :deviceId, :channelCode, :amount, :phone, :ip, :description) RETURNING ORDER_NO INTO :order_no";
                 List<OracleParameter> parameter = new List<OracleParameter>();
                 parameter.Add(new OracleParameter("custId", value.CustomerId));
                 parameter.Add(new OracleParameter("contractNo", value.ContractNo));
@@ -261,8 +286,10 @@ namespace DeMobile.Services
                     OracleDbType = OracleDbType.Int32,
                     Direction = ParameterDirection.Output
                 });
-                var resInsert = oracle.SqlExecuteWithParams(cmd, parameter);
+                var resInsert = oracle.SqlExecuteWithParams(SqlCmd.Payment.createOrder, parameter);
+                //var resInsert = oracle.SqlExecuteWithParams(cmd, parameter);
                 var lastOrder = Int32.Parse(resInsert.Parameters["order_no"].Value.ToString());
+                resInsert.Dispose();
                 oracle.OracleDisconnect();
                 return lastOrder;
             }
@@ -280,8 +307,8 @@ namespace DeMobile.Services
                 oracle = new Database();
                 var createDate = DateTime.ParseExact(value.CreatedDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
                 var expireDate = DateTime.ParseExact(value.ExpiredDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
-                string cmd = $@"INSERT INTO MPAY110(TRANS_NO, ORDER_NO, CUST_NO, CHANNEL_ID, REQ_STATUS_ID, TRANS_STATUS_ID, PAY_AMT, RETURN_URL, PAYMENT_URL, IP_ADDR, TOKEN, CREATED_TIME, EXPIRE_TIME)
-                                VALUES(:transNo, :orderNo, :custNo, :channelId, :reqStatus, :tranStatus, :amount, :returnUrl, :paymentUrl, :ip, :token, :createTime, :expireTime) RETURNING TRANS_NO INTO :trans_no";
+                //string cmd = $@"INSERT INTO MPAY110(TRANS_NO, ORDER_NO, CUST_NO, CHANNEL_ID, REQ_STATUS_ID, TRANS_STATUS_ID, PAY_AMT, RETURN_URL, PAYMENT_URL, IP_ADDR, TOKEN, CREATED_TIME, EXPIRE_TIME)
+                //                VALUES(:transNo, :orderNo, :custNo, :channelId, :reqStatus, :tranStatus, :amount, :returnUrl, :paymentUrl, :ip, :token, :createTime, :expireTime) RETURNING TRANS_NO INTO :trans_no";
                 List<OracleParameter> parameter = new List<OracleParameter>();
                 parameter.Add(new OracleParameter("transNo", value.TransactionId));
                 parameter.Add(new OracleParameter("orderNo", Int32.Parse(value.OrderNo)));
@@ -302,10 +329,16 @@ namespace DeMobile.Services
                     OracleDbType = OracleDbType.Int32,
                     Direction = ParameterDirection.Output
                 });
-                var resInsert = oracle.SqlExecuteWithParams(cmd, parameter);
-                var lastOrder = Int32.Parse(resInsert.Parameters["trans_no"].Value.ToString());
+                var resInsert = oracle.SqlExecuteWithParams(SqlCmd.Payment.saveTransaction, parameter);
+                //var resInsert = oracle.SqlExecuteWithParams(cmd, parameter);
+                var lastTransaction = Int32.Parse(resInsert.Parameters["trans_no"].Value.ToString());
+                //parameter.Clear();
+                //parameter.Add(new OracleParameter("order_no", value.OrderNo));
+                //oracle.SqlExecuteWithParams(SqlCmd.Payment.setActiveOrder, parameter);
+
+                resInsert.Dispose();
                 oracle.OracleDisconnect();
-                return lastOrder;
+                return lastTransaction;
             }
             catch (Exception e)
             {
