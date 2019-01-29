@@ -85,13 +85,13 @@ namespace DeMobile.Controllers
                 return InternalServerError(e.InnerException);
             }
         }
-        [Route("api/payment/notify")]
-        public IHttpActionResult PostSendMessage([FromBody]NotifyPayment value)
-        {
-            TransactionHub hub = new TransactionHub();
-            hub.SendMessage(value.connectionId, value.success);
-            return Json(new { result = "sent" });
-        }
+        //[Route("api/payment/notify")]
+        //public IHttpActionResult PostSendMessage([FromBody]NotifyPayment value)
+        //{
+        //    TransactionHub hub = new TransactionHub();
+        //    hub.SendMessage(value.connectionId, value.success);
+        //    return Json(new { result = "sent" });
+        //}
         [Route("api/payment/notify/chillpay")]
         public IHttpActionResult PostNotifyChillpay([FromBody]PaymentStatusRes value)
         {

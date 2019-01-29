@@ -30,6 +30,14 @@ namespace DeMobile.Models.AppModel
         public string otp { get; set; }
     }
 
+    public class Notification
+    {
+        public string type { get; set; }
+        public List<string> connectId { get; set; }
+        public string message { get; set; }
+        public DateTime created_time { get; set; }
+    }
+
     public class LineNoti
     {
         public List<string> to { get; set; }

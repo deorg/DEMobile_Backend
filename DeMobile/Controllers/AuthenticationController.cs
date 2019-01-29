@@ -20,21 +20,21 @@ namespace DeMobile.Controllers
                 {
                     var currentDevice = cust.checkCurrentDevice(data.device_id);
                     if (currentDevice)
-                        return BadRequest("This device already has been registered!");
+                        return Ok(new { code = 400, message = "เครื่องนี้ได้รับการลงทะเบียนแล้ว!", data = result});
                     else
                     {
                         var resInset = cust.registerDevice(data, result.CUST_NO);
                         //Notification otp = new Notification();
                         //otp.sendOTP(result.CUST_NO);
-                        return Ok();
+                        return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
                     }
                 }
                 else
-                    return BadRequest("Not found customer!");
+                    return Ok(new { code = 400, message = "ไม่พบข้อมูลค้า!", data = result });
             }
             catch (Exception e)
             {
-                return Json(e.Message);
+                return Ok(new { code = 500, message = e.Message });
             }
         }
         [Route("api/customer/profile")]

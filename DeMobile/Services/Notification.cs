@@ -25,7 +25,7 @@ namespace DeMobile.Services
                 //                //WHERE SMS020_PK = (SELECT MAX(SMS020_PK) FROM SMS020 WHERE CUST_NO = {cust_no})";
                 List<OracleParameter> parameter = new List<OracleParameter>();
                 parameter.Add(new OracleParameter("cust_no", cust_no));
-                var reader = oracle.SqlQueryWithParams(SqlCmd.Notification.findLastOTP, parameter);
+                var reader = oracle.SqlQueryWithParams(SqlCmd.Notification.findLastOtp, parameter);
                 reader.Read();
                 if (reader.HasRows)
                 {
@@ -36,7 +36,7 @@ namespace DeMobile.Services
                         //cmd = $@"UPDATE SMS020 SET STATUS = 'EXP' WHERE SMS020_PK = {smsPk}";
                         parameter.Clear();
                         parameter.Add(new OracleParameter("sms020pk", smsPk));
-                        var res = oracle.SqlExecuteWithParams(SqlCmd.Notification.updateStatusOTP, parameter);
+                        var res = oracle.SqlExecuteWithParams(SqlCmd.Notification.updateStatusOtp, parameter);
                     }
                     Security code = new Security();
                     var otp = code.generateOTP();
@@ -47,7 +47,7 @@ namespace DeMobile.Services
                     parameter.Add(new OracleParameter("otp", otp));
                     parameter.Add(new OracleParameter("refCode", refCode));
                     parameter.Add(new OracleParameter("expireTime", expireTime));
-                    oracle.SqlExecuteWithParams(SqlCmd.Notification.newOTP, parameter);
+                    oracle.SqlExecuteWithParams(SqlCmd.Notification.newOtp, parameter);
                     reader.Dispose();
                     oracle.OracleDisconnect();
                     return refCode;
@@ -63,7 +63,7 @@ namespace DeMobile.Services
                     parameter.Add(new OracleParameter("otp", otp));
                     parameter.Add(new OracleParameter("refCode", refCode));
                     parameter.Add(new OracleParameter("expireTime", expireTime));
-                    oracle.SqlExecuteWithParams(SqlCmd.Notification.newOTP, parameter);
+                    oracle.SqlExecuteWithParams(SqlCmd.Notification.newOtp, parameter);
                     reader.Dispose();
                     oracle.OracleDisconnect();
                     return refCode;
@@ -77,7 +77,7 @@ namespace DeMobile.Services
             List<OracleParameter> parameter = new List<OracleParameter>();
             parameter.Add(new OracleParameter("cust_no", cust_no));
             parameter.Add(new OracleParameter("otp", otp));
-            var reader = oracle.SqlQueryWithParams(SqlCmd.Notification.confirmOTP, parameter);
+            var reader = oracle.SqlQueryWithParams(SqlCmd.Notification.confirmOtp, parameter);
             reader.Read();
             if (reader.HasRows)
             {
@@ -88,7 +88,7 @@ namespace DeMobile.Services
                 string status = (string)reader["STATUS"];
                 parameter.Clear();
                 parameter.Add(new OracleParameter("sms020pk", smsPK));
-                oracle.SqlExecuteWithParams(SqlCmd.Notification.setExpireOTP, parameter);
+                oracle.SqlExecuteWithParams(SqlCmd.Notification.setExpireOtp, parameter);
                 reader.Dispose();
                 oracle.OracleDisconnect();
                 if (cust_no != _custNo)

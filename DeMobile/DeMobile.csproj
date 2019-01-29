@@ -251,7 +251,6 @@
     <Compile Include="Models\Report\MonthlyMeeting.cs" />
     <Compile Include="Models\PaymentGateway\PaymentReq.cs" />
     <Compile Include="Models\PaymentGateway\PaymentRes.cs" />
-    <Compile Include="Models\SendMessage.cs" />
     <Compile Include="Models\SignalrClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">

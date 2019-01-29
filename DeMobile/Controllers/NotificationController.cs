@@ -1,4 +1,4 @@
-﻿using DeMobile.Models.AppModel;
+﻿//using DeMobile.Models.AppModel;
 using DeMobile.Services;
 using System;
 using System.Collections.Generic;
@@ -28,7 +28,7 @@ namespace DeMobile.Controllers
             }
         }
         [Route("api/sms/confirmOtp")]
-        public IHttpActionResult PostConfirmOTP([FromBody]ConfirmOTP value)
+        public IHttpActionResult PostConfirmOTP([FromBody]Models.AppModel.ConfirmOTP value)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid parameter!");
