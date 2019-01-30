@@ -11,12 +11,15 @@ namespace DeMobile.Concrete
         {
             public const string getSms = "SELECT SMS010_PK, CON_NO, SMS_NOTE, SMS_TIME FROM SMS010 WHERE CUST_NO = :cust_no";
             public const string getContract = "SELECT CON_NO, CUST_NO, TOT_AMT, PAY_AMT, PERIOD, BAL_AMT, CON_DATE, DISC_AMT FROM CONTRACT WHERE CUST_NO = :cust_no ORDER BY CON_DATE";
+            public const string findContract = "SELECT * FROM CONTRACT WHERE CUST_NO = :cust_no AND CON_NO = :con_no";
             public const string getContractPayment = "SELECT LNC_NO CON_NO, LNL_PAY_DATE PAY_DATE, LNL_PAY_AMT PAY_AMT FROM VW_LOAN_LEDGER_CO WHERE LNC_NO = :lnc_no ORDER BY LNL_SEQ DESC";
             public const string getProfileByPhone = "SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL FROM CUSTOMER WHERE TEL = :tel";
             public const string getProfileByCitizen = "SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL FROM CUSTOMER WHERE CITIZEN_NO = :citizen_no";
             public const string getProfileById = "SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL FROM CUSTOMER WHERE CUST_NO = :cust_no";
             public const string registerNewDevice = "INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS) VALUES(:device_id, :cust_no, 'ACT')";
             public const string checkCurrentDevice = "SELECT * FROM MPAY020 WHERE DEVICE_ID = :device_id";
+            public const string getDeviceByStatus = "SELECT * FROM MPAY020 WHERE DEVICE_STATUS = :status";
+            public const string getDeviceByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no";
         }
         public static class Payment
         {
@@ -34,6 +37,12 @@ namespace DeMobile.Concrete
             public const string confirmOtp = "SELECT * FROM SMS020 WHERE CUST_NO = :cust_no AND OTP = :otp";
             public const string setExpireOtp = "UPDATE SMS020 SET STATUS = 'EXP' WHERE SMS020_PK = :sms020pk";        
             public const string updateConnectId = "UPDATE MPAY020 SET CONN_ID = :conn_id WHERE DEVICE_ID = :device_id";
+            public const string createNotification = "INSERT INTO SMS030(TYPE, TITLE, CONTENT, CUST_NO) VALUES(:type, :title, :content, :cust_no)";
+            public const string getNotification = "SELECT * FROM SMS030 WHERE CUST_NO = :cust_no";
+        }
+        public static class Log
+        {
+            public const string logReq = "INSERT INTO MPAY200(NOTE, CUST_NO, DEVICE_ID, IP_ADDR, URL) VALUES(:note, :cust_no, :device_id, :ip_addr, :url)";
         }
     }
 }

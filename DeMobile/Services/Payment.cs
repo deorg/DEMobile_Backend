@@ -84,7 +84,8 @@ namespace DeMobile.Services
                 data.Add(new ChannelCode
                 {
                     CHANNEL_ID = (string)reader["CHANNEL_ID"],
-                    CHANNEL_NAME = (string)reader["CHANNEL_NAME"]
+                    CHANNEL_NAME = (string)reader["CHANNEL_NAME"],
+                    CHANNEL_IMG = (string)reader["CHANNEL_IMG"]
                 });
             }
             if (data.Count == 0)
@@ -99,11 +100,11 @@ namespace DeMobile.Services
         }
         public void sendMessageToLine()
         {
-            LineNoti msg = new LineNoti();
+            m_LineNoti msg = new m_LineNoti();
             List<string> to = new List<string>();
-            List<LineMessage> lmsg = new List<LineMessage>();
+            List<m_LineMessage> lmsg = new List<m_LineMessage>();
             to.Add("U7c8a8a90f9727517c12e2bec78288fb3");
-            lmsg.Add(new LineMessage { type = "text", text = "test" });
+            lmsg.Add(new m_LineMessage { type = "text", text = "test" });
             msg.to = to;
             msg.messages = lmsg;
             

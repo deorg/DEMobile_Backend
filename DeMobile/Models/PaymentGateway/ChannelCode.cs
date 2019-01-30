@@ -9,5 +9,6 @@ namespace DeMobile.Models.PaymentGateway
     {
         public string CHANNEL_ID { get; set; }
         public string CHANNEL_NAME { get; set; }
+        public string CHANNEL_IMG { get; set; }
     }
 }

@@ -37,7 +37,7 @@ namespace DeMobile.Hubs
         {
             user = new User();
             var hasDevice = user.checkCurrentDevice(device_id);
-            if (hasDevice)
+            if (hasDevice != null)
             {
                 var connectId = Context.ConnectionId;
                 oracle = new Database();
@@ -48,11 +48,11 @@ namespace DeMobile.Hubs
                 oracle.OracleDisconnect();
             }
         }
-        //public void sendMessage(string type, List<string> connectId, string message)
-        //{
-        //    var context = GlobalHost.ConnectionManager.GetHubContext<TransactionHub>();
-        //    context.Clients.Clients(connectId).Notify()
-        //}
+        public void sendMessage(string type, List<string> connectId, string title, string message)
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext<TransactionHub>();
+            context.Clients.Clients(connectId).Notify(new { title = title, message = message});
+        }
         //public void SendMessage(string connectionId, bool status)
         //{
         //    var context = GlobalHost.ConnectionManager.GetHubContext<TransactionHub>();

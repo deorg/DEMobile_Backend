@@ -27,22 +27,35 @@ namespace DeMobile.Controllers
         //    else
         //        return Json(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
         //}
+        User user;
         [Route("api/payment/newpayment2")]
         public IHttpActionResult PostNewPayment2([FromBody]PaymentReq value)
         {
-            string IPAddress = HttpContext.Current.Request.UserHostAddress;
-            //value.OrderNo = "test001";
-            value.Description = "testAPI";
-            Payment payment = new Payment();
-            if (!ModelState.IsValid)
-                return BadRequest("Invalid parameter!");
             try
             {
-                PaymentRes res = payment.createPayment(value, IPAddress);
-                if (res == null)
-                    return Json(new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
-                else
-                    return Json(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
+                string IPAddress = HttpContext.Current.Request.UserHostAddress;
+                //value.OrderNo = "test001";
+                value.Description = "testAPI";
+                if (!ModelState.IsValid)
+                    return BadRequest("Invalid parameter!");
+                user = new User();
+                var cust = user.getProfileById(value.CustomerId);
+                if (cust != null)
+                {
+                    var contract = user.findContract(value.CustomerId, value.ContractNo);
+                    if (contract != null)
+                    {
+                        Payment payment = new Payment();
+                        PaymentRes res = payment.createPayment(value, IPAddress);
+                        if (res == null)
+                            return Ok(new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
+                        else
+                            return Ok(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
+                    }
+                    else
+                        return Ok(new { request_status = "FAILURE", desc = "Not found contract!", data = contract });
+                }
+                return Ok(new { request_status = "FAILURE", desc = "Not found customer?", data = cust });
             }
             catch(Exception e)
             {
@@ -78,7 +91,7 @@ namespace DeMobile.Controllers
             {
                 Payment payment = new Payment();
                 var banks = payment.getChanneCode();
-                return Json(new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
+                return Ok(new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
             }
             catch(Exception e)
             {

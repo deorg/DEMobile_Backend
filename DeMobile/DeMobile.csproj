@@ -226,6 +226,8 @@
     <Compile Include="Concrete\Database.cs" />
     <Compile Include="Concrete\SqlCmd.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
+    <Compile Include="Models\AppModel\m_LogReq.cs" />
+    <Compile Include="Services\Log.cs" />
     <Compile Include="Services\Notification.cs" />
     <Compile Include="Services\Security.cs" />
     <Compile Include="Controllers\AuthenticationController.cs" />
@@ -239,10 +241,9 @@
     </Compile>
     <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\TransactionHub.cs" />
-    <Compile Include="Models\AppModel\Contract.cs" />
-    <Compile Include="Models\AppModel\Customer.cs" />
-    <Compile Include="Models\AppModel\Notification.cs" />
-    <Compile Include="Models\AppModel\ConPayment.cs" />
+    <Compile Include="Models\AppModel\m_Contract.cs" />
+    <Compile Include="Models\AppModel\m_Customer.cs" />
+    <Compile Include="Models\AppModel\m_Notification.cs" />
     <Compile Include="Models\AppModel\Register.cs" />
     <Compile Include="Models\DataRepository.cs" />
     <Compile Include="Models\PaymentGateway\ChannelCode.cs" />
@@ -272,6 +273,11 @@
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
+    <Content Include="Images\Banks\bk.png" />
+    <Content Include="Images\Banks\kb.png" />
+    <Content Include="Images\Banks\krungsri.png" />
+    <Content Include="Images\Banks\ktb.png" />
+    <Content Include="Images\Banks\scb.png.png" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Areas\HelpPage\Views\Web.config" />

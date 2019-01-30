@@ -14,6 +14,47 @@ namespace DeMobile.Services
         private User _user;
         private Database oracle;
 
+        public void createNoti(string type, string title, string content, int cust_no)
+        {
+            oracle = new Database();
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("type", type));
+            parameter.Add(new OracleParameter("title", title));
+            parameter.Add(new OracleParameter("content", content));
+            parameter.Add(new OracleParameter("cust_no", cust_no));
+            oracle.SqlExecuteWithParams(SqlCmd.Notification.createNotification, parameter);
+            oracle.OracleDisconnect();
+        }
+        public List<m_Notification> getNotification(int cust_no)
+        {
+            oracle = new Database();
+            List<m_Notification> data = new List<m_Notification>();
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("cust_no", cust_no));
+            var reader = oracle.SqlQueryWithParams(SqlCmd.Notification.getNotification, parameter);
+            while (reader.Read())
+            {
+                data.Add(new m_Notification
+                {
+                    id = Int32.Parse(reader["SMS030_PK"].ToString()),
+                    type = (string)reader["TYPE"],
+                    title = (string)reader["TITLE"],
+                    content = (string)reader["CONTENT"],
+                    read = Int32.Parse(reader["READ"].ToString()) == 0 ? false : true,
+                    cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
+                    created_time = (DateTime)reader["CREATED_TIME"]
+                });
+            }
+            if (data.Count == 0)
+            {
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return null;
+            }
+            reader.Dispose();
+            oracle.OracleDisconnect();
+            return data;
+        }
         public string sendOTP(int cust_no)
         {
             _user = new User();

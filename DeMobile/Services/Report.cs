@@ -36,7 +36,6 @@ namespace DeMobile.Services
                             GROUP BY BRH_ID, MDATE
                             ORDER BY BRH_ID";
             var reader = oracle.SqlQuery(cmd);
-            reader.Read();
             while (reader.Read())
             {
                 data.Add(new MonthlyMeeting

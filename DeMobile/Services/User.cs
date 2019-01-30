@@ -11,17 +11,17 @@ namespace DeMobile.Services
     public class User
     {
         private Database oracle;
-        public List<SMS010> getNotification(int id)
+        public List<m_SMS010> getNotification(int id)
         {
             oracle = new Database();
-            List<SMS010> data = new List<SMS010>();
+            List<m_SMS010> data = new List<m_SMS010>();
             List<OracleParameter> parameter = new List<OracleParameter>();
             parameter.Add(new OracleParameter("cust_no", id));
             //var reader = oracle.SqlQuery(cmd);
             var reader = oracle.SqlQueryWithParams(SqlCmd.User.getSms, parameter);
             while (reader.Read())
             {
-                data.Add(new SMS010
+                data.Add(new m_SMS010
                 {
                     SMS010_PK = Int32.Parse(reader["SMS010_PK"].ToString()),
                     CON_NO = (string)reader["CON_NO"],
@@ -39,10 +39,10 @@ namespace DeMobile.Services
             oracle.OracleDisconnect();
             return data;
         }
-        public List<ConPayment> getPayment(string no)
+        public List<m_ConPayment> getPayment(string no)
         {
             oracle = new Database();
-            List<ConPayment> data = new List<ConPayment>();
+            List<m_ConPayment> data = new List<m_ConPayment>();
             string cmd = $@"SELECT LNC_NO CON_NO, LNL_PAY_DATE PAY_DATE, LNL_PAY_AMT PAY_AMT
                             FROM   VW_LOAN_LEDGER_CO
                             WHERE  LNC_NO = '{no}'
@@ -50,7 +50,8 @@ namespace DeMobile.Services
             var reader = oracle.SqlQuery(cmd);
             while (reader.Read())
             {
-                data.Add(new ConPayment {
+                data.Add(new m_ConPayment
+                {
                     CON_NO = (string)reader["CON_NO"],
                     PAY_DATE = (DateTime)reader["PAY_DATE"],
                     PAY_AMT = Int32.Parse(reader["PAY_AMT"].ToString())
@@ -66,17 +67,49 @@ namespace DeMobile.Services
             oracle.OracleDisconnect();
             return data;
         }
-        public List<Contract> getContract(int id)
+        public m_Contract findContract(int cust_no, string con_no)
         {
             oracle = new Database();
-            List<Contract> data = new List<Contract>();
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("cust_no", cust_no));
+            parameter.Add(new OracleParameter("con_no", con_no));
+            var reader = oracle.SqlQueryWithParams(SqlCmd.User.findContract, parameter);
+            reader.Read();
+            if (reader.HasRows)
+            {
+                var data = new m_Contract
+                {
+                    CON_NO = (string)reader["CON_NO"],
+                    CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                    TOT_AMT = Int32.Parse(reader["TOT_AMT"].ToString()),
+                    PAY_AMT = Int32.Parse(reader["PAY_AMT"].ToString()),
+                    PERIOD = Int32.Parse(reader["PERIOD"].ToString()),
+                    BAL_AMT = Int32.Parse(reader["BAL_AMT"].ToString()),
+                    CON_DATE = (DateTime)reader["CON_DATE"],
+                    DISC_AMT = Int32.Parse(reader["DISC_AMT"].ToString())
+                };
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return data;
+            }
+            else
+            {
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return null;
+            }
+        }
+        public List<m_Contract> getContract(int id)
+        {
+            oracle = new Database();
+            List<m_Contract> data = new List<m_Contract>();
             List<OracleParameter> parameter = new List<OracleParameter>();
             parameter.Add(new OracleParameter("cust_no", id));
             var reader = oracle.SqlQueryWithParams(SqlCmd.User.getContract, parameter);
             //var reader = oracle.SqlQuery(cmd);
             while (reader.Read())
             {
-                data.Add(new Contract
+                data.Add(new m_Contract
                 {
                     CON_NO = (string)reader["CON_NO"],
                     CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
@@ -98,7 +131,7 @@ namespace DeMobile.Services
             oracle.OracleDisconnect();
             return data;
         }
-        public Customer getProfileByPhoneNO(string phone)
+        public m_Customer getProfileByPhoneNO(string phone)
         {
             oracle = new Database();
             //string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
@@ -111,7 +144,7 @@ namespace DeMobile.Services
             reader.Read();
             if (reader.HasRows)
             {
-                var data = new Customer
+                var data = new m_Customer
                 {
                     CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
                     CUST_NAME = (string)reader["CUST_NAME"],
@@ -129,7 +162,7 @@ namespace DeMobile.Services
                 return null;
             }
         }
-        public Customer getProfileByCitizenNo(string citizen)
+        public m_Customer getProfileByCitizenNo(string citizen)
         {
             oracle = new Database();
             //string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
@@ -142,7 +175,7 @@ namespace DeMobile.Services
             reader.Read();
             if (reader.HasRows)
             {
-                var data = new Customer
+                var data = new m_Customer
                 {
                     CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
                     CUST_NAME = (string)reader["CUST_NAME"],
@@ -160,7 +193,7 @@ namespace DeMobile.Services
                 return null;
             }
         }
-        public bool checkCurrentDevice(string id)
+        public m_device checkCurrentDevice(string id)
         {
             oracle = new Database();
             List<OracleParameter> parameter = new List<OracleParameter>();
@@ -168,9 +201,84 @@ namespace DeMobile.Services
             var reader = oracle.SqlQueryWithParams(SqlCmd.User.checkCurrentDevice, parameter);
             //var reader = oracle.SqlQuery(cmd);
             reader.Read();
-            return reader.HasRows;
+            if (reader.HasRows)
+            {
+                var data = new m_device
+                {
+                    device_id = (string)reader["DEVICE_ID"],
+                    cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
+                    conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
+                    device_status = (string)reader["DEVICE_STATUS"],
+                    created_time = (DateTime)reader["CREATED_TIME"]
+                };
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return data;
+            }
+            else
+            {
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return null;
+            }
         }
-        public int registerDevice(Register regis, int cust_no)
+        public m_device getDeviceByCustNo(int cust_no)
+        {
+            oracle = new Database();
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("cust_no", cust_no));
+            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getDeviceByCustNo, parameter);
+            reader.Read();
+            if (reader.HasRows)
+            {
+                var data = new m_device
+                {
+                    device_id = (string)reader["DEVICE_ID"],
+                    cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
+                    conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
+                    device_status = (string)reader["DEVICE_STATUS"],
+                    created_time = (DateTime)reader["CREATED_TIME"]
+                };
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return data;
+            }
+            else
+            {
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return null;
+            }
+        }
+        public List<m_device> getDeviceByStatus(string status)
+        {
+            oracle = new Database();
+            List<m_device> data = new List<m_device>();
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("status", status));
+            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getDeviceByStatus, parameter);
+            while (reader.Read())
+            {
+                data.Add(new m_device
+                {
+                    device_id = (string)reader["DEVICE_ID"],
+                    cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
+                    conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
+                    device_status = (string)reader["DEVICE_STATUS"],
+                    created_time = (DateTime)reader["CREATED_TIME"]
+                });
+            }
+            if(data.Count == 0)
+            {
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return null;
+            }
+            reader.Dispose();
+            oracle.OracleDisconnect();
+            return data;
+        }
+        public int registerDevice(m_Register regis, int cust_no)
         {
             oracle = new Database();
             string cmd = $@"INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS) VALUES('{regis.device_id}', {cust_no}, 'ACT')";
@@ -178,7 +286,7 @@ namespace DeMobile.Services
             oracle.OracleDisconnect();
             return result;
         }
-        public Customer getProfileById(int id)
+        public m_Customer getProfileById(int id)
         {
             oracle = new Database();
             List<OracleParameter> parameter = new List<OracleParameter>();
@@ -188,7 +296,7 @@ namespace DeMobile.Services
             reader.Read();
             if (reader.HasRows)
             {
-                var data = new Customer
+                var data = new m_Customer
                 {
                     CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
                     CUST_NAME = (string)reader["CUST_NAME"],
