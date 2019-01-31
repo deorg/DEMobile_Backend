@@ -96,13 +96,16 @@ namespace DeMobile.Controllers
         public IHttpActionResult GetNotification(int cust_no)
         {
             Notification noti = new Notification();
+            MonitorHub monitor = new MonitorHub();
             try
-            {
+            {      
                 var notis = noti.getNotification(cust_no);
+                monitor.sendMessage(new { cust_no = cust_no }, notis);
                 return Ok(notis);
             }
             catch (Exception e)
             {
+                monitor.sendMessage(new { cust_no = cust_no }, new { Message = e.Message });
                 return InternalServerError(e.InnerException);
             }
         }

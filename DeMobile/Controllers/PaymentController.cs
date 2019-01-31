@@ -1,5 +1,6 @@
 ﻿using DeMobile.Hubs;
 using DeMobile.Models;
+using DeMobile.Models.AppModel;
 using DeMobile.Models.PaymentGateway;
 using DeMobile.Services;
 using System;
@@ -28,14 +29,18 @@ namespace DeMobile.Controllers
         //        return Json(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
         //}
         User user;
+        MonitorHub monitor = new MonitorHub();
+        Log log = new Log();
+        m_LogReq mlog;
         [Route("api/payment/newpayment2")]
         public IHttpActionResult PostNewPayment2([FromBody]PaymentReq value)
         {
+            string IPAddress = HttpContext.Current.Request.UserHostAddress;
             try
-            {
-                string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            {             
                 //value.OrderNo = "test001";
                 value.Description = "testAPI";
+                mlog = new m_LogReq();
                 if (!ModelState.IsValid)
                     return BadRequest("Invalid parameter!");
                 user = new User();
@@ -48,17 +53,52 @@ namespace DeMobile.Controllers
                         Payment payment = new Payment();
                         PaymentRes res = payment.createPayment(value, IPAddress);
                         if (res == null)
+                        {
+                            mlog.cust_no = value.CustomerId;
+                            mlog.device_id = value.DeviceId;
+                            mlog.ip_addr = IPAddress;
+                            mlog.note = "ระบบขัดข้อง ไม่สามารถทำรายการได้";
+                            mlog.url = "api/authen/newpayment2";
+                            log.logRequest(mlog);
+                            monitor.sendMessage(value, new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
                             return Ok(new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
+                        }
                         else
+                        {
+                            monitor.sendMessage(value, new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
                             return Ok(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
+                        }
                     }
                     else
+                    {
+                        mlog.cust_no = value.CustomerId;
+                        mlog.device_id = value.DeviceId;
+                        mlog.ip_addr = IPAddress;
+                        mlog.note = "ไม่พบสัญญาของลูกค้า";
+                        mlog.url = "api/authen/newpayment2";
+                        log.logRequest(mlog);
+                        monitor.sendMessage(value, new { request_status = "FAILURE", desc = "Not found contract!", data = contract });
                         return Ok(new { request_status = "FAILURE", desc = "Not found contract!", data = contract });
+                    }
                 }
-                return Ok(new { request_status = "FAILURE", desc = "Not found customer?", data = cust });
+                mlog.cust_no = value.CustomerId;
+                mlog.device_id = value.DeviceId;
+                mlog.ip_addr = IPAddress;
+                mlog.note = "ไม่พบข้อมูลลูกค้า";
+                mlog.url = "api/authen/newpayment2";
+                log.logRequest(mlog);
+                monitor.sendMessage(value, new { request_status = "FAILURE", desc = "Not found customer!", data = cust });
+                return Ok(new { request_status = "FAILURE", desc = "Not found customer!", data = cust });
             }
             catch(Exception e)
             {
+                mlog.cust_no = value.CustomerId;
+                mlog.device_id = value.DeviceId;
+                mlog.ip_addr = IPAddress;
+                mlog.note = e.Message;
+                mlog.url = "api/authen/newpayment2";
+                log.logRequest(mlog);
+                monitor.sendMessage(value, new { request_status = "FAILURE", Message = e.Message });
                 return InternalServerError(e.InnerException);
             }
         }
@@ -73,6 +113,10 @@ namespace DeMobile.Controllers
             }
             catch(Exception e)
             {
+                mlog.note = e.Message;
+                mlog.url = "api/authen/newpayment2";
+                log.logRequest(mlog);
+                monitor.sendMessage(new { trans_no = trans_no }, new { request_status = "FAILURE", Message = e.Message });
                 return InternalServerError(e.InnerException);
             }
         }
@@ -81,8 +125,9 @@ namespace DeMobile.Controllers
         {
             //string date = "20180712173122";
             //var newDate = DateTime.ParseExact(date, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
-            Payment payment = new Payment();
-            return Ok(payment.testSaveDate());
+            return Ok(DateTime.Now.ToShortTimeString());
+            //Payment payment = new Payment();
+            //return Ok(payment.testSaveDate());
         }
         [Route("api/payment/getchannel")]
         public IHttpActionResult GetBankCode()
@@ -91,6 +136,7 @@ namespace DeMobile.Controllers
             {
                 Payment payment = new Payment();
                 var banks = payment.getChanneCode();
+                monitor.sendMessage("none", new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
                 return Ok(new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
             }
             catch(Exception e)
@@ -109,28 +155,36 @@ namespace DeMobile.Controllers
         public IHttpActionResult PostNotifyChillpay([FromBody]PaymentStatusRes value)
         {
             Payment payment = new Payment();
-            if (value.Code == 200 && value.PaymentStatus == 0)
-                payment.setStatusOrder(Int32.Parse(value.OrderNo), "SUC");
-            else if (value.Code == 200 && value.PaymentStatus != 0)
+            try
             {
-                if (value.PaymentStatus == 1)
-                    payment.setStatusOrder(Int32.Parse(value.OrderNo), "FAL");
-                else if (value.PaymentStatus == 2 || value.PaymentStatus == 4)
-                    payment.setStatusOrder(Int32.Parse(value.OrderNo), "CAN");
-                else if (value.PaymentStatus == 3)
-                    payment.setStatusOrder(Int32.Parse(value.OrderNo), "ERR");
-            }
-            else if (value.Code != 200)
-            {
-                if (value.Code < 2007)
-                    payment.setStatusOrder(Int32.Parse(value.OrderNo), "CAN");
-                else
-                    payment.setStatusOrder(Int32.Parse(value.OrderNo), "ERR");
-            }
-            payment.updateTransaction(value);
+                if (value.Code == 200 && value.PaymentStatus == 0)
+                    payment.setStatusOrder(Int32.Parse(value.OrderNo), "SUC");
+                else if (value.Code == 200 && value.PaymentStatus != 0)
+                {
+                    if (value.PaymentStatus == 1)
+                        payment.setStatusOrder(Int32.Parse(value.OrderNo), "FAL");
+                    else if (value.PaymentStatus == 2 || value.PaymentStatus == 4)
+                        payment.setStatusOrder(Int32.Parse(value.OrderNo), "CAN");
+                    else if (value.PaymentStatus == 3)
+                        payment.setStatusOrder(Int32.Parse(value.OrderNo), "ERR");
+                }
+                else if (value.Code != 200)
+                {
+                    if (value.Code < 2007)
+                        payment.setStatusOrder(Int32.Parse(value.OrderNo), "CAN");
+                    else
+                        payment.setStatusOrder(Int32.Parse(value.OrderNo), "ERR");
+                }
+                payment.updateTransaction(value);
 
-            TransactionHub hub = new TransactionHub();
-            hub.NotifyPayment(value);
+                TransactionHub hub = new TransactionHub();
+                hub.NotifyPayment(value);
+                monitor.sendMessage(value, new { request_status = "SUCCESS" });
+            }
+            catch(Exception e)
+            {
+                monitor.sendMessage(value, new { Message = e.Message });
+            }
             return Ok();
         }
         [Route("api/line/test")]
