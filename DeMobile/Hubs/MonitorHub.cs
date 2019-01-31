@@ -22,10 +22,10 @@ namespace DeMobile.Hubs
             string connectId = Context.ConnectionId;
             return base.OnDisconnected(stopCalled);
         }
-        public void sendMessage(object request, object result)
+        public void sendMessage(string url, string host, object request, object result)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<MonitorHub>();
-            context.Clients.All.Monitor(new { Your_parameter = request, Result = result, Time = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() });
+            context.Clients.All.Monitor(new { Url = url, ClientHostName = host, Parameter = request, Result = result, Time = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() });
         }
     }
 }

@@ -16,6 +16,8 @@ namespace DeMobile.Controllers
             User cust = new User();
             Log log = new Log();       
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             try
             {
                 var result = cust.getProfileByCitizenNo(data.citizen_no);
@@ -32,7 +34,7 @@ namespace DeMobile.Controllers
                         mlog.note = "ผู้ใช้งานลงทะเบียนซ้ำ / มีคนพยายามแอบอ้างลงทะเบียนเครื่องด้วยข้อมูลของลูกค้า";
                         mlog.url = "api/authen/register";
                         log.logRequest(mlog);
-                        monitor.sendMessage(data, new { code = 400, message = "เครื่องนี้ได้รับการลงทะเบียนแล้ว!", data = result });
+                        monitor.sendMessage(url, clientHostname, data, new { code = 400, message = "เครื่องนี้ได้รับการลงทะเบียนแล้ว!", data = result });
                         return Ok(new { code = 400, message = "เครื่องนี้ได้รับการลงทะเบียนแล้ว!", data = result });
                     }
                     else
@@ -40,7 +42,7 @@ namespace DeMobile.Controllers
                         var resInset = cust.registerDevice(data, result.CUST_NO);
                         //Notification otp = new Notification();
                         //otp.sendOTP(result.CUST_NO);
-                        monitor.sendMessage(data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
+                        monitor.sendMessage(url, clientHostname, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
                         return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
                     }
                 }
@@ -53,7 +55,7 @@ namespace DeMobile.Controllers
                     mlog.note = "ไม่พบข้อมูลลูกค้า / มีคนพยายามแอบอ้างลงทะเบียนเครื่อง";
                     mlog.url = "api/authen/register";
                     log.logRequest(mlog);
-                    monitor.sendMessage(data, new { code = 400, message = "ไม่พบข้อมูลค้า!", data = result });
+                    monitor.sendMessage(url, clientHostname, data, new { code = 400, message = "ไม่พบข้อมูลค้า!", data = result });
                     return Ok(new { code = 400, message = "ไม่พบข้อมูลค้า!", data = result });
                 }
             }
@@ -69,6 +71,8 @@ namespace DeMobile.Controllers
             Log log = new Log();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             try
             {
                 var result = cust.getProfileByPhoneNO(phone);
@@ -88,7 +92,7 @@ namespace DeMobile.Controllers
                             mlog.note = "เครื่องลูกค้าถูกระงับการใช้งาน";
                             mlog.url = "api/authen/identify";
                             log.logRequest(mlog);
-                            monitor.sendMessage(new { phone = phone, deviceId = deviceId }, new { code = 400, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
+                            monitor.sendMessage(url, clientHostname, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                             return Ok(new { code = 400, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                         }
                     }
@@ -101,7 +105,7 @@ namespace DeMobile.Controllers
                         mlog.note = "ไม่พบเครื่องผู้ใช้งานในระบบ / ผู้ใช้งานเปลี่ยนเครื่อง";
                         mlog.url = "api/authen/identify";
                         log.logRequest(mlog);
-                        monitor.sendMessage(new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเครื่องผู้ใช้งานในระบบ!", data = result });
+                        monitor.sendMessage(url, clientHostname, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเครื่องผู้ใช้งานในระบบ!", data = result });
                         return Ok(new { code = 400, message = "ไม่พบเครื่องผู้ใช้งานในระบบ!", data = result });
                     }
                 }
@@ -113,7 +117,7 @@ namespace DeMobile.Controllers
                     mlog.note = "ไม่พบเบอร์โทรศัพท์ผู้ใช้งานในระบบ / ผู้ใช้งานเปลี่ยนเบอร์โทรศัพท์";
                     mlog.url = "api/authen/identify";
                     log.logRequest(mlog);
-                    monitor.sendMessage(new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเบอร์โทรศัพท์ผู้ใช้งานในระบบ!", data = result });
+                    monitor.sendMessage(url, clientHostname, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเบอร์โทรศัพท์ผู้ใช้งานในระบบ!", data = result });
                     return Ok(new { code = 400, message = "ไม่พบเบอร์โทรศัพท์ผู้ใช้งานในระบบ!", data = result });
                 }
                 //var result = cust.getProfileByCitizenNo(data.citizen_no);
@@ -140,7 +144,7 @@ namespace DeMobile.Controllers
                 mlog.note = e.Message;
                 mlog.url = "api/authen/identify";
                 log.logRequest(mlog);
-                monitor.sendMessage(new { phone = phone, deviceId = deviceId }, new { Message = e.Message });
+                monitor.sendMessage(url, clientHostname, new { phone = phone, deviceId = deviceId }, new { Message = e.Message });
                 return Ok(new { code = 500, message = e.Message });
             }
         }
@@ -151,6 +155,8 @@ namespace DeMobile.Controllers
             Log log = new Log();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             try
             {
                 var result = cust.getProfileById(id);
@@ -163,7 +169,7 @@ namespace DeMobile.Controllers
                     mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล Profile ของลูกค้าโดยไม่ได้รับอนุญาต";
                     mlog.url = "api/customer/profile";
                     log.logRequest(mlog);
-                    monitor.sendMessage(new { id = id }, new { Message = "Not found customer!"});
+                    monitor.sendMessage(url, clientHostname, new { id = id }, new { Message = "Not found customer!"});
                     return BadRequest("Not found customer!");
                 }
             }
@@ -174,7 +180,7 @@ namespace DeMobile.Controllers
                 mlog.note = e.Message;
                 mlog.url = "api/customer/profile";
                 log.logRequest(mlog);
-                monitor.sendMessage(new { id = id }, new { Message = e.Message });
+                monitor.sendMessage(url, clientHostname, new { id = id }, new { Message = e.Message });
                 return InternalServerError(e.InnerException);
             }
         }
@@ -185,6 +191,8 @@ namespace DeMobile.Controllers
             Log log;
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             try
             {
                 var result = cust.getProfileById(id);
@@ -201,7 +209,7 @@ namespace DeMobile.Controllers
                     mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล SMS ของลูกค้าโดยไม่ได้รับอนุญาต";
                     mlog.url = "api/customer/sms";
                     log.logRequest(mlog);
-                    monitor.sendMessage(new { id = id }, new { Message = "Not found customer!" });
+                    monitor.sendMessage(url, clientHostname, new { id = id }, new { Message = "Not found customer!" });
                     return BadRequest("Not found customer!");
                 }
             }
@@ -213,7 +221,7 @@ namespace DeMobile.Controllers
                 mlog.note = e.Message;
                 mlog.url = "api/customer/sms";
                 log.logRequest(mlog);
-                monitor.sendMessage(new { id = id }, new { Message = e.Message });
+                monitor.sendMessage(url ,clientHostname, new { id = id }, new { Message = e.Message });
                 return InternalServerError(e.InnerException);
             }
         }
@@ -224,13 +232,15 @@ namespace DeMobile.Controllers
             Log log;
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             try
             {
                 var result = cust.getProfileById(id);
                 if (result != null && result.CUST_NO != 0)
                 {
                     var contract = cust.getContract(id);
-                    monitor.sendMessage(new { id = id }, contract);
+                    monitor.sendMessage(url, clientHostname, new { id = id }, contract);
                     return Json(contract);
                 }
                 else
@@ -241,7 +251,7 @@ namespace DeMobile.Controllers
                     mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูลสัญญาของลูกค้าโดยไม่ได้รับอนุญาต";
                     mlog.url = "api/customer/contract";
                     log.logRequest(mlog);
-                    monitor.sendMessage(new { id = id }, new { Message = "Not found customer!" });
+                    monitor.sendMessage(url, clientHostname, new { id = id }, new { Message = "Not found customer!" });
                     return BadRequest("Not found customer!");
                 }
             }
@@ -253,7 +263,7 @@ namespace DeMobile.Controllers
                 mlog.note = e.Message;
                 mlog.url = "api/customer/contract";
                 log.logRequest(mlog);
-                monitor.sendMessage(new { id = id }, new { Message = e.Message });
+                monitor.sendMessage(url, clientHostname, new { id = id }, new { Message = e.Message });
                 return InternalServerError(e);
             }
         }
@@ -261,10 +271,12 @@ namespace DeMobile.Controllers
         public IHttpActionResult GetPayment(string no)
         {
             User payment = new User();
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             try
             {
                 var result = payment.getPayment(no);
-                monitor.sendMessage(new { no = no }, result);
+                monitor.sendMessage(url, clientHostname, new { no = no }, result);
                 return Json(result);
             }
             catch(Exception e)

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 
 namespace DeMobile.Controllers
@@ -97,15 +98,17 @@ namespace DeMobile.Controllers
         {
             Notification noti = new Notification();
             MonitorHub monitor = new MonitorHub();
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             try
             {      
                 var notis = noti.getNotification(cust_no);
-                monitor.sendMessage(new { cust_no = cust_no }, notis);
+                monitor.sendMessage(url, clientHostname, new { cust_no = cust_no }, notis);
                 return Ok(notis);
             }
             catch (Exception e)
             {
-                monitor.sendMessage(new { cust_no = cust_no }, new { Message = e.Message });
+                monitor.sendMessage(url, clientHostname, new { cust_no = cust_no }, new { Message = e.Message });
                 return InternalServerError(e.InnerException);
             }
         }

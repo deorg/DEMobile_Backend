@@ -36,6 +36,8 @@ namespace DeMobile.Controllers
         public IHttpActionResult PostNewPayment2([FromBody]PaymentReq value)
         {
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             try
             {             
                 //value.OrderNo = "test001";
@@ -60,12 +62,12 @@ namespace DeMobile.Controllers
                             mlog.note = "ระบบขัดข้อง ไม่สามารถทำรายการได้";
                             mlog.url = "api/authen/newpayment2";
                             log.logRequest(mlog);
-                            monitor.sendMessage(value, new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
+                            monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
                             return Ok(new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
                         }
                         else
                         {
-                            monitor.sendMessage(value, new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
+                            monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
                             return Ok(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
                         }
                     }
@@ -77,7 +79,7 @@ namespace DeMobile.Controllers
                         mlog.note = "ไม่พบสัญญาของลูกค้า";
                         mlog.url = "api/authen/newpayment2";
                         log.logRequest(mlog);
-                        monitor.sendMessage(value, new { request_status = "FAILURE", desc = "Not found contract!", data = contract });
+                        monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Not found contract!", data = contract });
                         return Ok(new { request_status = "FAILURE", desc = "Not found contract!", data = contract });
                     }
                 }
@@ -87,7 +89,7 @@ namespace DeMobile.Controllers
                 mlog.note = "ไม่พบข้อมูลลูกค้า";
                 mlog.url = "api/authen/newpayment2";
                 log.logRequest(mlog);
-                monitor.sendMessage(value, new { request_status = "FAILURE", desc = "Not found customer!", data = cust });
+                monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Not found customer!", data = cust });
                 return Ok(new { request_status = "FAILURE", desc = "Not found customer!", data = cust });
             }
             catch(Exception e)
@@ -98,13 +100,15 @@ namespace DeMobile.Controllers
                 mlog.note = e.Message;
                 mlog.url = "api/authen/newpayment2";
                 log.logRequest(mlog);
-                monitor.sendMessage(value, new { request_status = "FAILURE", Message = e.Message });
+                monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", Message = e.Message });
                 return InternalServerError(e.InnerException);
             }
         }
         [Route("api/payment/getstatus")]
         public IHttpActionResult GetPaymentStatus(int trans_no)
         {
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             Payment payment = new Payment();
             try
             {
@@ -116,7 +120,7 @@ namespace DeMobile.Controllers
                 mlog.note = e.Message;
                 mlog.url = "api/authen/newpayment2";
                 log.logRequest(mlog);
-                monitor.sendMessage(new { trans_no = trans_no }, new { request_status = "FAILURE", Message = e.Message });
+                monitor.sendMessage(url, clientHostname, new { trans_no = trans_no }, new { request_status = "FAILURE", Message = e.Message });
                 return InternalServerError(e.InnerException);
             }
         }
@@ -125,6 +129,8 @@ namespace DeMobile.Controllers
         {
             //string date = "20180712173122";
             //var newDate = DateTime.ParseExact(date, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             return Ok(DateTime.Now.ToShortTimeString());
             //Payment payment = new Payment();
             //return Ok(payment.testSaveDate());
@@ -132,15 +138,18 @@ namespace DeMobile.Controllers
         [Route("api/payment/getchannel")]
         public IHttpActionResult GetBankCode()
         {
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             try
             {
                 Payment payment = new Payment();
                 var banks = payment.getChanneCode();
-                monitor.sendMessage("none", new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
+                monitor.sendMessage(url, clientHostname, "none", new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
                 return Ok(new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
             }
             catch(Exception e)
             {
+                monitor.sendMessage(url, clientHostname, "none", new { Message = e.Message });
                 return InternalServerError(e.InnerException);
             }
         }
@@ -154,6 +163,8 @@ namespace DeMobile.Controllers
         [Route("api/payment/notify/chillpay")]
         public IHttpActionResult PostNotifyChillpay([FromBody]PaymentStatusRes value)
         {
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
             Payment payment = new Payment();
             try
             {
@@ -179,11 +190,11 @@ namespace DeMobile.Controllers
 
                 TransactionHub hub = new TransactionHub();
                 hub.NotifyPayment(value);
-                monitor.sendMessage(value, new { request_status = "SUCCESS" });
+                monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS" });
             }
             catch(Exception e)
             {
-                monitor.sendMessage(value, new { Message = e.Message });
+                monitor.sendMessage(url, clientHostname, value, new { Message = e.Message });
             }
             return Ok();
         }
