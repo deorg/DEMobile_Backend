@@ -278,7 +278,7 @@
     <Content Include="Images\Banks\kb.png" />
     <Content Include="Images\Banks\krungsri.png" />
     <Content Include="Images\Banks\ktb.png" />
-    <Content Include="Images\Banks\scb.png.png" />
+    <Content Include="Images\Banks\scb.png" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Areas\HelpPage\Views\Web.config" />
