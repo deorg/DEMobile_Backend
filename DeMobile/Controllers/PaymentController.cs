@@ -16,22 +16,11 @@ namespace DeMobile.Controllers
 {
     public class PaymentController : ApiController
     {
-        //[Route("api/payment/newpayment")]
-        //public IHttpActionResult PostNewPayment([FromBody]PaymentReq value)
-        //{
-        //    Payment payment = new Payment();
-        //    if (!ModelState.IsValid)
-        //        return BadRequest("Invalid parameter!");
-        //    PaymentRes res = payment.createPayment(value);
-        //    if (res == null)
-        //        return Json(new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
-        //    else
-        //        return Json(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
-        //}
         User user;
         MonitorHub monitor = new MonitorHub();
         Log log = new Log();
         m_LogReq mlog;
+
         [Route("api/payment/newpayment2")]
         public IHttpActionResult PostNewPayment2([FromBody]PaymentReq value)
         {
@@ -39,7 +28,7 @@ namespace DeMobile.Controllers
             string clientHostname = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             try
-            {             
+            {
                 //value.OrderNo = "test001";
                 value.Description = "testAPI";
                 mlog = new m_LogReq();
@@ -63,12 +52,12 @@ namespace DeMobile.Controllers
                             mlog.url = "api/authen/newpayment2";
                             log.logRequest(mlog);
                             monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
-                            return Ok(new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
+                            return Ok(new { code = 500, message = "ระบบขัดข้อง ไม่สามารถทำรายการได้", data = res });
                         }
                         else
                         {
                             monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
-                            return Ok(new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
+                            return Ok(new { code = 200, message = "สร้างรายการชำระเงินสำเร็จ", data = res });
                         }
                     }
                     else
@@ -80,7 +69,7 @@ namespace DeMobile.Controllers
                         mlog.url = "api/authen/newpayment2";
                         log.logRequest(mlog);
                         monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Not found contract!", data = contract });
-                        return Ok(new { request_status = "FAILURE", desc = "Not found contract!", data = contract });
+                        return Ok(new { code = 400, message = "ไม่พบข้อมูลสัญญาในระบบ", data = contract });
                     }
                 }
                 mlog.cust_no = value.CustomerId;
@@ -90,10 +79,11 @@ namespace DeMobile.Controllers
                 mlog.url = "api/authen/newpayment2";
                 log.logRequest(mlog);
                 monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Not found customer!", data = cust });
-                return Ok(new { request_status = "FAILURE", desc = "Not found customer!", data = cust });
+                return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = cust });
             }
-            catch(Exception e)
+            catch (Exception e)
             {
+                mlog = new m_LogReq();
                 mlog.cust_no = value.CustomerId;
                 mlog.device_id = value.DeviceId;
                 mlog.ip_addr = IPAddress;
@@ -101,27 +91,29 @@ namespace DeMobile.Controllers
                 mlog.url = "api/authen/newpayment2";
                 log.logRequest(mlog);
                 monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", Message = e.Message });
-                return InternalServerError(e.InnerException);
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
         [Route("api/payment/getstatus")]
-        public IHttpActionResult GetPaymentStatus(int trans_no)
+        public IHttpActionResult GetPaymentStatus(int order_no)
         {
             string clientHostname = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             Payment payment = new Payment();
             try
             {
-                PaymentStatusRes res = payment.getPaymentStatus(trans_no);
-                return Ok(res);
+                var transaction = payment.getTransactionByOrderNo(order_no);
+                PaymentStatusRes res = payment.getPaymentStatus(transaction.TRANS_NO);
+                return Ok(new { code = 200, message = "ตรวจสอบรายการชำระสำเร็จ", data = res });
             }
-            catch(Exception e)
+            catch (Exception e)
             {
+                mlog = new m_LogReq();
                 mlog.note = e.Message;
                 mlog.url = "api/authen/newpayment2";
                 log.logRequest(mlog);
-                monitor.sendMessage(url, clientHostname, new { trans_no = trans_no }, new { request_status = "FAILURE", Message = e.Message });
-                return InternalServerError(e.InnerException);
+                monitor.sendMessage(url, clientHostname, new { trans_no = order_no }, new { request_status = "FAILURE", Message = e.Message });
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
         [Route("api/test/getdate")]
@@ -145,12 +137,12 @@ namespace DeMobile.Controllers
                 Payment payment = new Payment();
                 var banks = payment.getChanneCode();
                 monitor.sendMessage(url, clientHostname, "none", new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
-                return Ok(new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
+                return Ok(new { code = 200, message = "ดึงรหัสธนาคารสำเร็จ", data = banks });
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 monitor.sendMessage(url, clientHostname, "none", new { Message = e.Message });
-                return InternalServerError(e.InnerException);
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
         //[Route("api/payment/notify")]
@@ -182,7 +174,7 @@ namespace DeMobile.Controllers
                 else if (value.Code != 200)
                 {
                     if (value.Code < 2007)
-                        payment.setStatusOrder(Int32.Parse(value.OrderNo), "CAN");
+                        payment.setStatusOrder(Int32.Parse(value.OrderNo), "CAN");            
                     else
                         payment.setStatusOrder(Int32.Parse(value.OrderNo), "ERR");
                 }
@@ -192,7 +184,7 @@ namespace DeMobile.Controllers
                 hub.NotifyPayment(value);
                 monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS" });
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 monitor.sendMessage(url, clientHostname, value, new { Message = e.Message });
             }

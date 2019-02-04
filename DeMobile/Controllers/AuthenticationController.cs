@@ -31,7 +31,7 @@ namespace DeMobile.Controllers
                         mlog.cust_no = result.CUST_NO;
                         mlog.device_id = currentDevice.device_id;
                         mlog.ip_addr = IPAddress;
-                        mlog.note = "ผู้ใช้งานลงทะเบียนซ้ำ / มีคนพยายามแอบอ้างลงทะเบียนเครื่องด้วยข้อมูลของลูกค้า";
+                        mlog.note = "ลูกค้าลงทะเบียนซ้ำ / มีคนพยายามแอบอ้างลงทะเบียนเครื่องด้วยข้อมูลของลูกค้า";
                         mlog.url = "api/authen/register";
                         log.logRequest(mlog);
                         monitor.sendMessage(url, clientHostname, data, new { code = 400, message = "เครื่องนี้ได้รับการลงทะเบียนแล้ว!", data = result });
@@ -61,7 +61,7 @@ namespace DeMobile.Controllers
             }
             catch (Exception e)
             {
-                return Ok(new { code = 500, message = e.Message });
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
         [Route("api/authen/identify")]
@@ -102,11 +102,11 @@ namespace DeMobile.Controllers
                         mlog.device_id = deviceId;
                         mlog.cust_no = result.CUST_NO;
                         mlog.ip_addr = IPAddress;
-                        mlog.note = "ไม่พบเครื่องผู้ใช้งานในระบบ / ผู้ใช้งานเปลี่ยนเครื่อง";
+                        mlog.note = "ไม่พบเครื่องลูกค้าในระบบ / ลูกค้าเปลี่ยนเครื่อง";
                         mlog.url = "api/authen/identify";
                         log.logRequest(mlog);
-                        monitor.sendMessage(url, clientHostname, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเครื่องผู้ใช้งานในระบบ!", data = result });
-                        return Ok(new { code = 400, message = "ไม่พบเครื่องผู้ใช้งานในระบบ!", data = result });
+                        monitor.sendMessage(url, clientHostname, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
+                        return Ok(new { code = 400, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
                     }
                 }
                 else
@@ -114,11 +114,11 @@ namespace DeMobile.Controllers
                     mlog = new m_LogReq();
                     mlog.device_id = deviceId;
                     mlog.ip_addr = IPAddress;
-                    mlog.note = "ไม่พบเบอร์โทรศัพท์ผู้ใช้งานในระบบ / ผู้ใช้งานเปลี่ยนเบอร์โทรศัพท์";
+                    mlog.note = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ / ลูกค้าเปลี่ยนเบอร์โทรศัพท์";
                     mlog.url = "api/authen/identify";
                     log.logRequest(mlog);
-                    monitor.sendMessage(url, clientHostname, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเบอร์โทรศัพท์ผู้ใช้งานในระบบ!", data = result });
-                    return Ok(new { code = 400, message = "ไม่พบเบอร์โทรศัพท์ผู้ใช้งานในระบบ!", data = result });
+                    monitor.sendMessage(url, clientHostname, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ!", data = result });
+                    return Ok(new { code = 400, message = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ!", data = result });
                 }
                 //var result = cust.getProfileByCitizenNo(data.citizen_no);
                 //var result2 = cust.getProfileByPhoneNO(data.phone_no);
@@ -145,7 +145,7 @@ namespace DeMobile.Controllers
                 mlog.url = "api/authen/identify";
                 log.logRequest(mlog);
                 monitor.sendMessage(url, clientHostname, new { phone = phone, deviceId = deviceId }, new { Message = e.Message });
-                return Ok(new { code = 500, message = e.Message });
+                return Ok(new { code = 500, message = e.Message, data = string.Empty});
             }
         }
         [Route("api/customer/profile")]
@@ -161,7 +161,7 @@ namespace DeMobile.Controllers
             {
                 var result = cust.getProfileById(id);
                 if (result != null && result.CUST_NO != 0)
-                    return Json(result);
+                    return Ok(new { code = 200, message = "ค้นหาข้อมูลสำเร็จ", data = result });
                 else
                 {
                     mlog = new m_LogReq();
@@ -170,7 +170,7 @@ namespace DeMobile.Controllers
                     mlog.url = "api/customer/profile";
                     log.logRequest(mlog);
                     monitor.sendMessage(url, clientHostname, new { id = id }, new { Message = "Not found customer!"});
-                    return BadRequest("Not found customer!");
+                    return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
                 }
             }
             catch(Exception e)
@@ -181,7 +181,7 @@ namespace DeMobile.Controllers
                 mlog.url = "api/customer/profile";
                 log.logRequest(mlog);
                 monitor.sendMessage(url, clientHostname, new { id = id }, new { Message = e.Message });
-                return InternalServerError(e.InnerException);
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
         [Route("api/customer/sms")]
@@ -199,7 +199,8 @@ namespace DeMobile.Controllers
                 if (result != null && result.CUST_NO != 0)
                 {
                     var sms = cust.getNotification(id);
-                    return Json(sms);
+                    monitor.sendMessage(url, clientHostname, new { id = id }, new { data = sms });
+                    return Ok(new { code = 200, message = "ดึงข้อมูล Sms สำเร็จ", data = sms });
                 }
                 else
                 {
@@ -210,7 +211,7 @@ namespace DeMobile.Controllers
                     mlog.url = "api/customer/sms";
                     log.logRequest(mlog);
                     monitor.sendMessage(url, clientHostname, new { id = id }, new { Message = "Not found customer!" });
-                    return BadRequest("Not found customer!");
+                    return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
                 }
             }
             catch(Exception e)
@@ -222,7 +223,7 @@ namespace DeMobile.Controllers
                 mlog.url = "api/customer/sms";
                 log.logRequest(mlog);
                 monitor.sendMessage(url ,clientHostname, new { id = id }, new { Message = e.Message });
-                return InternalServerError(e.InnerException);
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
         [Route("api/customer/contract")]
@@ -241,7 +242,7 @@ namespace DeMobile.Controllers
                 {
                     var contract = cust.getContract(id);
                     monitor.sendMessage(url, clientHostname, new { id = id }, contract);
-                    return Json(contract);
+                    return Ok(new { code = 200, message = "ดึงข้อมูลสัญญาสำเร็จ", data = contract });
                 }
                 else
                 {
@@ -252,7 +253,7 @@ namespace DeMobile.Controllers
                     mlog.url = "api/customer/contract";
                     log.logRequest(mlog);
                     monitor.sendMessage(url, clientHostname, new { id = id }, new { Message = "Not found customer!" });
-                    return BadRequest("Not found customer!");
+                    return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
                 }
             }
             catch(Exception e)
@@ -264,7 +265,7 @@ namespace DeMobile.Controllers
                 mlog.url = "api/customer/contract";
                 log.logRequest(mlog);
                 monitor.sendMessage(url, clientHostname, new { id = id }, new { Message = e.Message });
-                return InternalServerError(e);
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
         [Route("api/customer/payment")]
@@ -277,11 +278,11 @@ namespace DeMobile.Controllers
             {
                 var result = payment.getPayment(no);
                 monitor.sendMessage(url, clientHostname, new { no = no }, result);
-                return Json(result);
+                return Ok(new { code = 200, message = "ดึงข้อมูลการชำระเงินสำเร็จ", data = result });
             }
             catch(Exception e)
             {
-                return InternalServerError(e);
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
     }

@@ -142,7 +142,7 @@ namespace DeMobile.Services
                 var lastOrder = createOrder(value, ip);
                 if (lastOrder > 0)
                 {
-                    string[] sumArr = { merchantCode, lastOrder.ToString(), value.CustomerId.ToString(), value.Amount.ToString(), value.PhoneNumber, value.Description, value.ChannelCode, currecyCode.ToString(), langCode, routeNo.ToString(), ip, apiKey, md5SecretKey };
+                    string[] sumArr = { merchantCode, lastOrder.ToString(), value.CustomerId.ToString(), value.Amount.ToString(), value.PhoneNumber == null ? "" : value.PhoneNumber, value.Description, value.ChannelCode, currecyCode.ToString(), langCode, routeNo.ToString(), ip, apiKey, md5SecretKey };
                     string sumData = string.Concat(sumArr);
                     string checkSum = CreateMD5(sumData);
                     CpPaymentReq req = new CpPaymentReq();
@@ -150,7 +150,7 @@ namespace DeMobile.Services
                     req.OrderNo = lastOrder.ToString();
                     req.CustomerId = value.CustomerId;
                     req.Amount = value.Amount;
-                    req.PhoneNumber = "";
+                    req.PhoneNumber = value.PhoneNumber == null ? "" : value.PhoneNumber;
                     req.Description = value.Description;
                     req.ChannelCode = value.ChannelCode;
                     req.Currency = currecyCode;
@@ -202,6 +202,49 @@ namespace DeMobile.Services
             catch(Exception e)
             {
                 Console.WriteLine(e.Message);
+                return null;
+            }
+        }
+        public m_Transaction getTransactionByOrderNo(int order_no)
+        {
+            oracle = new Database();
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            parameter.Add(new OracleParameter("order_no", order_no));
+            var reader = oracle.SqlQueryWithParams(SqlCmd.Payment.getTransactionByOrder_no, parameter);
+            reader.Read();
+            if (reader.HasRows)
+            {
+                //int trans_no = Int32.Parse(reader["TRANS_NO"].ToString());
+                //var bankref_code = reader["BANK_REF_CODE"] == DBNull.Value ? string.Empty : (string)reader["BANK_REF_CODE"];
+                //var result_status_id = reader["RESULT_STATUS_ID"] == DBNull.Value ? null : (int?)Int32.Parse(reader["RESULT_STATUS_ID"].ToString());
+                //var payment_time = reader["PAYMENT_TIME"];
+                var data = new m_Transaction
+                {
+                    TRANS_NO = Int32.Parse(reader["TRANS_NO"].ToString()),
+                    ORDER_NO = Int32.Parse(reader["ORDER_NO"].ToString()),
+                    CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                    CHANNEL_ID = (string)reader["CHANNEL_ID"],
+                    REQ_STATUS_ID = Int32.Parse(reader["REQ_STATUS_ID"].ToString()),
+                    TRANS_STATUS_ID = Int32.Parse(reader["TRANS_STATUS_ID"].ToString()),
+                    PAY_AMT = Int32.Parse(reader["PAY_AMT"].ToString()),
+                    RETURN_URL = (string)reader["RETURN_URL"],
+                    PAYMENT_URL = (string)reader["PAYMENT_URL"],
+                    IP_ADDR = (string)reader["IP_ADDR"],
+                    TOKEN = (string)reader["TOKEN"],
+                    CREATED_TIME = (DateTime)reader["CREATED_TIME"],
+                    EXPIRE_TIME = (DateTime)reader["EXPIRE_TIME"],
+                    BANK_REF_CODE = reader["BANK_REF_CODE"] == DBNull.Value ? "" : (string)reader["BANK_REF_CODE"],
+                    RESULT_STATUS_ID = reader["RESULT_STATUS_ID"] == DBNull.Value ? null : (int?)Int32.Parse(reader["RESULT_STATUS_ID"].ToString()),
+                    PAYMENT_TIME = reader["PAYMENT_TIME"] == DBNull.Value ? null : (DateTime?)reader["RESULT_STATUS_ID"]
+                };
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return data;
+            }
+            else
+            {
+                reader.Dispose();
+                oracle.OracleDisconnect();
                 return null;
             }
         }

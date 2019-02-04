@@ -25,7 +25,7 @@ namespace DeMobile.Hubs
         public void sendMessage(string url, string host, object request, object result)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<MonitorHub>();
-            context.Clients.All.Monitor(new { Url = url, ClientHostName = host, Parameter = request, Result = result, Time = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() });
+            context.Clients.All.Monitor(new { Url = url, ClientHostName = host, Parameter = request, Result = result, Time = DateTime.Now.ToString("dd/MM/yyyy") + " " + DateTime.Now.ToShortTimeString() });
         }
     }
 }

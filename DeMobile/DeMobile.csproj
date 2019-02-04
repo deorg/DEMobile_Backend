@@ -228,6 +228,7 @@
     <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Hubs\MonitorHub.cs" />
     <Compile Include="Models\AppModel\m_LogReq.cs" />
+    <Compile Include="Models\AppModel\m_Transaction.cs" />
     <Compile Include="Services\Log.cs" />
     <Compile Include="Services\Notification.cs" />
     <Compile Include="Services\Security.cs" />
