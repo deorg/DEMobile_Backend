@@ -73,7 +73,7 @@ namespace DeMobile.Services
             //return oracle.SqlExcute(cmd);
             return oracle.SqlExecuteWithParams(cmd, parameter);
         }
-        public List<ChannelCode> getChanneCode()
+        public List<ChannelCode> getChannelCode()
         {
             oracle = new Database();
             List<ChannelCode> data = new List<ChannelCode>();

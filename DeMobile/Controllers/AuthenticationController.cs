@@ -10,21 +10,23 @@ namespace DeMobile.Controllers
     public class AuthenticationController : ApiController
     {
         MonitorHub monitor = new MonitorHub();
+        private User _user = new User();
+        Log log = new Log();
+
         [Route("api/authen/register")]
         public IHttpActionResult PostRegister([FromBody]m_Register data)
         {
-            User cust = new User();
-            Log log = new Log();       
+            //User cust = new User();     
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string clientHostname = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             try
             {
-                var result = cust.getProfileByCitizenNo(data.citizen_no);
-                var result2 = cust.getProfileByPhoneNO(data.phone_no);
+                var result = _user.getProfileByCitizenNo(data.citizen_no);
+                var result2 = _user.getProfileByPhoneNO(data.phone_no);
                 if ((result != null) && (result2 != null))
                 {
-                    var currentDevice = cust.checkCurrentDevice(data.device_id);
+                    var currentDevice = _user.checkCurrentDevice(data.device_id);
                     if (currentDevice != null)
                     {
                         m_LogReq mlog = new m_LogReq();
@@ -39,7 +41,7 @@ namespace DeMobile.Controllers
                     }
                     else
                     {
-                        var resInset = cust.registerDevice(data, result.CUST_NO);
+                        var resInset = _user.registerDevice(data, result.CUST_NO);
                         //Notification otp = new Notification();
                         //otp.sendOTP(result.CUST_NO);
                         monitor.sendMessage(url, clientHostname, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
@@ -67,18 +69,17 @@ namespace DeMobile.Controllers
         [Route("api/authen/identify")]
         public IHttpActionResult GetCheckPhone(string phone, string deviceId)
         {
-            User cust = new User();
-            Log log = new Log();
+            //User cust = new User();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string clientHostname = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             try
             {
-                var result = cust.getProfileByPhoneNO(phone);
+                var result = _user.getProfileByPhoneNO(phone);
                 if (result != null && result.CUST_NO != 0)
                 {
-                    var device = cust.checkCurrentDevice(deviceId);
+                    var device = _user.checkCurrentDevice(deviceId);
                     if (device != null)
                     {
                         if(device.device_status == "ACT")
@@ -151,15 +152,14 @@ namespace DeMobile.Controllers
         [Route("api/customer/profile")]
         public IHttpActionResult GetProfile(int id)
         {
-            User cust = new User();
-            Log log = new Log();
+            //User cust = new User();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string clientHostname = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             try
             {
-                var result = cust.getProfileById(id);
+                var result = _user.getProfileById(id);
                 if (result != null && result.CUST_NO != 0)
                     return Ok(new { code = 200, message = "ค้นหาข้อมูลสำเร็จ", data = result });
                 else
@@ -187,24 +187,22 @@ namespace DeMobile.Controllers
         [Route("api/customer/sms")]
         public IHttpActionResult GetSms(int id)
         {
-            User cust = new User();
-            Log log;
+            //User cust = new User();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string clientHostname = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             try
             {
-                var result = cust.getProfileById(id);
+                var result = _user.getProfileById(id);
                 if (result != null && result.CUST_NO != 0)
                 {
-                    var sms = cust.getNotification(id);
+                    var sms = _user.getNotification(id);
                     monitor.sendMessage(url, clientHostname, new { id = id }, new { data = sms });
                     return Ok(new { code = 200, message = "ดึงข้อมูล Sms สำเร็จ", data = sms });
                 }
                 else
                 {
-                    log = new Log();
                     mlog = new m_LogReq();
                     mlog.ip_addr = IPAddress;
                     mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล SMS ของลูกค้าโดยไม่ได้รับอนุญาต";
@@ -216,7 +214,6 @@ namespace DeMobile.Controllers
             }
             catch(Exception e)
             {
-                log = new Log();
                 mlog = new m_LogReq();
                 mlog.ip_addr = IPAddress;
                 mlog.note = e.Message;
@@ -229,24 +226,22 @@ namespace DeMobile.Controllers
         [Route("api/customer/contract")]
         public IHttpActionResult GetContract(int id)
         {
-            User cust = new User();
-            Log log;
+            //User cust = new User();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string clientHostname = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             try
             {
-                var result = cust.getProfileById(id);
+                var result = _user.getProfileById(id);
                 if (result != null && result.CUST_NO != 0)
                 {
-                    var contract = cust.getContract(id);
+                    var contract = _user.getContract(id);
                     monitor.sendMessage(url, clientHostname, new { id = id }, contract);
                     return Ok(new { code = 200, message = "ดึงข้อมูลสัญญาสำเร็จ", data = contract });
                 }
                 else
                 {
-                    log = new Log();
                     mlog = new m_LogReq();
                     mlog.ip_addr = IPAddress;
                     mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูลสัญญาของลูกค้าโดยไม่ได้รับอนุญาต";
@@ -258,7 +253,6 @@ namespace DeMobile.Controllers
             }
             catch(Exception e)
             {
-                log = new Log();
                 mlog = new m_LogReq();
                 mlog.ip_addr = IPAddress;
                 mlog.note = e.Message;
@@ -271,12 +265,12 @@ namespace DeMobile.Controllers
         [Route("api/customer/payment")]
         public IHttpActionResult GetPayment(string no)
         {
-            User payment = new User();
+            //User payment = new User();
             string clientHostname = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             try
             {
-                var result = payment.getPayment(no);
+                var result = _user.getPayment(no);
                 monitor.sendMessage(url, clientHostname, new { no = no }, result);
                 return Ok(new { code = 200, message = "ดึงข้อมูลการชำระเงินสำเร็จ", data = result });
             }

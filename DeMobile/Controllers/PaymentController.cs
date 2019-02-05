@@ -135,7 +135,7 @@ namespace DeMobile.Controllers
             try
             {
                 Payment payment = new Payment();
-                var banks = payment.getChanneCode();
+                var banks = payment.getChannelCode();
                 monitor.sendMessage(url, clientHostname, "none", new { request_status = "SUCCESS", desc = "รหัสธนาคาร", data = banks });
                 return Ok(new { code = 200, message = "ดึงรหัสธนาคารสำเร็จ", data = banks });
             }
