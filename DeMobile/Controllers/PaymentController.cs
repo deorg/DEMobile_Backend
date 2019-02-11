@@ -19,74 +19,140 @@ namespace DeMobile.Controllers
         User user;
         MonitorHub monitor = new MonitorHub();
         Log log = new Log();
-        m_LogReq mlog;
 
+        m_LogReq mlog;
+        m_LogOrder mlogOrder;
         [Route("api/payment/newpayment2")]
         public IHttpActionResult PostNewPayment2([FromBody]PaymentReq value)
         {
-            string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            value.IPAddress = HttpContext.Current.Request.UserHostAddress;
             string clientHostname = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             try
             {
                 //value.OrderNo = "test001";
                 value.Description = "testAPI";
+                string strAmt = value.Amount.ToString();
+                strAmt = strAmt.Insert(strAmt.Length - 2, ".");
+                value.PayAmt = double.Parse(strAmt);
                 mlog = new m_LogReq();
                 if (!ModelState.IsValid)
                     return BadRequest("Invalid parameter!");
+
                 user = new User();
                 var cust = user.getProfileById(value.CustomerId);
                 if (cust != null)
                 {
                     var contract = user.findContract(value.CustomerId, value.ContractNo);
                     if (contract != null)
-                    {
-                        Payment payment = new Payment();
-                        PaymentRes res = payment.createPayment(value, IPAddress);
-                        if (res == null)
-                        {
-                            mlog.cust_no = value.CustomerId;
-                            mlog.device_id = value.DeviceId;
-                            mlog.ip_addr = IPAddress;
-                            mlog.note = "ระบบขัดข้อง ไม่สามารถทำรายการได้";
-                            mlog.url = "api/authen/newpayment2";
-                            log.logRequest(mlog);
-                            monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
-                            return Ok(new { code = 500, message = "ระบบขัดข้อง ไม่สามารถทำรายการได้", data = res });
+                    {               
+                        if (value.PayAmt <= (contract.BAL_AMT - contract.DISC_AMT))
+                        {                          
+                            Payment payment = new Payment();
+                            PaymentRes res = payment.createPayment(value);
+                            if (res == null)
+                            {
+                                mlogOrder = new m_LogOrder();
+                                mlogOrder.cust_no = value.CustomerId;
+                                mlogOrder.con_no = value.ContractNo;
+                                mlogOrder.channel_id = value.ChannelCode;
+                                mlogOrder.pay_amt = value.PayAmt;
+                                mlogOrder.trans_amt = value.Amount;
+                                mlogOrder.device_id = value.DeviceId;
+                                mlogOrder.tel = value.PhoneNumber;
+                                mlogOrder.note = "ระบบขัดข้อง ไม่สามารถทำรายการได้";
+                                mlogOrder.ip_addr = value.IPAddress;
+                                log.logOrder(mlogOrder);
+                                //mlog.cust_no = value.CustomerId;
+                                //mlog.device_id = value.DeviceId;
+                                //mlog.ip_addr = value.IPAddress;
+                                //mlog.note = "ระบบขัดข้อง ไม่สามารถทำรายการได้";
+                                //mlog.url = "api/authen/newpayment2";
+                                //log.logRequest(mlog);
+                                monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
+                                return Ok(new { code = 500, message = "ระบบขัดข้อง ไม่สามารถทำรายการได้", data = res });
+                            }
+                            else
+                            {
+                                monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
+                                return Ok(new { code = 200, message = "สร้างรายการชำระเงินสำเร็จ", data = res });
+                            }
                         }
                         else
                         {
-                            monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "Requested to Payment Gateway", data = res });
-                            return Ok(new { code = 200, message = "สร้างรายการชำระเงินสำเร็จ", data = res });
+                            mlogOrder = new m_LogOrder();
+                            mlogOrder.cust_no = value.CustomerId;
+                            mlogOrder.con_no = value.ContractNo;
+                            mlogOrder.channel_id = value.ChannelCode;
+                            mlogOrder.pay_amt = value.PayAmt;
+                            mlogOrder.trans_amt = value.Amount;
+                            mlogOrder.device_id = value.DeviceId;
+                            mlogOrder.tel = value.PhoneNumber;
+                            mlogOrder.note = "จำนวนเงินที่ต้องการชำระมากกว่ายอดคงเหลือหลังจากที่หักส่วนลดแล้ว";
+                            mlogOrder.ip_addr = value.IPAddress;
+                            log.logOrder(mlogOrder);
+                            //mlog.cust_no = value.CustomerId;
+                            //mlog.device_id = value.DeviceId;
+                            //mlog.ip_addr = value.IPAddress;
+                            //mlog.note = "จำนวนเงินที่ต้องการชำระมากกว่ายอดคงเหลือหลังจากที่หักส่วนลดแล้ว";
+                            //mlog.url = "api/authen/newpayment2";
+                            //log.logRequest(mlog);
+                            monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "จำนวนเงินที่ต้องการชำระมากกว่ายอดคงเหลือหลังจากที่หักส่วนลดแล้ว", data = string.Empty });
+                            return Ok(new { code = 400, message = "จำนวนเงินที่ต้องการชำระมากกว่ายอดคงเหลือหลังจากที่หักส่วนลดแล้ว", data = contract });
                         }
                     }
                     else
                     {
-                        mlog.cust_no = value.CustomerId;
-                        mlog.device_id = value.DeviceId;
-                        mlog.ip_addr = IPAddress;
-                        mlog.note = "ไม่พบสัญญาของลูกค้า";
-                        mlog.url = "api/authen/newpayment2";
-                        log.logRequest(mlog);
+                        mlogOrder = new m_LogOrder();
+                        mlogOrder.cust_no = value.CustomerId;
+                        mlogOrder.con_no = value.ContractNo;
+                        mlogOrder.channel_id = value.ChannelCode;
+                        mlogOrder.pay_amt = value.PayAmt;
+                        mlogOrder.trans_amt = value.Amount;
+                        mlogOrder.device_id = value.DeviceId;
+                        mlogOrder.tel = value.PhoneNumber;
+                        mlogOrder.note = "ไม่พบสัญญาของลูกค้า";
+                        mlogOrder.ip_addr = value.IPAddress;
+                        log.logOrder(mlogOrder);
+                        //mlog.cust_no = value.CustomerId;
+                        //mlog.device_id = value.DeviceId;
+                        //mlog.ip_addr = value.IPAddress;
+                        //mlog.note = "ไม่พบสัญญาของลูกค้า";
+                        //mlog.url = "api/authen/newpayment2";
+                        //log.logRequest(mlog);
                         monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Not found contract!", data = contract });
                         return Ok(new { code = 400, message = "ไม่พบข้อมูลสัญญาในระบบ", data = contract });
                     }
                 }
-                mlog.cust_no = value.CustomerId;
-                mlog.device_id = value.DeviceId;
-                mlog.ip_addr = IPAddress;
-                mlog.note = "ไม่พบข้อมูลลูกค้า";
-                mlog.url = "api/authen/newpayment2";
-                log.logRequest(mlog);
-                monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Not found customer!", data = cust });
-                return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = cust });
+                else
+                {
+                    mlogOrder = new m_LogOrder();
+                    mlogOrder.cust_no = value.CustomerId;
+                    mlogOrder.con_no = value.ContractNo;
+                    mlogOrder.channel_id = value.ChannelCode;
+                    mlogOrder.pay_amt = value.PayAmt;
+                    mlogOrder.trans_amt = value.Amount;
+                    mlogOrder.device_id = value.DeviceId;
+                    mlogOrder.tel = value.PhoneNumber;
+                    mlogOrder.note = "ไม่พบข้อมูลลูกค้าในระบบ";
+                    mlogOrder.ip_addr = value.IPAddress;
+                    log.logOrder(mlogOrder);
+                    //mlog.cust_no = value.CustomerId;
+                    //mlog.device_id = value.DeviceId;
+                    //mlog.ip_addr = value.IPAddress;
+                    //mlog.note = "ไม่พบข้อมูลลูกค้า";
+                    //mlog.url = "api/authen/newpayment2";
+                    //log.logRequest(mlog);
+                    monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Not found customer!", data = cust });
+                    return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = cust });
+                }
             }
             catch (Exception e)
             {
                 mlog = new m_LogReq();
                 mlog.cust_no = value.CustomerId;
                 mlog.device_id = value.DeviceId;
-                mlog.ip_addr = IPAddress;
+                mlog.ip_addr = value.IPAddress;
                 mlog.note = e.Message;
                 mlog.url = "api/authen/newpayment2";
                 log.logRequest(mlog);
@@ -161,7 +227,9 @@ namespace DeMobile.Controllers
             try
             {
                 if (value.Code == 200 && value.PaymentStatus == 0)
+                {
                     payment.setStatusOrder(Int32.Parse(value.OrderNo), "SUC");
+                }
                 else if (value.Code == 200 && value.PaymentStatus != 0)
                 {
                     if (value.PaymentStatus == 1)
@@ -174,7 +242,7 @@ namespace DeMobile.Controllers
                 else if (value.Code != 200)
                 {
                     if (value.Code < 2007)
-                        payment.setStatusOrder(Int32.Parse(value.OrderNo), "CAN");            
+                        payment.setStatusOrder(Int32.Parse(value.OrderNo), "CAN");
                     else
                         payment.setStatusOrder(Int32.Parse(value.OrderNo), "ERR");
                 }

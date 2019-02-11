@@ -9,12 +9,12 @@ namespace DeMobile.Models.AppModel
     {
         public string CON_NO { get; set; }
         public int CUST_NO { get; set; }
-        public int TOT_AMT { get; set; }
-        public int PAY_AMT { get; set; }
+        public double TOT_AMT { get; set; }
+        public double PAY_AMT { get; set; }
         public int PERIOD { get; set; }
-        public int BAL_AMT { get; set; }
+        public double BAL_AMT { get; set; }
         public DateTime CON_DATE { get; set; }
-        public int DISC_AMT { get; set; }
+        public double DISC_AMT { get; set; }
     }
     public class m_ConPayment
     {

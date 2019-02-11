@@ -133,16 +133,16 @@ namespace DeMobile.Services
                 Console.WriteLine(e.Message);
             }
         }
-        public PaymentRes createPayment(PaymentReq value, string ip)
+        public PaymentRes createPayment(PaymentReq value)
         {
             try
             {
                 //string cmd = $@"INSERT INTO  MPAY100(CUST_NO, CON_NO, DEVICE_ID, CHANNEL_ID, PAY_AMT, TEL, IP_ADDR, DESCRIPTION)
                 //                VALUES({value.CustomerId}, '{value.ContractNo}', '{value.DeviceId}', '{value.ChannelCode}', {value.Amount}, '{value.PhoneNumber}', '{ip}', '{value.Description}')";
-                var lastOrder = createOrder(value, ip);
+                var lastOrder = createOrder(value);
                 if (lastOrder > 0)
                 {
-                    string[] sumArr = { merchantCode, lastOrder.ToString(), value.CustomerId.ToString(), value.Amount.ToString(), value.PhoneNumber == null ? "" : value.PhoneNumber, value.Description, value.ChannelCode, currecyCode.ToString(), langCode, routeNo.ToString(), ip, apiKey, md5SecretKey };
+                    string[] sumArr = { merchantCode, lastOrder.ToString(), value.CustomerId.ToString(), value.Amount.ToString(), value.PhoneNumber == null ? "" : value.PhoneNumber, value.Description, value.ChannelCode, currecyCode.ToString(), langCode, routeNo.ToString(), value.IPAddress, apiKey, md5SecretKey };
                     string sumData = string.Concat(sumArr);
                     string checkSum = CreateMD5(sumData);
                     CpPaymentReq req = new CpPaymentReq();
@@ -156,7 +156,7 @@ namespace DeMobile.Services
                     req.Currency = currecyCode;
                     req.LangCode = langCode;
                     req.RouteNo = routeNo;
-                    req.IPAddress = ip;
+                    req.IPAddress = value.IPAddress;
                     req.ApiKey = apiKey;
                     req.CheckSum = checkSum.ToLower();
 
@@ -171,7 +171,7 @@ namespace DeMobile.Services
                     {
                         Console.WriteLine(response.Result.Content.ReadAsStringAsync().Result);
                         responseObj = JsonConvert.DeserializeObject<PaymentRes>(response.Result.Content.ReadAsStringAsync().Result);
-                        var lastTransaction = saveTransaction(responseObj);
+                        var lastTransaction = saveTransaction(value, responseObj);
                         if(responseObj.Status == 0 && responseObj.Code == 200)
                             setStatusOrder(lastOrder, "ACT");
                         if(responseObj.Status != 0)
@@ -226,7 +226,7 @@ namespace DeMobile.Services
                     CHANNEL_ID = (string)reader["CHANNEL_ID"],
                     REQ_STATUS_ID = Int32.Parse(reader["REQ_STATUS_ID"].ToString()),
                     TRANS_STATUS_ID = Int32.Parse(reader["TRANS_STATUS_ID"].ToString()),
-                    PAY_AMT = Int32.Parse(reader["PAY_AMT"].ToString()),
+                    PAY_AMT = double.Parse(reader["PAY_AMT"].ToString()),
                     RETURN_URL = (string)reader["RETURN_URL"],
                     PAYMENT_URL = (string)reader["PAYMENT_URL"],
                     IP_ADDR = (string)reader["IP_ADDR"],
@@ -235,7 +235,8 @@ namespace DeMobile.Services
                     EXPIRE_TIME = (DateTime)reader["EXPIRE_TIME"],
                     BANK_REF_CODE = reader["BANK_REF_CODE"] == DBNull.Value ? "" : (string)reader["BANK_REF_CODE"],
                     RESULT_STATUS_ID = reader["RESULT_STATUS_ID"] == DBNull.Value ? null : (int?)Int32.Parse(reader["RESULT_STATUS_ID"].ToString()),
-                    PAYMENT_TIME = reader["PAYMENT_TIME"] == DBNull.Value ? null : (DateTime?)reader["RESULT_STATUS_ID"]
+                    PAYMENT_TIME = reader["PAYMENT_TIME"] == DBNull.Value ? null : (DateTime?)reader["PAYMENT_TIME"],
+                    TRANS_AMT = double.Parse(reader["TRANS_AMT"].ToString())
                 };
                 reader.Dispose();
                 oracle.OracleDisconnect();
@@ -352,7 +353,7 @@ namespace DeMobile.Services
             oracle.SqlExecuteWithParams(SqlCmd.Payment.updateTransaction, parameter);
             oracle.OracleDisconnect();
         }
-        public int createOrder(PaymentReq value, string ip)
+        public int createOrder(PaymentReq value)
         {
             try
             {
@@ -364,10 +365,11 @@ namespace DeMobile.Services
                 parameter.Add(new OracleParameter("contractNo", value.ContractNo));
                 parameter.Add(new OracleParameter("deviceId", value.DeviceId));
                 parameter.Add(new OracleParameter("channelCode", value.ChannelCode));
-                parameter.Add(new OracleParameter("amount", value.Amount));
+                parameter.Add(new OracleParameter("payAmt", value.PayAmt));
                 parameter.Add(new OracleParameter("phone", value.PhoneNumber));
-                parameter.Add(new OracleParameter("ip", ip));
+                parameter.Add(new OracleParameter("ip", value.IPAddress));
                 parameter.Add(new OracleParameter("description", value.Description));
+                parameter.Add(new OracleParameter("transAmt", value.Amount));
                 parameter.Add(new OracleParameter
                 {
                     ParameterName = "order_no",
@@ -388,29 +390,30 @@ namespace DeMobile.Services
             }
             //oracle.OracleDisconnect();
         }
-        public int saveTransaction(PaymentRes value)
+        public int saveTransaction(PaymentReq value, PaymentRes value2)
         {
             try
             {
                 oracle = new Database();
-                var createDate = DateTime.ParseExact(value.CreatedDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
-                var expireDate = DateTime.ParseExact(value.ExpiredDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                var createDate = DateTime.ParseExact(value2.CreatedDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                var expireDate = DateTime.ParseExact(value2.ExpiredDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
                 //string cmd = $@"INSERT INTO MPAY110(TRANS_NO, ORDER_NO, CUST_NO, CHANNEL_ID, REQ_STATUS_ID, TRANS_STATUS_ID, PAY_AMT, RETURN_URL, PAYMENT_URL, IP_ADDR, TOKEN, CREATED_TIME, EXPIRE_TIME)
                 //                VALUES(:transNo, :orderNo, :custNo, :channelId, :reqStatus, :tranStatus, :amount, :returnUrl, :paymentUrl, :ip, :token, :createTime, :expireTime) RETURNING TRANS_NO INTO :trans_no";
                 List<OracleParameter> parameter = new List<OracleParameter>();
-                parameter.Add(new OracleParameter("transNo", value.TransactionId));
-                parameter.Add(new OracleParameter("orderNo", Int32.Parse(value.OrderNo)));
-                parameter.Add(new OracleParameter("custNo", Int32.Parse(value.CustomerId)));
-                parameter.Add(new OracleParameter("channelId", value.ChannelCode));
-                parameter.Add(new OracleParameter("reqStatus", value.Status));
-                parameter.Add(new OracleParameter("tranStatus", value.Code));
-                parameter.Add(new OracleParameter("amount", value.Amount));
-                parameter.Add(new OracleParameter("returnUrl", value.ReturnUrl));
-                parameter.Add(new OracleParameter("paymentUrl", value.PaymentUrl));
-                parameter.Add(new OracleParameter("ip", value.IpAddress));
-                parameter.Add(new OracleParameter("token", value.Token));
+                parameter.Add(new OracleParameter("transNo", value2.TransactionId));
+                parameter.Add(new OracleParameter("orderNo", Int32.Parse(value2.OrderNo)));
+                parameter.Add(new OracleParameter("custNo", Int32.Parse(value2.CustomerId)));
+                parameter.Add(new OracleParameter("channelId", value2.ChannelCode));
+                parameter.Add(new OracleParameter("reqStatus", value2.Status));
+                parameter.Add(new OracleParameter("tranStatus", value2.Code));
+                parameter.Add(new OracleParameter("payAmt", value.PayAmt));
+                parameter.Add(new OracleParameter("returnUrl", value2.ReturnUrl));
+                parameter.Add(new OracleParameter("paymentUrl", value2.PaymentUrl));
+                parameter.Add(new OracleParameter("ip", value2.IpAddress));
+                parameter.Add(new OracleParameter("token", value2.Token));
                 parameter.Add(new OracleParameter("createTime", createDate));
                 parameter.Add(new OracleParameter("expireTime", expireDate));
+                parameter.Add(new OracleParameter("transAmt", value2.Amount));
                 parameter.Add(new OracleParameter
                 {
                     ParameterName = "trans_no",

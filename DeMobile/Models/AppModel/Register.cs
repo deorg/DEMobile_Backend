@@ -10,5 +10,6 @@ namespace DeMobile.Models.AppModel
         public string citizen_no { get; set; }
         public string phone_no { get; set; }
         public string device_id { get; set; }
+        public string ip_addr { get; set; }
     }
 }

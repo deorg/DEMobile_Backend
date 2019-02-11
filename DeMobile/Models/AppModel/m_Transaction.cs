@@ -13,7 +13,7 @@ namespace DeMobile.Models.AppModel
         public string CHANNEL_ID { get; set; }
         public int REQ_STATUS_ID { get; set; }
         public int TRANS_STATUS_ID { get; set; }
-        public int PAY_AMT { get; set; }
+        public double PAY_AMT { get; set; }
         public string RETURN_URL { get; set; }
         public string PAYMENT_URL { get; set; }
         public string IP_ADDR { get; set; }
@@ -23,5 +23,6 @@ namespace DeMobile.Models.AppModel
         public string BANK_REF_CODE { get; set; }
         public int? RESULT_STATUS_ID { get; set; }
         public DateTime? PAYMENT_TIME { get; set; }
+        public double TRANS_AMT { get; set; }
     }
 }

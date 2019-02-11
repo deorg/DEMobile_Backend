@@ -19,7 +19,7 @@ namespace DeMobile.Hubs
         {
             string username = Context.User.Identity.Name;
             string connectId = Context.ConnectionId;
-            Clients.Caller.Login($"Your ConnectionId is {connectId}");
+            Clients.Caller.Connect($"Your ConnectionId is {connectId}");
             return base.OnConnected();
         }
         public override Task OnDisconnected(bool stopCalled)

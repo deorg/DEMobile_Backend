@@ -16,6 +16,8 @@ namespace DeMobile.Models.PaymentGateway
         public string DeviceId { get; set; }
         [Required]
         public int Amount { get; set; }
+        public double PayAmt { get; set; }
+        public string IPAddress { get; set; }
         public string PhoneNumber { get; set; } = "";
         public string Description { get; set; }
         [Required]

@@ -21,6 +21,7 @@ namespace DeMobile.Concrete
         private static string password = Constants.OracleDb.Production.Password;
         private static string database = Constants.OracleDb.Production.Source;
 
+
         private static string conString = $"User Id={username};Password={password};Data Source={host}:{port}/{database};";
         private OracleConnection con;
         private OracleCommand cmd;
@@ -44,22 +45,22 @@ namespace DeMobile.Concrete
         }
         public OracleDataReader SqlQuery(string command)
         {
-            try
-            {
+            //try
+            //{
                 cmd.BindByName = true;
                 cmd.CommandText = command;
                 return cmd.ExecuteReader();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return null;
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //    return null;
+            //}
         }
         public OracleDataReader SqlQueryWithParams(string command, List<OracleParameter> parameter)
         {
-            try
-            {
+            //try
+            //{
                 cmd.BindByName = true;
                 cmd.CommandText = command;
                 foreach(var p in parameter)
@@ -67,32 +68,32 @@ namespace DeMobile.Concrete
                     cmd.Parameters.Add(p);
                 }
                 return cmd.ExecuteReader();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return null;
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //    return null;
+            //}
         }
         public int SqlExcute(string command)
         {
-            try
-            {
+            //try
+            //{
                 cmd.BindByName = true;
                 cmd.CommandText = command;
                 var result = cmd.ExecuteNonQuery();
                 return result;
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return 0;
-            }
+            //}
+            //catch(Exception e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //    return 0;
+            //}
         }
         public OracleCommand SqlExecuteWithParams(string command, List<OracleParameter> parameter)
         {
-            try
-            {
+            //try
+            //{
                 cmd.BindByName = true;
                 cmd.CommandText = command;
                 foreach (var p in parameter)
@@ -101,12 +102,12 @@ namespace DeMobile.Concrete
                 }
                 var result = cmd.ExecuteNonQuery();
                 return cmd;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return null;
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //    return null;
+            //}
         }
     }
 }

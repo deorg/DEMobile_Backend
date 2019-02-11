@@ -6,7 +6,7 @@ using System.Web;
 namespace DeMobile.Concrete
 {
     public static class Constants
-    {
+    {     
         public static class OracleDb
         {
             public static class Development

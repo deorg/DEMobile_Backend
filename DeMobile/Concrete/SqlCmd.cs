@@ -16,7 +16,8 @@ namespace DeMobile.Concrete
             public const string getProfileByPhone = "SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL FROM CUSTOMER WHERE TEL = :tel";
             public const string getProfileByCitizen = "SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL FROM CUSTOMER WHERE CITIZEN_NO = :citizen_no";
             public const string getProfileById = "SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL FROM CUSTOMER WHERE CUST_NO = :cust_no";
-            public const string registerNewDevice = "INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS) VALUES(:device_id, :cust_no, 'ACT')";
+            public const string registerNewDevice = "INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS, TEL) VALUES(:device_id, :cust_no, 'ACT', :tel)";
+            public const string registerCurrentDevice = "UPDATE MPAY020 SET CUST_NO = :cust_no, CREATED_TIME = SYSDATE, TEL = :tel WHERE DEVICE_ID = :device_id";
             public const string checkCurrentDevice = "SELECT * FROM MPAY020 WHERE DEVICE_ID = :device_id";
             public const string getDeviceByStatus = "SELECT * FROM MPAY020 WHERE DEVICE_STATUS = :status";
             public const string getDeviceByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no";
@@ -24,11 +25,12 @@ namespace DeMobile.Concrete
         public static class Payment
         {
             public const string getChannelCode = "SELECT * FROM MPAY010";
-            public const string createOrder = "INSERT INTO MPAY100(CUST_NO, CON_NO, DEVICE_ID, CHANNEL_ID, PAY_AMT, TEL, IP_ADDR, DESCRIPTION) VALUES(:custId, :contractNo, :deviceId, :channelCode, :amount, :phone, :ip, :description) RETURNING ORDER_NO INTO :order_no";
+            public const string createOrder = "INSERT INTO MPAY100(CUST_NO, CON_NO, DEVICE_ID, CHANNEL_ID, PAY_AMT, TEL, IP_ADDR, DESCRIPTION, TRANS_AMT) VALUES(:custId, :contractNo, :deviceId, :channelCode, :payAmt, :phone, :ip, :description, :transAmt) RETURNING ORDER_NO INTO :order_no";
             public const string setStatusOrder = "UPDATE MPAY100 SET ORDER_STATUS = :status WHERE ORDER_NO = :order_no";
-            public const string saveTransaction = "INSERT INTO MPAY110(TRANS_NO, ORDER_NO, CUST_NO, CHANNEL_ID, REQ_STATUS_ID, TRANS_STATUS_ID, PAY_AMT, RETURN_URL, PAYMENT_URL, IP_ADDR, TOKEN, CREATED_TIME, EXPIRE_TIME) VALUES(:transNo, :orderNo, :custNo, :channelId, :reqStatus, :tranStatus, :amount, :returnUrl, :paymentUrl, :ip, :token, :createTime, :expireTime) RETURNING TRANS_NO INTO :trans_no";
+            public const string saveTransaction = "INSERT INTO MPAY110(TRANS_NO, ORDER_NO, CUST_NO, CHANNEL_ID, REQ_STATUS_ID, TRANS_STATUS_ID, PAY_AMT, RETURN_URL, PAYMENT_URL, IP_ADDR, TOKEN, CREATED_TIME, EXPIRE_TIME, TRANS_AMT) VALUES(:transNo, :orderNo, :custNo, :channelId, :reqStatus, :tranStatus, :payAmt, :returnUrl, :paymentUrl, :ip, :token, :createTime, :expireTime, :transAmt) RETURNING TRANS_NO INTO :trans_no";
             public const string updateTransaction = "UPDATE MPAY110 SET TRANS_STATUS_ID = :trans_status_id, BANK_REF_CODE = :bank_ref_code, RESULT_STATUS_ID = :result_status_id, PAYMENT_TIME = :payment_time WHERE TRANS_NO = :trans_no";
             public const string getTransactionByOrder_no = "SELECT * FROM MPAY110 WHERE ORDER_NO = :order_no";
+            public const string getContractById = "SELECT * FROM CONTRACT WHERE CON_NO = :con_no";
         }
         public static class Notification
         {
@@ -44,6 +46,8 @@ namespace DeMobile.Concrete
         public static class Log
         {
             public const string logReq = "INSERT INTO MPAY200(NOTE, CUST_NO, DEVICE_ID, IP_ADDR, URL) VALUES(:note, :cust_no, :device_id, :ip_addr, :url)";
+            public const string logRegister = "INSERT INTO MPAY201(CUST_NO, DEVICE_ID, TEL, IP_ADDR) VALUES(:cust_no, :device_id, :tel, :ip_addr)";
+            public const string logOrder = "INSERT INTO MPAY202(CUST_NO, CON_NO, ORDER_NO, TRANS_NO, CHANNEL_ID, PAY_AMT, TRANS_AMT, DEVICE_ID, TEL, NOTE, IP_ADDR) VALUES(:cust_no, :con_no, :order_no, :trans_no, :channel_id, :pay_amt, :trans_amt, :device_id, :tel, :note, :ip_addr)";
         }
     }
 }

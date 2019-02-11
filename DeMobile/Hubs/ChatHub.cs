@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using DeMobile.Concrete;
 using DeMobile.Models;
+using DeMobile.Services;
 using Microsoft.AspNet.SignalR;
+using Oracle.ManagedDataAccess.Client;
 
 namespace DeMobile.Hubs
 {
     public class ChatHub : Hub
     {
+        private Database oracle;
+        private User user;
         public override Task OnConnected()
         {
             string username = Context.User.Identity.Name;
             string connectId = Context.ConnectionId;
+            Clients.Caller.Login($"Your ConnectionId is {connectId}");
             return base.OnConnected();
         }
         public override Task OnDisconnected(bool stopCalled)
@@ -21,6 +27,21 @@ namespace DeMobile.Hubs
             string username = Context.User.Identity.Name;
             string connectId = Context.ConnectionId;
             return base.OnDisconnected(stopCalled);
+        }
+        public void registerContext(string device_id)
+        {
+            user = new User();
+            var hasDevice = user.checkCurrentDevice(device_id);
+            if (hasDevice != null)
+            {
+                var connectId = Context.ConnectionId;
+                oracle = new Database();
+                List<OracleParameter> parameter = new List<OracleParameter>();
+                parameter.Add(new OracleParameter("conn_id", connectId));
+                parameter.Add(new OracleParameter("device_id", device_id));
+                oracle.SqlExecuteWithParams(SqlCmd.Notification.updateConnectId, parameter);
+                oracle.OracleDisconnect();
+            }
         }
         public void setID(string user)
         {

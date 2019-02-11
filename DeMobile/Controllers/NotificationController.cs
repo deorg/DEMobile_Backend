@@ -72,6 +72,13 @@ namespace DeMobile.Controllers
                 return InternalServerError(e.InnerException);
             }
         }
+        [Route("api/notification/send/all")]
+        public IHttpActionResult GetTestNoti(string message)
+        {
+            ChatHub hub = new ChatHub();
+            hub.SendMessageAll(message);
+            return Ok();
+        }
         [Route("api/notification/send/cust_no")]
         public IHttpActionResult GetSendNotiCust(int cust_no, string type,  string title, string message)
         {
