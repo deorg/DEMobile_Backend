@@ -1,13 +1,71 @@
 ﻿using System;
 using System.Web.Http;
+using DeMobile.Models.Management;
 using DeMobile.Services;
 using Oracle.ManagedDataAccess.Client;
-
+using System.Configuration;
+using System.Web.Configuration;
 
 namespace DeMobile.Controllers
 {
     public class InformationController : ApiController
     {
+        Information info = new Information();
+
+        [Route("api/information/dashboard")]
+        public IHttpActionResult GetNumMember()
+        {
+            try
+            {
+                var num = info.getDashBoard();
+                return Ok(new { status = "SUCCESS", data = num });
+            }
+            catch(Exception e)
+            {
+                return Ok(new { status = "FAILURE", data = e.Message });
+            }
+        }
+        [Route("api/management/service")]
+        public IHttpActionResult GetManageService()
+        {
+            try
+            {
+                Configuration config;
+                config = WebConfigurationManager.OpenWebConfiguration("~");
+                AppSettingsSection appsettings;
+                appsettings = (AppSettingsSection)config.GetSection("appSettings");
+                appsettings.Settings["AppService"].Value = "false";
+                config.Save();
+
+                return Ok(new { status = "SUCCESS", data = appsettings.Settings["AppService"].Value });
+            }
+            catch(Exception e)
+            {
+                return Ok(new { status = "FAILURE", data = e.Message });
+            }
+        }
+        [Route("api/management/service")]
+        public IHttpActionResult PostManageService([FromBody]m_Service value)
+        {
+            try
+            {
+                Configuration config;
+                config = WebConfigurationManager.OpenWebConfiguration("~");
+                AppSettingsSection appsettings;
+                appsettings = (AppSettingsSection)config.GetSection("appSettings");
+                appsettings.Settings["AppService"].Value = value.appService.ToString();
+                appsettings.Settings["SmsService"].Value = value.smsService.ToString();
+                appsettings.Settings["PaymentService"].Value = value.paymentService.ToString();
+                config.Save();
+                return Ok(new { status = "SUCCESS", data = "saved" });
+            }
+            catch(Exception e)
+            {
+                return Ok(new { status = "FAILURE", data = e.Message });
+            }
+        }
+
+
         [Route("api/info/getbranch")]
         public IHttpActionResult GetBranch(string brh)
         {

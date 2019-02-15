@@ -23,6 +23,20 @@ namespace DeMobile.Services
             oracle.SqlExecuteWithParams(SqlCmd.Log.logReq, parameter);
             oracle.OracleDisconnect();
         }
+        public void logSignin(m_LogReq log)
+        {
+            oracle = new Database();
+            List<OracleParameter> parameter = new List<OracleParameter>
+            {
+                new OracleParameter("cust_no", log.cust_no),
+                new OracleParameter("device_id", log.device_id),
+                new OracleParameter("tel", log.tel),
+                new OracleParameter("ip_addr", log.ip_addr),
+                new OracleParameter("status", log.status),
+                new OracleParameter("note", log.note)
+            };
+            oracle.SqlExecuteWithParams(SqlCmd.Log.logSignin, parameter);
+        }
         public void logOrder(m_LogOrder log)
         {
             oracle = new Database();

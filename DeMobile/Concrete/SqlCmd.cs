@@ -9,18 +9,20 @@ namespace DeMobile.Concrete
     {
         public static class User
         {
-            public const string getSms = "SELECT SMS010_PK, CON_NO, SMS_NOTE, SMS_TIME FROM SMS010 WHERE CUST_NO = :cust_no";
+            public const string getSms = "SELECT * FROM SMS010 WHERE CUST_NO = :cust_no ORDER BY SMS010_PK";
+            public const string readSms = "UPDATE SMS010 SET READ_STATUS = 'READ' WHERE CUST_NO = :cust_no AND SMS010_PK <= :sms010_pk AND SENDER_TYPE != 'CUST'";
             public const string getContract = "SELECT CON_NO, CUST_NO, TOT_AMT, PAY_AMT, PERIOD, BAL_AMT, CON_DATE, DISC_AMT FROM CONTRACT WHERE CUST_NO = :cust_no ORDER BY CON_DATE";
             public const string findContract = "SELECT * FROM CONTRACT WHERE CUST_NO = :cust_no AND CON_NO = :con_no";
             public const string getContractPayment = "SELECT LNC_NO CON_NO, LNL_PAY_DATE PAY_DATE, LNL_PAY_AMT PAY_AMT FROM VW_LOAN_LEDGER_CO WHERE LNC_NO = :lnc_no ORDER BY LNL_SEQ DESC";
-            public const string getProfileByPhone = "SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL FROM CUSTOMER WHERE TEL = :tel";
-            public const string getProfileByCitizen = "SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL FROM CUSTOMER WHERE CITIZEN_NO = :citizen_no";
-            public const string getProfileById = "SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL FROM CUSTOMER WHERE CUST_NO = :cust_no";
+            public const string getProfileByPhone = "SELECT * FROM CUSTOMER WHERE TEL = :tel";
+            public const string getProfileByCitizen = "SELECT * FROM CUSTOMER WHERE CITIZEN_NO = :citizen_no";
+            public const string getProfileById = "SELECT * FROM CUSTOMER WHERE CUST_NO = :cust_no";
             public const string registerNewDevice = "INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS, TEL) VALUES(:device_id, :cust_no, 'ACT', :tel)";
             public const string registerCurrentDevice = "UPDATE MPAY020 SET CUST_NO = :cust_no, CREATED_TIME = SYSDATE, TEL = :tel WHERE DEVICE_ID = :device_id";
             public const string checkCurrentDevice = "SELECT * FROM MPAY020 WHERE DEVICE_ID = :device_id";
             public const string getDeviceByStatus = "SELECT * FROM MPAY020 WHERE DEVICE_STATUS = :status";
             public const string getDeviceByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no";
+            public const string getConnIdByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no";
         }
         public static class Payment
         {
@@ -42,12 +44,21 @@ namespace DeMobile.Concrete
             public const string updateConnectId = "UPDATE MPAY020 SET CONN_ID = :conn_id WHERE DEVICE_ID = :device_id";
             public const string createNotification = "INSERT INTO SMS030(TYPE, TITLE, CONTENT, CUST_NO) VALUES(:type, :title, :content, :cust_no)";
             public const string getNotification = "SELECT * FROM SMS030 WHERE CUST_NO = :cust_no";
+            public const string getConnectionid = "SELECT CONN_ID FROM MPAY020 WHERE CUST_NO = :cust_no";
+            public const string newSms = "INSERT INTO SMS010(CUST_NO, CON_NO, SMS_NOTE, SENDER, SENDER_TYPE) VALUES(:cust_no, :con_no, :sms_note, :sender, :sender_type)";
         }
         public static class Log
         {
             public const string logReq = "INSERT INTO MPAY200(NOTE, CUST_NO, DEVICE_ID, IP_ADDR, URL) VALUES(:note, :cust_no, :device_id, :ip_addr, :url)";
             public const string logRegister = "INSERT INTO MPAY201(CUST_NO, DEVICE_ID, TEL, IP_ADDR) VALUES(:cust_no, :device_id, :tel, :ip_addr)";
-            public const string logOrder = "INSERT INTO MPAY202(CUST_NO, CON_NO, ORDER_NO, TRANS_NO, CHANNEL_ID, PAY_AMT, TRANS_AMT, DEVICE_ID, TEL, NOTE, IP_ADDR) VALUES(:cust_no, :con_no, :order_no, :trans_no, :channel_id, :pay_amt, :trans_amt, :device_id, :tel, :note, :ip_addr)";
+            public const string logSignin = "INSERT INTO MPAY202(CUST_NO, DEVICE_ID, TEL, IP_ADDR, STATUS, NOTE) VALUES(:cust_no, :device_id, :tel, :ip_addr, :status, :note)";
+            public const string logOrder = "INSERT INTO MPAY203(CUST_NO, CON_NO, ORDER_NO, TRANS_NO, CHANNEL_ID, PAY_AMT, TRANS_AMT, DEVICE_ID, TEL, NOTE, IP_ADDR) VALUES(:cust_no, :con_no, :order_no, :trans_no, :channel_id, :pay_amt, :trans_amt, :device_id, :tel, :note, :ip_addr)";
+        }
+        public static class Information
+        {
+            public const string getNumMember = "SELECT COUNT(*) SUM_NEW_USER FROM CUSTOMER";
+            public const string getRegisteredMember = "select count(distinct cust_no) from mpay020";
+            public const string getSignedInMember = "select count(distinct cust_no) from mpay202";
         }
     }
 }

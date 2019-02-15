@@ -67,7 +67,7 @@ namespace DeMobile.Controllers
         public IHttpActionResult GetCheckPhone(string phone, string deviceId)
         {
             //User cust = new User();
-            m_LogReq mlog;
+            m_LogReq mlog = new m_LogReq();
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string url = HttpContext.Current.Request.Path;
             try
@@ -79,53 +79,64 @@ namespace DeMobile.Controllers
                     if (device != null)
                     {
                         if (device.device_status == "ACT")
+                        {
+                            mlog.cust_no = result.CUST_NO;
+                            mlog.device_id = deviceId;
+                            mlog.tel = phone;
+                            mlog.ip_addr = IPAddress;
+                            mlog.status = "SUCCESS";
+                            mlog.note = string.Empty;
+                            log.logSignin(mlog);
                             return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = result });
+                        }
                         else
                         {
-                            mlog = new m_LogReq();
-                            mlog.device_id = deviceId;
                             mlog.cust_no = result.CUST_NO;
+                            mlog.device_id = deviceId;
+                            mlog.tel = phone;
                             mlog.ip_addr = IPAddress;
+                            mlog.status = "FAIL";
                             mlog.note = "เครื่องลูกค้าถูกระงับการใช้งาน";
-                            mlog.url = "api/authen/identify";
-                            log.logRequest(mlog);
+                            log.logSignin(mlog);
                             monitor.sendMessage(url, IPAddress, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                             return Ok(new { code = 400, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                         }
                     }
                     else
                     {
-                        mlog = new m_LogReq();
-                        mlog.device_id = deviceId;
                         mlog.cust_no = result.CUST_NO;
+                        mlog.device_id = deviceId;
+                        mlog.tel = phone;
                         mlog.ip_addr = IPAddress;
-                        mlog.note = "ไม่พบเครื่องลูกค้าในระบบ / ลูกค้าเปลี่ยนเครื่อง";
-                        mlog.url = "api/authen/identify";
-                        log.logRequest(mlog);
+                        mlog.status = "FAIL";
+                        mlog.note = "ไม่พบเครื่องลูกค้าในระบบ";
+                        log.logSignin(mlog);
                         monitor.sendMessage(url, IPAddress, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
                         return Ok(new { code = 400, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
                     }
                 }
                 else
                 {
-                    mlog = new m_LogReq();
+                    mlog.cust_no = result.CUST_NO;
                     mlog.device_id = deviceId;
+                    mlog.tel = phone;
                     mlog.ip_addr = IPAddress;
-                    mlog.note = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ / ลูกค้าเปลี่ยนเบอร์โทรศัพท์";
-                    mlog.url = "api/authen/identify";
-                    log.logRequest(mlog);
+                    mlog.status = "FAIL";
+                    mlog.note = "ไม่พบเบอร์ลูกค้าในระบบ";
+                    log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ!", data = result });
                     return Ok(new { code = 400, message = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ!", data = result });
                 }
             }
             catch (Exception e)
             {
-                mlog = new m_LogReq();
+                mlog.cust_no = 0;
                 mlog.device_id = deviceId;
+                mlog.tel = phone;
                 mlog.ip_addr = IPAddress;
+                mlog.status = "FAIL";
                 mlog.note = e.Message;
-                mlog.url = "api/authen/identify";
-                log.logRequest(mlog);
+                log.logSignin(mlog);
                 monitor.sendMessage(url, IPAddress, new { phone = phone, deviceId = deviceId }, new { Message = e.Message });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
@@ -202,6 +213,43 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
+        [Route("api/customer/sms/marktoread")]
+        public IHttpActionResult PostMarktoRead([FromBody]m_CustReadMsg value)
+        {
+            m_LogReq mlog;
+            string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string url = HttpContext.Current.Request.Path;
+            try
+            {
+                var result = _user.getProfileById(value.cust_no);
+                if (result != null && result.CUST_NO != 0)
+                {
+                    _user.readSms(value);
+                    monitor.sendMessage(url, IPAddress, value, value);
+                    return Ok(new { code = 200, message = "อัพเดท sms สำเร็จ", data = value });
+                }
+                else
+                {
+                    mlog = new m_LogReq();
+                    mlog.ip_addr = IPAddress;
+                    mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล SMS ของลูกค้าโดยไม่ได้รับอนุญาต";
+                    mlog.url = "api/customer/sms/marktoread";
+                    log.logRequest(mlog);
+                    monitor.sendMessage(url, IPAddress, value, new { Message = "Not found customer!" });
+                    return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
+                }
+            }
+            catch (Exception e)
+            {
+                mlog = new m_LogReq();
+                mlog.ip_addr = IPAddress;
+                mlog.note = e.Message;
+                mlog.url = "api/customer/sms/marktoread";
+                log.logRequest(mlog);
+                monitor.sendMessage(url, IPAddress, value, new { Message = e.Message });
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
+            }
+        }
         [Route("api/customer/contract")]
         public IHttpActionResult GetContract(int id)
         {
@@ -257,5 +305,10 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
+        //[Route("api/information/newuser")]
+        //public IHttpActionResult GetNewUser()
+        //{
+
+        //}
     }
 }

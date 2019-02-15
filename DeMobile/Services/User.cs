@@ -22,12 +22,18 @@ namespace DeMobile.Services
             var reader = oracle.SqlQueryWithParams(SqlCmd.User.getSms, parameter);
             while (reader.Read())
             {
+                var test = reader["CON_NO"];
                 data.Add(new m_SMS010
                 {
                     SMS010_PK = Int32.Parse(reader["SMS010_PK"].ToString()),
-                    CON_NO = (string)reader["CON_NO"],
+                    CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                    CON_NO = reader["CON_NO"] == DBNull.Value ? string.Empty : (string)reader["CON_NO"],
                     SMS_NOTE = (string)reader["SMS_NOTE"],
-                    SMS_TIME = (DateTime)reader["SMS_TIME"]
+                    SMS_TIME = (DateTime)reader["SMS_TIME"],
+                    SENDER = reader["SENDER"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SENDER"].ToString()),
+                    SENDER_TYPE = (string)reader["SENDER_TYPE"],
+                    SMS010_REF = reader["SMS010_REF"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SMS010_REF"].ToString()),
+                    READ_STATUS = (string)reader["READ_STATUS"]
                 });
             }
             if (data.Count == 0)
@@ -39,6 +45,17 @@ namespace DeMobile.Services
             reader.Dispose();
             oracle.OracleDisconnect();
             return data;
+        }
+        public void readSms(m_CustReadMsg value)
+        {
+            oracle = new Database();
+            List<OracleParameter> parameter = new List<OracleParameter>
+            {
+                new OracleParameter("cust_no", value.cust_no),
+                new OracleParameter("sms010_pk", value.sms010_pk)
+            };
+            oracle.SqlExecuteWithParams(SqlCmd.User.readSms, parameter);
+            oracle.OracleDisconnect();
         }
         public List<m_ConPayment> getPayment(string no)
         {
@@ -150,7 +167,8 @@ namespace DeMobile.Services
                     CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
                     CUST_NAME = (string)reader["CUST_NAME"],
                     CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
-                    TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"]
+                    TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+                    PERMIT = (string)reader["PERMIT"]
                 };
                 reader.Dispose();
                 oracle.OracleDisconnect();
@@ -181,7 +199,8 @@ namespace DeMobile.Services
                     CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
                     CUST_NAME = (string)reader["CUST_NAME"],
                     CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
-                    TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"]
+                    TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+                    PERMIT = (string)reader["PERMIT"]
                 };
                 reader.Dispose();
                 oracle.OracleDisconnect();
@@ -336,7 +355,8 @@ namespace DeMobile.Services
                     CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
                     CUST_NAME = (string)reader["CUST_NAME"],
                     CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
-                    TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"]
+                    TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+                    PERMIT = (string)reader["PERMIT"]
                 };
                 reader.Dispose();
                 oracle.OracleDisconnect();

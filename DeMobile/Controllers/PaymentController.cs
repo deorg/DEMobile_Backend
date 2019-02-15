@@ -19,7 +19,7 @@ namespace DeMobile.Controllers
         User user;
         MonitorHub monitor = new MonitorHub();
         Log log = new Log();
-
+        ChatHub chat = new ChatHub();
         m_LogReq mlog;
         m_LogOrder mlogOrder;
         [Route("api/payment/newpayment2")]
@@ -45,9 +45,9 @@ namespace DeMobile.Controllers
                 {
                     var contract = user.findContract(value.CustomerId, value.ContractNo);
                     if (contract != null)
-                    {               
+                    {
                         if (value.PayAmt <= (contract.BAL_AMT - contract.DISC_AMT))
-                        {                          
+                        {
                             Payment payment = new Payment();
                             PaymentRes res = payment.createPayment(value);
                             if (res == null)
@@ -262,8 +262,53 @@ namespace DeMobile.Controllers
         public IHttpActionResult GetLine()
         {
             Payment payment = new Payment();
-            payment.sendMessageToLine();
+            payment.sendMessageToLine("test");
             return Json(new { result = "sent" });
+        }
+        [Route("api/line/webhook")]
+        public IHttpActionResult PostWebhook([FromBody]lineData value)
+        {
+            if (value.events.First().message.type == "text")
+            {
+                var text2 = value.events.First().message.text.Split(new char[0]);
+                var cust_no = Int32.Parse(text2[0]);
+                var message = text2[1];
+                m_SMS010 sms = new m_SMS010();
+                sms.CUST_NO = cust_no;
+                sms.CON_NO = string.Empty;
+                sms.SMS_NOTE = message;
+                sms.SENDER = cust_no;
+                sms.SENDER_TYPE = "SYSTEM";
+                Notification noti = new Notification();
+                noti.createSms(sms);
+                sms.SMS_TIME = DateTime.Now;
+                chat.SendSmsByConnId(sms);
+                //monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "Admin ส่งข้อความ", data = sms });
+            }
+            return Ok();
+        }
+        public class lineData
+        {
+            public lineEvent[] events { get; set; }
+        }
+        public class lineEvent
+        {
+            public string replyToken { get; set; }
+            public string type { get; set; }
+            public DateTime timestamp { get; set; }
+            public lineSource source { get; set; }
+            public lineMessage message { get; set; }
+        }
+        public class lineSource
+        {
+            public string type { get; set; }
+            public string userId { get; set; }
+        }
+        public class lineMessage
+        {
+            public string id { get; set; }
+            public string type { get; set; }
+            public string text { get; set; }
         }
     }
 }

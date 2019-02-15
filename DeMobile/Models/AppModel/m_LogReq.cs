@@ -10,7 +10,9 @@ namespace DeMobile.Models.AppModel
         public string note { get; set; }
         public int cust_no { get; set; }
         public string device_id { get; set; }
+        public string tel { get; set; }
         public string ip_addr { get; set; }
+        public string status { get; set; }
         public string url { get; set; }
     }
     public class m_LogOrder

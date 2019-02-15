@@ -25,36 +25,73 @@ namespace DeMobile.Services
             oracle.SqlExecuteWithParams(SqlCmd.Notification.createNotification, parameter);
             oracle.OracleDisconnect();
         }
-        public List<m_Notification> getNotification(int cust_no)
+        public void createSms(m_SMS010 value)
         {
             oracle = new Database();
-            List<m_Notification> data = new List<m_Notification>();
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            parameter.Add(new OracleParameter("cust_no", cust_no));
-            var reader = oracle.SqlQueryWithParams(SqlCmd.Notification.getNotification, parameter);
-            while (reader.Read())
+            List<OracleParameter> parameter = new List<OracleParameter>
             {
-                data.Add(new m_Notification
-                {
-                    id = Int32.Parse(reader["SMS030_PK"].ToString()),
-                    type = (string)reader["TYPE"],
-                    title = (string)reader["TITLE"],
-                    content = (string)reader["CONTENT"],
-                    read = Int32.Parse(reader["READ"].ToString()) == 0 ? false : true,
-                    cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
-                    created_time = (DateTime)reader["CREATED_TIME"]
-                });
-            }
-            if (data.Count == 0)
-            {
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return null;
-            }
-            reader.Dispose();
+                new OracleParameter(":cust_no", value.CUST_NO),
+                new OracleParameter(":con_no", value.CON_NO),
+                new OracleParameter(":sms_note", value.SMS_NOTE),
+                new OracleParameter(":sender", value.SENDER),
+                new OracleParameter(":sender_type", value.SENDER_TYPE)
+            };
+            oracle.SqlExecuteWithParams(SqlCmd.Notification.newSms, parameter);
             oracle.OracleDisconnect();
-            return data;
         }
+        public List<m_Notification> genNotification(m_SMS010[] value)
+        {
+            oracle = new Database();
+            List<m_Notification> noti = new List<m_Notification>();
+            foreach(var c in value){
+                List<OracleParameter> parameter = new List<OracleParameter>
+                {
+                    new OracleParameter("cust_id", c.CUST_NO)
+                };
+                var reader = oracle.SqlQueryWithParams(SqlCmd.Notification.getConnectionid, parameter);
+                while(reader.Read())
+                {
+                    noti.Add(new m_Notification {
+                        cust_no = c.CUST_NO,
+                        con_no = c.CON_NO,
+                        note = c.SMS_NOTE,
+                        conn_id = (string)reader["CONN_ID"],
+                        time = DateTime.Now
+                    });
+                }
+            }
+            return noti;
+        }
+        //public List<m_Notification> getNotification(int cust_no)
+        //{
+        //    oracle = new Database();
+        //    List<m_Notification> data = new List<m_Notification>();
+        //    List<OracleParameter> parameter = new List<OracleParameter>();
+        //    parameter.Add(new OracleParameter("cust_no", cust_no));
+        //    var reader = oracle.SqlQueryWithParams(SqlCmd.Notification.getNotification, parameter);
+        //    while (reader.Read())
+        //    {
+        //        data.Add(new m_Notification
+        //        {
+        //            id = Int32.Parse(reader["SMS030_PK"].ToString()),
+        //            type = (string)reader["TYPE"],
+        //            title = (string)reader["TITLE"],
+        //            content = (string)reader["CONTENT"],
+        //            read = Int32.Parse(reader["READ"].ToString()) == 0 ? false : true,
+        //            cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
+        //            created_time = (DateTime)reader["CREATED_TIME"]
+        //        });
+        //    }
+        //    if (data.Count == 0)
+        //    {
+        //        reader.Dispose();
+        //        oracle.OracleDisconnect();
+        //        return null;
+        //    }
+        //    reader.Dispose();
+        //    oracle.OracleDisconnect();
+        //    return data;
+        //}
         public string sendOTP(int cust_no)
         {
             _user = new User();

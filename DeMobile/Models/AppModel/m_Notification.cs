@@ -8,9 +8,14 @@ namespace DeMobile.Models.AppModel
     public class m_SMS010
     {
         public int SMS010_PK { get; set; }
+        public int CUST_NO { get; set; }
         public string CON_NO { get; set; }
         public string SMS_NOTE { get; set; }
         public DateTime SMS_TIME { get; set; }
+        public int? SENDER { get; set; }
+        public string SENDER_TYPE { get; set; }
+        public int? SMS010_REF { get; set; }
+        public string READ_STATUS { get; set; }
     }
     public class m_SMS020
     {
@@ -32,13 +37,23 @@ namespace DeMobile.Models.AppModel
 
     public class m_Notification
     {
-        public int id { get; set; }
-        public string type { get; set; }
-        public string title { get; set; }
-        public string content { get; set; }
-        public bool read { get; set; }
         public int cust_no { get; set; }
-        public DateTime created_time { get; set; }
+        public string con_no { get; set; }
+        public string note { get; set; }
+        public string conn_id { get; set; }
+        public DateTime time { get; set; }
+    }
+
+    public class m_CustMessage
+    {
+        public int cust_no { get; set; }
+        public string message { get; set; }
+    }
+
+    public class m_CustReadMsg
+    {
+        public int cust_no { get; set; }
+        public int sms010_pk { get; set; }
     }
 
     public class m_LineNoti

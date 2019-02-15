@@ -14,7 +14,10 @@ namespace DeMobile.Controllers
 {
     public class NotificationController : ApiController
     {
-        User user;
+        User user = new User();
+        MonitorHub monitor = new MonitorHub();
+        ChatHub chat = new ChatHub();
+        Payment payment = new Payment();
         [Route("api/sms/sendOtp")]
         public IHttpActionResult GetSendOtp(int cust_no)
         {
@@ -53,7 +56,7 @@ namespace DeMobile.Controllers
         [Route("api/notification/send/all")]
         public IHttpActionResult GetSendNotiAll(string title, string message)
         {
-            user = new User();
+            //user = new User();
             try
             {
                 var device = user.getDeviceByStatus("ACT");
@@ -82,7 +85,7 @@ namespace DeMobile.Controllers
         [Route("api/notification/send/cust_no")]
         public IHttpActionResult GetSendNotiCust(int cust_no, string type,  string title, string message)
         {
-            user = new User();
+            //user = new User();
             try
             {
                 var device = user.getDeviceByCustNo(cust_no);
@@ -100,24 +103,97 @@ namespace DeMobile.Controllers
                 return InternalServerError(e.InnerException);
             }
         }
-        [Route("api/notification/get")]
-        public IHttpActionResult GetNotification(int cust_no)
+        [Route("api/notification/send/sms")]
+        public IHttpActionResult PostSendSMS([FromBody]m_SMS010[] msg)
         {
-            Notification noti = new Notification();
-            MonitorHub monitor = new MonitorHub();
-            string clientHostname = HttpContext.Current.Request.UserHostName;
-            string url = HttpContext.Current.Request.Path;
             try
-            {      
-                var notis = noti.getNotification(cust_no);
-                monitor.sendMessage(url, clientHostname, new { cust_no = cust_no }, notis);
-                return Ok(notis);
-            }
-            catch (Exception e)
             {
-                monitor.sendMessage(url, clientHostname, new { cust_no = cust_no }, new { Message = e.Message });
+                Notification noti = new Notification();
+                TransactionHub sender = new TransactionHub();
+                var notiData = noti.genNotification(msg);
+                sender.sendSMS(notiData);
+                return Ok("sent");
+            }
+            catch(Exception e)
+            {
                 return InternalServerError(e.InnerException);
             }
         }
+        [Route("api/customer/sendmessage")]
+        public IHttpActionResult PostCustSendMsg([FromBody]m_CustMessage value)
+        {
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
+            try
+            {
+                m_SMS010 sms = new m_SMS010();
+                sms.CUST_NO = value.cust_no;
+                sms.CON_NO = string.Empty;
+                sms.SMS_NOTE = value.message;
+                sms.SENDER = value.cust_no;
+                sms.SENDER_TYPE = "CUST";
+                Notification noti = new Notification();
+                noti.createSms(sms);
+                sms.SMS_TIME = DateTime.Now;
+
+
+                //var banks = payment.getChannelCode();
+                //chat.SendSmsByConnId(sms);
+                var cust = user.getProfileById(value.cust_no);
+                payment.sendMessageToLine($"[{cust.CUST_NO.ToString()}] คุณ{cust.CUST_NAME} => {value.message}");
+                monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "ลูกค้าส่งข้อความ", data = sms });
+                return Ok(new { code = 200, message = "ส่งข้อความสำเร็จ", data = sms });
+            }
+            catch (Exception e)
+            {
+                monitor.sendMessage(url, clientHostname, value, new { Message = e.Message });
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
+            }
+        }
+        [Route("api/admin/sendmessage")]
+        public IHttpActionResult PostAdminSendMsg([FromBody]m_CustMessage value)
+        {
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
+            try
+            {
+                m_SMS010 sms = new m_SMS010();
+                sms.CUST_NO = value.cust_no;
+                sms.CON_NO = string.Empty;
+                sms.SMS_NOTE = value.message;
+                sms.SENDER = value.cust_no;
+                sms.SENDER_TYPE = "SYSTEM";
+                Notification noti = new Notification();
+                noti.createSms(sms);
+                sms.SMS_TIME = DateTime.Now;
+                chat.SendSmsByConnId(sms);
+                monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "Admin ส่งข้อความ", data = sms });
+                return Ok(new { code = 200, message = "ส่งข้อความสำเร็จ", data = sms });
+            }
+            catch(Exception e)
+            {
+                monitor.sendMessage(url, clientHostname, value, new { Message = e.Message });
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
+            }
+        }
+        //[Route("api/notification/get")]
+        //public IHttpActionResult GetNotification(int cust_no)
+        //{
+        //    Notification noti = new Notification();
+        //    MonitorHub monitor = new MonitorHub();
+        //    string clientHostname = HttpContext.Current.Request.UserHostName;
+        //    string url = HttpContext.Current.Request.Path;
+        //    try
+        //    {      
+        //        var notis = noti.getNotification(cust_no);
+        //        monitor.sendMessage(url, clientHostname, new { cust_no = cust_no }, notis);
+        //        return Ok(notis);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        monitor.sendMessage(url, clientHostname, new { cust_no = cust_no }, new { Message = e.Message });
+        //        return InternalServerError(e.InnerException);
+        //    }
+        //}
     }
 }

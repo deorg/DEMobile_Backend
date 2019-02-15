@@ -98,13 +98,15 @@ namespace DeMobile.Services
             oracle.OracleDisconnect();
             return data;
         }
-        public void sendMessageToLine()
+        public void sendMessageToLine(string message)
         {
             m_LineNoti msg = new m_LineNoti();
             List<string> to = new List<string>();
             List<m_LineMessage> lmsg = new List<m_LineMessage>();
-            to.Add("U7c8a8a90f9727517c12e2bec78288fb3");
-            lmsg.Add(new m_LineMessage { type = "text", text = "test" });
+            to.Add("U7c8a8a90f9727517c12e2bec78288fb3"); // ไปป์
+            to.Add("Ua3f2843454b046cbfe9e391103b0a4b3"); // พี่อ้อ
+            to.Add("U40a096db8638ef63ba6f6fd31b9b4a3e"); // พี่เอก
+            lmsg.Add(new m_LineMessage { type = "text", text = message });
             msg.to = to;
             msg.messages = lmsg;
             
@@ -363,7 +365,7 @@ namespace DeMobile.Services
                 List<OracleParameter> parameter = new List<OracleParameter>();
                 parameter.Add(new OracleParameter("custId", value.CustomerId));
                 parameter.Add(new OracleParameter("contractNo", value.ContractNo));
-                parameter.Add(new OracleParameter("deviceId", value.DeviceId));
+                //parameter.Add(new OracleParameter("deviceId", value.DeviceId));
                 parameter.Add(new OracleParameter("channelCode", value.ChannelCode));
                 parameter.Add(new OracleParameter("payAmt", value.PayAmt));
                 parameter.Add(new OracleParameter("phone", value.PhoneNumber));

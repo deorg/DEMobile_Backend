@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using DeMobile.Concrete;
+using DeMobile.Models.AppModel;
 using DeMobile.Models.PaymentGateway;
 using DeMobile.Services;
 using Microsoft.AspNet.SignalR;
@@ -52,6 +53,14 @@ namespace DeMobile.Hubs
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<TransactionHub>();
             context.Clients.Clients(connectId).Notify(new { title = title, message = message});
+        }
+        public void sendSMS(List<m_Notification> value)
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext<TransactionHub>();
+            foreach(var msg in value)
+            {
+                context.Clients.Client(msg.conn_id).Sms(msg);
+            }
         }
         //public void SendMessage(string connectionId, bool status)
         //{
