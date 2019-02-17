@@ -59,6 +59,8 @@ namespace DeMobile.Concrete
             public const string getNumMember = "SELECT COUNT(*) SUM_NEW_USER FROM CUSTOMER";
             public const string getRegisteredMember = "select count(distinct cust_no) from mpay020";
             public const string getSignedInMember = "select count(distinct cust_no) from mpay202";
+            public const string getLogRegisteredToday = "SELECT * FROM MPAY201 WHERE TRUNC(CREATED_TIME) = TRUNC(SYSDATE)";
+            public const string getLogSigninToday = "SELECT * FROM MPAY202 WHERE TRUNC(CREATED_TIME) = TRUNC(SYSDATE)";
         }
     }
 }

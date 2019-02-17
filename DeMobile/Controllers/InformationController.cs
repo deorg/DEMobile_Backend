@@ -34,10 +34,11 @@ namespace DeMobile.Controllers
                 config = WebConfigurationManager.OpenWebConfiguration("~");
                 AppSettingsSection appsettings;
                 appsettings = (AppSettingsSection)config.GetSection("appSettings");
-                appsettings.Settings["AppService"].Value = "false";
-                config.Save();
+                var appService = appsettings.Settings["AppService"].Value;
+                var smsService = appsettings.Settings["SmsService"].Value;
+                var paymentService = appsettings.Settings["PaymentService"].Value;
 
-                return Ok(new { status = "SUCCESS", data = appsettings.Settings["AppService"].Value });
+                return Ok(new { status = "SUCCESS", data = new { appService = appService, smsService = smsService, paymentService = paymentService} });
             }
             catch(Exception e)
             {
