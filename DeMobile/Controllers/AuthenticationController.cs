@@ -2,7 +2,9 @@
 using DeMobile.Models.AppModel;
 using DeMobile.Services;
 using System;
+using System.Configuration;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Http;
 
 namespace DeMobile.Controllers
@@ -16,7 +18,12 @@ namespace DeMobile.Controllers
         [Route("api/authen/register")]
         public IHttpActionResult PostRegister([FromBody]m_Register data)
         {
-            //User cust = new User();     
+            //User cust = new User();    
+            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            var appService = setting.Settings["AppService"].Value;
+            if (appService == "False")
+                return Unauthorized();
+
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             data.ip_addr = IPAddress;
             //string IPAddress = HttpContext.Current.Request.UserHostName;
@@ -25,11 +32,37 @@ namespace DeMobile.Controllers
             {
                 var result = _user.getProfileByCitizenNo(data.citizen_no);
                 var result2 = _user.getProfileByPhoneNO(data.phone_no);
+                if(result == null)
+                {
+                    m_LogReq mlog = new m_LogReq();
+                    mlog.cust_no = result.CUST_NO;
+                    mlog.device_id = data.device_id;
+                    mlog.ip_addr = IPAddress;
+                    mlog.note = "ไม่พบเลขประจำตัวประชาชนของลูกค้าในระบบ";
+                    mlog.url = "api/authen/register";
+                    log.logRequest(mlog);
+                    monitor.sendMessage(url, IPAddress, data, new { code = 406, message = "ไม่พบเลขประจำตัวประชาชนของลูกค้าในระบบ!", data = result });
+                    return Ok(new { code = 406, message = "ไม่พบเลขประจำตัวประชาชนของลูกค้าในระบบ!", data = result });
+                }
+                if(result2 == null)
+                {
+                    m_LogReq mlog = new m_LogReq();
+                    mlog.cust_no = result.CUST_NO;
+                    mlog.device_id = data.device_id;
+                    mlog.ip_addr = IPAddress;
+                    mlog.note = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ";
+                    mlog.url = "api/authen/register";
+                    log.logRequest(mlog);
+                    monitor.sendMessage(url, IPAddress, data, new { code = 405, message = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ!", data = result });
+                    return Ok(new { code = 405, message = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ!", data = result });
+                }
                 if ((result != null) && (result2 != null))
                 {
                     var currentDevice = _user.checkCurrentDevice(data.device_id);
                     if (currentDevice != null)
                     {
+                        
+
                         _user.registerCurrentDevice(data, result.CUST_NO);
                         //Notification otp = new Notification();
                         //otp.sendOTP(result.CUST_NO);
@@ -64,15 +97,19 @@ namespace DeMobile.Controllers
             }
         }
         [Route("api/authen/identify")]
-        public IHttpActionResult GetCheckPhone(string phone, string deviceId)
+        public IHttpActionResult GetCheckPhone(string serial_sim, string deviceId)
         {
             //User cust = new User();
+            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            var appService = setting.Settings["AppService"].Value;
+            if (appService == "False")
+                return Unauthorized();
             m_LogReq mlog = new m_LogReq();
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string url = HttpContext.Current.Request.Path;
             try
             {
-                var result = _user.getProfileByPhoneNO(phone);
+                var result = _user.getProfileBySerialSim(serial_sim);
                 if (result != null && result.CUST_NO != 0)
                 {
                     var device = _user.checkCurrentDevice(deviceId);
@@ -82,62 +119,75 @@ namespace DeMobile.Controllers
                         {
                             mlog.cust_no = result.CUST_NO;
                             mlog.device_id = deviceId;
-                            mlog.tel = phone;
+                            mlog.serial_sim = serial_sim;
                             mlog.ip_addr = IPAddress;
                             mlog.status = "SUCCESS";
                             mlog.note = string.Empty;
                             log.logSignin(mlog);
+                            monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 200, message = "ระบุตัวตนสำเร็จ", data = result });
                             return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = result });
+                        }
+                        else if(device.device_status == "CHANG")
+                        {
+                            mlog.cust_no = result.CUST_NO;
+                            mlog.device_id = deviceId;
+                            mlog.serial_sim = serial_sim;
+                            mlog.ip_addr = IPAddress;
+                            mlog.status = "FAILE";
+                            mlog.note = string.Empty;
+                            log.logSignin(mlog);
+                            monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 200, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนเบอร์โทรศัพท์", data = result });
+                            return Ok(new { code = 402, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนเบอร์โทรศัพท์", data = result });
                         }
                         else
                         {
                             mlog.cust_no = result.CUST_NO;
                             mlog.device_id = deviceId;
-                            mlog.tel = phone;
+                            mlog.serial_sim = serial_sim;
                             mlog.ip_addr = IPAddress;
                             mlog.status = "FAIL";
                             mlog.note = "เครื่องลูกค้าถูกระงับการใช้งาน";
                             log.logSignin(mlog);
-                            monitor.sendMessage(url, IPAddress, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
-                            return Ok(new { code = 400, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
+                            monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 400, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
+                            return Ok(new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                         }
                     }
                     else
                     {
                         mlog.cust_no = result.CUST_NO;
                         mlog.device_id = deviceId;
-                        mlog.tel = phone;
+                        mlog.serial_sim = serial_sim;
                         mlog.ip_addr = IPAddress;
                         mlog.status = "FAIL";
                         mlog.note = "ไม่พบเครื่องลูกค้าในระบบ";
                         log.logSignin(mlog);
-                        monitor.sendMessage(url, IPAddress, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
-                        return Ok(new { code = 400, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
+                        monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 400, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
+                        return Ok(new { code = 404, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
                     }
                 }
                 else
                 {
                     mlog.cust_no = result.CUST_NO;
                     mlog.device_id = deviceId;
-                    mlog.tel = phone;
+                    mlog.serial_sim = serial_sim;
                     mlog.ip_addr = IPAddress;
                     mlog.status = "FAIL";
-                    mlog.note = "ไม่พบเบอร์ลูกค้าในระบบ";
+                    mlog.note = "ไม่พบซิมลูกค้าในระบบ";
                     log.logSignin(mlog);
-                    monitor.sendMessage(url, IPAddress, new { phone = phone, deviceId = deviceId }, new { code = 400, message = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ!", data = result });
-                    return Ok(new { code = 400, message = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ!", data = result });
+                    monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 407, message = "ไม่พบซิมลูกค้าในระบบ!", data = result });
+                    return Ok(new { code = 407, message = "ไม่พบซิมลูกค้าในระบบ!", data = result });
                 }
             }
             catch (Exception e)
             {
                 mlog.cust_no = 0;
                 mlog.device_id = deviceId;
-                mlog.tel = phone;
+                mlog.serial_sim = serial_sim;
                 mlog.ip_addr = IPAddress;
                 mlog.status = "FAIL";
                 mlog.note = e.Message;
                 log.logSignin(mlog);
-                monitor.sendMessage(url, IPAddress, new { phone = phone, deviceId = deviceId }, new { Message = e.Message });
+                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { Message = e.Message });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
@@ -145,6 +195,10 @@ namespace DeMobile.Controllers
         public IHttpActionResult GetProfile(int id)
         {
             //User cust = new User();
+            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            var appService = setting.Settings["AppService"].Value;
+            if (appService == "False")
+                return Unauthorized();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string url = HttpContext.Current.Request.Path;
@@ -178,6 +232,11 @@ namespace DeMobile.Controllers
         [Route("api/customer/sms")]
         public IHttpActionResult GetSms(int id)
         {
+            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            var appService = setting.Settings["AppService"].Value;
+            var smsService = setting.Settings["SmsService"].Value;
+            if (appService == "False" || smsService == "False")
+                return Unauthorized();
             //User cust = new User();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
@@ -254,6 +313,11 @@ namespace DeMobile.Controllers
         public IHttpActionResult GetContract(int id)
         {
             //User cust = new User();
+            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            var appService = setting.Settings["AppService"].Value;
+            var paymentService = setting.Settings["PaymentService"].Value;
+            if (appService == "False" || paymentService == "False")
+                return Unauthorized();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string url = HttpContext.Current.Request.Path;
@@ -292,6 +356,11 @@ namespace DeMobile.Controllers
         public IHttpActionResult GetPayment(string no)
         {
             //User payment = new User();
+            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            var appService = setting.Settings["AppService"].Value;
+            var paymentService = setting.Settings["PaymentService"].Value;
+            if (appService == "False" || paymentService == "False")
+                return Unauthorized();
             string IPAddress = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             try

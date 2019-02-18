@@ -1,4 +1,5 @@
 ﻿using DeMobile.Concrete;
+using DeMobile.Models.AppModel;
 using DeMobile.Models.Management;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,35 @@ namespace DeMobile.Services
     {
         private Database oracle;
 
-        public m_Member getDashBoard()
+        public List<m_LogReg> getLogRegistered()
+        {
+            oracle = new Database();
+            List<m_LogReg> data = new List<m_LogReg>();
+            var reader = oracle.SqlQuery(SqlCmd.Information.getLogRegistered);
+            while (reader.Read())
+            {
+                data.Add(new m_LogReg
+                {
+                    log_reg_no = Int32.Parse(reader["LOG_REG_NO"].ToString()),
+                    cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
+                    device_id = (string)reader["DEVICE_ID"],
+                    tel = (string)reader["TEL"],
+                    ip_addr = (string)reader["IP_ADDR"],
+                    created_time = (DateTime)reader["CREATED_TIME"]
+                });
+            }
+            if (data.Count == 0)
+            {
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return null;
+            }
+            reader.Dispose();
+            oracle.OracleDisconnect();
+            return data;
+        }
+
+    public m_Member getDashBoard()
         {
             oracle = new Database();
             m_Member data = new m_Member();

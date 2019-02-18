@@ -30,7 +30,7 @@ namespace DeMobile.Services
             {
                 new OracleParameter("cust_no", log.cust_no),
                 new OracleParameter("device_id", log.device_id),
-                new OracleParameter("tel", log.tel),
+                new OracleParameter("tel", log.serial_sim),
                 new OracleParameter("ip_addr", log.ip_addr),
                 new OracleParameter("status", log.status),
                 new OracleParameter("note", log.note)

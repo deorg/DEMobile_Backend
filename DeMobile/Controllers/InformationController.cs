@@ -25,6 +25,19 @@ namespace DeMobile.Controllers
                 return Ok(new { status = "FAILURE", data = e.Message });
             }
         }
+        [Route("api/monitor/logregistered")]
+        public IHttpActionResult GetLogRegis()
+        {
+            try
+            {
+                var result = info.getLogRegistered();
+                return Ok(new { status = "SUCCESS", data = result });
+            }
+            catch(Exception e)
+            {
+                return Ok(new { status = "FAILURE", data = e.Message });
+            }
+        }
         [Route("api/management/service")]
         public IHttpActionResult GetManageService()
         {
@@ -37,6 +50,8 @@ namespace DeMobile.Controllers
                 var appService = appsettings.Settings["AppService"].Value;
                 var smsService = appsettings.Settings["SmsService"].Value;
                 var paymentService = appsettings.Settings["PaymentService"].Value;
+
+                
 
                 return Ok(new { status = "SUCCESS", data = new { appService = appService, smsService = smsService, paymentService = paymentService} });
             }
@@ -65,6 +80,18 @@ namespace DeMobile.Controllers
                 return Ok(new { status = "FAILURE", data = e.Message });
             }
         }
+        //[Route("api/management/setpermit")]
+        //public IHttpActionResult GetSetPermit(int cust_no, string permit)
+        //{
+        //    try
+        //    {
+
+        //    }
+        //    catch(Exception e)
+        //    {
+
+        //    }
+        //}
 
 
         [Route("api/info/getbranch")]

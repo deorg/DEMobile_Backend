@@ -5,11 +5,13 @@ using DeMobile.Models.PaymentGateway;
 using DeMobile.Services;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Http;
 
 namespace DeMobile.Controllers
@@ -25,6 +27,11 @@ namespace DeMobile.Controllers
         [Route("api/payment/newpayment2")]
         public IHttpActionResult PostNewPayment2([FromBody]PaymentReq value)
         {
+            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            var appService = setting.Settings["AppService"].Value;
+            var paymentService = setting.Settings["PaymentService"].Value;
+            if (appService == "False" || paymentService == "False")
+                return Unauthorized();
             value.IPAddress = HttpContext.Current.Request.UserHostAddress;
             string clientHostname = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
@@ -163,6 +170,11 @@ namespace DeMobile.Controllers
         [Route("api/payment/getstatus")]
         public IHttpActionResult GetPaymentStatus(int order_no)
         {
+            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            var appService = setting.Settings["AppService"].Value;
+            var paymentService = setting.Settings["PaymentService"].Value;
+            if (appService == "False" || paymentService == "False")
+                return Unauthorized();
             string clientHostname = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             Payment payment = new Payment();

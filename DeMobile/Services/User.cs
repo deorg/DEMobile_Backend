@@ -181,6 +181,36 @@ namespace DeMobile.Services
                 return null;
             }
         }
+        public m_Customer getProfileBySerialSim(string serial_sim)
+        {
+            oracle = new Database();
+            List<OracleParameter> parameter = new List<OracleParameter>
+            {
+                new OracleParameter("serial_sim", serial_sim)
+            };
+            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getProfileBySerialSim, parameter);
+            reader.Read();
+            if (reader.HasRows)
+            {
+                var data = new m_Customer
+                {
+                    CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                    CUST_NAME = (string)reader["CUST_NAME"],
+                    CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
+                    TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+                    PERMIT = (string)reader["PERMIT"]
+                };
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return data;
+            }
+            else
+            {
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return null;
+            }
+        }
         public m_Customer getProfileByCitizenNo(string citizen)
         {
             oracle = new Database();
@@ -229,7 +259,16 @@ namespace DeMobile.Services
                     cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
                     conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
                     device_status = (string)reader["DEVICE_STATUS"],
-                    created_time = (DateTime)reader["CREATED_TIME"]
+                    tel = (string)reader["TEL"],
+                    serial_sim = (string)reader["SERIAL_SIM"],
+                    operator_name = (string)reader["OPERATOR"],
+                    brand = (string)reader["BRAND"],
+                    model = (string)reader["MODEL"],
+                    cpu = (string)reader["CPU"],
+                    ram = Int32.Parse(reader["RAM"].ToString()),
+                    api_version = Int32.Parse(reader["API_VERSION"].ToString()),
+                    pin = (string)reader["PIN"],
+                    created_time = (DateTime)reader["CREATED_TIME"],              
                 };
                 reader.Dispose();
                 oracle.OracleDisconnect();
@@ -305,7 +344,15 @@ namespace DeMobile.Services
             {
                 new OracleParameter("device_id", regis.device_id),
                 new OracleParameter("cust_no", cust_no),
-                new OracleParameter("tel", regis.phone_no)
+                new OracleParameter("tel", regis.phone_no),
+                new OracleParameter("serial_sim", regis.serial_sim),
+                new OracleParameter("operator", regis.operator_name),
+                new OracleParameter("brand", regis.brand),
+                new OracleParameter("model", regis.model),
+                new OracleParameter("cpu", regis.cpu),
+                new OracleParameter("ram", regis.ram),
+                new OracleParameter("api_version", regis.api_version),
+                new OracleParameter("pin", regis.pin)
             };
             var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerNewDevice, parameter);
             //var resInsert = oracle.SqlExecuteWithParams(cmd, parameter);
@@ -324,9 +371,17 @@ namespace DeMobile.Services
         {
             oracle = new Database();
             List<OracleParameter> parameter = new List<OracleParameter> {
+                new OracleParameter("device_id", regis.device_id),
                 new OracleParameter("cust_no", cust_no),
-                new OracleParameter("tel", regis.phone_no),
-                new OracleParameter("device_id", regis.device_id)
+                new OracleParameter("tel", regis.phone_no),          
+                new OracleParameter("serial_sim", regis.serial_sim),
+                new OracleParameter("operator", regis.operator_name),
+                new OracleParameter("brand", regis.brand),
+                new OracleParameter("model", regis.model),
+                new OracleParameter("cpu", regis.cpu),
+                new OracleParameter("ram", regis.ram),
+                new OracleParameter("api_version", regis.api_version),
+                new OracleParameter("pin", regis.pin)
             };
             //string cmd = $@"UPDATE MPAY020 SET CUST_NO = {cust_no}, CREATED_TIME = SYSDATE WHERE DEVICE_ID = '{regis.device_id}'";
             var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerCurrentDevice, parameter);
