@@ -12,6 +12,31 @@ namespace DeMobile.Services
     {
         private Database oracle;
 
+
+        public List<m_StatusCode> getStatusCode()
+        {
+            oracle = new Database();
+            List<m_StatusCode> data = new List<m_StatusCode>();
+            var reader = oracle.SqlQuery(SqlCmd.Information.getStatusCode);
+            while (reader.Read())
+            {
+                data.Add(new m_StatusCode
+                {
+                    status_code = Int32.Parse(reader["SERVER_STATUS_NO"].ToString()),
+                    status_name = (string)reader["STATUS_NAME"],
+                    created_time = (DateTime)reader["CREATED_TIME"]
+                });
+            }
+            if (data.Count == 0)
+            {
+                reader.Dispose();
+                oracle.OracleDisconnect();
+                return null;
+            }
+            reader.Dispose();
+            oracle.OracleDisconnect();
+            return data;
+        }
         public List<m_LogReg> getLogRegistered()
         {
             oracle = new Database();

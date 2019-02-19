@@ -28,7 +28,7 @@ namespace DeMobile.Services
                     SMS010_PK = Int32.Parse(reader["SMS010_PK"].ToString()),
                     CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
                     CON_NO = reader["CON_NO"] == DBNull.Value ? string.Empty : (string)reader["CON_NO"],
-                    SMS_NOTE = (string)reader["SMS_NOTE"],
+                    SMS_NOTE = reader["SMS_NOTE"] == DBNull.Value ? string.Empty : (string)reader["SMS_NOTE"],
                     SMS_TIME = (DateTime)reader["SMS_TIME"],
                     SENDER = reader["SENDER"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SENDER"].ToString()),
                     SENDER_TYPE = (string)reader["SENDER_TYPE"],
@@ -264,8 +264,6 @@ namespace DeMobile.Services
                     operator_name = (string)reader["OPERATOR"],
                     brand = (string)reader["BRAND"],
                     model = (string)reader["MODEL"],
-                    cpu = (string)reader["CPU"],
-                    ram = Int32.Parse(reader["RAM"].ToString()),
                     api_version = Int32.Parse(reader["API_VERSION"].ToString()),
                     pin = (string)reader["PIN"],
                     created_time = (DateTime)reader["CREATED_TIME"],              
@@ -280,6 +278,10 @@ namespace DeMobile.Services
                 oracle.OracleDisconnect();
                 return null;
             }
+        }
+        public void checkCurrentBySerialAndDevice(string serial, string device)
+        {
+
         }
         public m_device getDeviceByCustNo(int cust_no)
         {
@@ -349,8 +351,6 @@ namespace DeMobile.Services
                 new OracleParameter("operator", regis.operator_name),
                 new OracleParameter("brand", regis.brand),
                 new OracleParameter("model", regis.model),
-                new OracleParameter("cpu", regis.cpu),
-                new OracleParameter("ram", regis.ram),
                 new OracleParameter("api_version", regis.api_version),
                 new OracleParameter("pin", regis.pin)
             };
@@ -378,8 +378,6 @@ namespace DeMobile.Services
                 new OracleParameter("operator", regis.operator_name),
                 new OracleParameter("brand", regis.brand),
                 new OracleParameter("model", regis.model),
-                new OracleParameter("cpu", regis.cpu),
-                new OracleParameter("ram", regis.ram),
                 new OracleParameter("api_version", regis.api_version),
                 new OracleParameter("pin", regis.pin)
             };

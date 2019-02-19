@@ -12,6 +12,19 @@ namespace DeMobile.Controllers
     {
         Information info = new Information();
 
+        [Route("api/information/getstatuscode")]
+        public IHttpActionResult GetStatusCode()
+        {
+            try
+            {
+                var code = info.getStatusCode();
+                return Ok(new { status = "SUCCESS", data = code });
+            }
+            catch(Exception e)
+            {
+                return Ok(new { status = "FAILURE", data = e.Message });
+            }
+        }
         [Route("api/information/dashboard")]
         public IHttpActionResult GetNumMember()
         {

@@ -163,6 +163,7 @@ namespace DeMobile.Controllers
                 sms.SMS_NOTE = value.message;
                 sms.SENDER = value.cust_no;
                 sms.SENDER_TYPE = "SYSTEM";
+                sms.READ_STATUS = "UNREAD";
                 Notification noti = new Notification();
                 noti.createSms(sms);
                 sms.SMS_TIME = DateTime.Now;

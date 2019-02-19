@@ -35,7 +35,7 @@ namespace DeMobile.Controllers
                 if(result == null)
                 {
                     m_LogReq mlog = new m_LogReq();
-                    mlog.cust_no = result.CUST_NO;
+                    mlog.cust_no = 0;
                     mlog.device_id = data.device_id;
                     mlog.ip_addr = IPAddress;
                     mlog.note = "ไม่พบเลขประจำตัวประชาชนของลูกค้าในระบบ";
@@ -47,14 +47,14 @@ namespace DeMobile.Controllers
                 if(result2 == null)
                 {
                     m_LogReq mlog = new m_LogReq();
-                    mlog.cust_no = result.CUST_NO;
+                    mlog.cust_no = 0;
                     mlog.device_id = data.device_id;
                     mlog.ip_addr = IPAddress;
                     mlog.note = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ";
                     mlog.url = "api/authen/register";
                     log.logRequest(mlog);
-                    monitor.sendMessage(url, IPAddress, data, new { code = 405, message = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ!", data = result });
-                    return Ok(new { code = 405, message = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ!", data = result });
+                    monitor.sendMessage(url, IPAddress, data, new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result });
+                    return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result });
                 }
                 if ((result != null) && (result2 != null))
                 {
@@ -81,7 +81,7 @@ namespace DeMobile.Controllers
                 else
                 {
                     m_LogReq mlog = new m_LogReq();
-                    mlog.cust_no = result.CUST_NO;
+                    mlog.cust_no = 0;
                     mlog.device_id = data.device_id;
                     mlog.ip_addr = IPAddress;
                     mlog.note = "ไม่พบข้อมูลลูกค้า / มีคนพยายามแอบอ้างลงทะเบียนเครื่อง";
@@ -122,22 +122,22 @@ namespace DeMobile.Controllers
                             mlog.serial_sim = serial_sim;
                             mlog.ip_addr = IPAddress;
                             mlog.status = "SUCCESS";
-                            mlog.note = string.Empty;
+                            mlog.note = "ระบุตัวตนสำเร็จ";
                             log.logSignin(mlog);
                             monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 200, message = "ระบุตัวตนสำเร็จ", data = result });
                             return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = result });
                         }
-                        else if(device.device_status == "CHANG")
+                        else if(device.device_status == "CHANGE_TEL")
                         {
                             mlog.cust_no = result.CUST_NO;
                             mlog.device_id = deviceId;
                             mlog.serial_sim = serial_sim;
                             mlog.ip_addr = IPAddress;
-                            mlog.status = "FAILE";
-                            mlog.note = string.Empty;
+                            mlog.status = "FAIL";
+                            mlog.note = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์";
                             log.logSignin(mlog);
-                            monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 200, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนเบอร์โทรศัพท์", data = result });
-                            return Ok(new { code = 402, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนเบอร์โทรศัพท์", data = result });
+                            monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 402, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์", data = result });
+                            return Ok(new { code = 402, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์", data = result });
                         }
                         else
                         {
@@ -148,7 +148,7 @@ namespace DeMobile.Controllers
                             mlog.status = "FAIL";
                             mlog.note = "เครื่องลูกค้าถูกระงับการใช้งาน";
                             log.logSignin(mlog);
-                            monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 400, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
+                            monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                             return Ok(new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                         }
                     }
@@ -161,21 +161,21 @@ namespace DeMobile.Controllers
                         mlog.status = "FAIL";
                         mlog.note = "ไม่พบเครื่องลูกค้าในระบบ";
                         log.logSignin(mlog);
-                        monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 400, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
+                        monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 404, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
                         return Ok(new { code = 404, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
                     }
                 }
                 else
                 {
-                    mlog.cust_no = result.CUST_NO;
+                    mlog.cust_no = 0;
                     mlog.device_id = deviceId;
                     mlog.serial_sim = serial_sim;
                     mlog.ip_addr = IPAddress;
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบซิมลูกค้าในระบบ";
                     log.logSignin(mlog);
-                    monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 407, message = "ไม่พบซิมลูกค้าในระบบ!", data = result });
-                    return Ok(new { code = 407, message = "ไม่พบซิมลูกค้าในระบบ!", data = result });
+                    monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 407, message = "ไม่พบเลขซิมการ์ดของลูกค้าในระบบ!", data = result });
+                    return Ok(new { code = 407, message = "ไม่พบเลขซิมการ์ดลูกค้าในระบบ!", data = result });
                 }
             }
             catch (Exception e)

@@ -14,8 +14,6 @@ namespace DeMobile.Models.AppModel
         public string operator_name { get; set; }
         public string brand { get; set; }
         public string model { get; set; }
-        public string cpu { get; set; }
-        public int ram { get; set; }
         public int api_version { get; set; }
         public string pin { get; set; }
         public string ip_addr { get; set; }

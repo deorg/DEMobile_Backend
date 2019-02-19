@@ -231,6 +231,7 @@
     <Compile Include="Models\AppModel\m_Transaction.cs" />
     <Compile Include="Models\Management\m_Member.cs" />
     <Compile Include="Models\Management\m_Service.cs" />
+    <Compile Include="Models\Management\m_StatusCode.cs" />
     <Compile Include="Services\Information.cs" />
     <Compile Include="Services\Log.cs" />
     <Compile Include="Services\Notification.cs" />
