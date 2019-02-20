@@ -11,6 +11,7 @@ namespace DeMobile.Models.AppModel
         public string phone_no { get; set; }
         public string device_id { get; set; }
         public string serial_sim { get; set; }
+        public string phone_no_sim { get; set; }
         public string operator_name { get; set; }
         public string brand { get; set; }
         public string model { get; set; }

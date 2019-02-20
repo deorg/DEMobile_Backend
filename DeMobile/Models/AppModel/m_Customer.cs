@@ -20,6 +20,7 @@ namespace DeMobile.Models.AppModel
         public string conn_id { get; set; }
         public string device_status { get; set; }
         public string tel { get; set; }
+        public string tel_sim { get; set; }
         public string serial_sim { get; set; }
         public string operator_name { get; set; }
         public string brand { get; set; }

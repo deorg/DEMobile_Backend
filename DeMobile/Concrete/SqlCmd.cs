@@ -18,8 +18,8 @@ namespace DeMobile.Concrete
             public const string getProfileBySerialSim = "SELECT * FROM CUSTOMER WHERE CUST_NO = (SELECT CUST_NO FROM MPAY020 WHERE SERIAL_SIM = :serial_sim)";
             public const string getProfileByCitizen = "SELECT * FROM CUSTOMER WHERE CITIZEN_NO = :citizen_no";
             public const string getProfileById = "SELECT * FROM CUSTOMER WHERE CUST_NO = :cust_no";
-            public const string registerNewDevice = "INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS, TEL, SERIAL_SIM, OPERATOR, BRAND, MODEL, API_VERSION, PIN) VALUES(:device_id, :cust_no, 'ACT', :tel, :serial_sim, NVL(:operator, 'N/A'), :brand, :model, :api_version, :pin)";
-            public const string registerCurrentDevice = "UPDATE MPAY020 SET CUST_NO = :cust_no, TEL = :tel, SERIAL_SIM = :serial_sim, OPERATOR = :operator, BRAND = :brand, MODEL = :model, API_VERSION = :api_version, PIN = :pin, CREATED_TIME = SYSDATE WHERE DEVICE_ID = :device_id";
+            public const string registerNewDevice = "INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS, TEL, TEL_SIM, SERIAL_SIM, OPERATOR, BRAND, MODEL, API_VERSION, PIN) VALUES(:device_id, :cust_no, 'ACT', :tel, :telSim, :serial_sim, :operator, :brand, :model, :api_version, :pin)";
+            public const string registerCurrentDevice = "UPDATE MPAY020 SET CUST_NO = :cust_no, DEVICE_STATUS = 'ACT', TEL = :tel, TEL_SIM = :telSim, SERIAL_SIM = :serial_sim, OPERATOR = :operator, BRAND = :brand, MODEL = :model, API_VERSION = :api_version, PIN = :pin, CREATED_TIME = SYSDATE WHERE DEVICE_ID = :device_id";
             public const string checkCurrentDevice = "SELECT * FROM MPAY020 WHERE DEVICE_ID = :device_id";
             public const string getDeviceByStatus = "SELECT * FROM MPAY020 WHERE DEVICE_STATUS = :status";
             public const string getDeviceByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no";
@@ -46,13 +46,13 @@ namespace DeMobile.Concrete
             public const string createNotification = "INSERT INTO SMS030(TYPE, TITLE, CONTENT, CUST_NO) VALUES(:type, :title, :content, :cust_no)";
             public const string getNotification = "SELECT * FROM SMS030 WHERE CUST_NO = :cust_no";
             public const string getConnectionid = "SELECT CONN_ID FROM MPAY020 WHERE CUST_NO = :cust_no";
-            public const string newSms = "INSERT INTO SMS010(CUST_NO, CON_NO, SMS_NOTE, SENDER, SENDER_TYPE) VALUES(:cust_no, :con_no, :sms_note, :sender, :sender_type)";
+            public const string newSms = "INSERT INTO SMS010(CUST_NO, CON_NO, SMS_NOTE, SENDER, SENDER_TYPE) VALUES(:cust_no, :con_no, :sms_note, :sender, :sender_type) RETURNING SMS010_PK INTO :sms010_pk";
         }
         public static class Log
         {
             public const string logReq = "INSERT INTO MPAY200(NOTE, CUST_NO, DEVICE_ID, IP_ADDR, URL) VALUES(:note, :cust_no, :device_id, :ip_addr, :url)";
             public const string logRegister = "INSERT INTO MPAY201(CUST_NO, DEVICE_ID, TEL, IP_ADDR) VALUES(:cust_no, :device_id, :tel, :ip_addr)";
-            public const string logSignin = "INSERT INTO MPAY202(CUST_NO, DEVICE_ID, TEL, IP_ADDR, STATUS, NOTE) VALUES(:cust_no, :device_id, :tel, :ip_addr, :status, :note)";
+            public const string logSignin = "INSERT INTO MPAY202(CUST_NO, DEVICE_ID, TEL, SERIAL_SIM, IP_ADDR, STATUS, NOTE) VALUES(:cust_no, :device_id, :tel, :serial_sim, :ip_addr, :status, :note)";
             public const string logOrder = "INSERT INTO MPAY203(CUST_NO, CON_NO, ORDER_NO, TRANS_NO, CHANNEL_ID, PAY_AMT, TRANS_AMT, DEVICE_ID, TEL, NOTE, IP_ADDR) VALUES(:cust_no, :con_no, :order_no, :trans_no, :channel_id, :pay_amt, :trans_amt, :device_id, :tel, :note, :ip_addr)";
         }
         public static class Information

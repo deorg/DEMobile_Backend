@@ -93,6 +93,14 @@ namespace DeMobile.Controllers
             }
             catch (Exception e)
             {
+                m_LogReq mlog = new m_LogReq();
+                mlog.cust_no = 0;
+                mlog.device_id = data.device_id;
+                mlog.ip_addr = IPAddress;
+                mlog.note = e.Message;
+                mlog.url = "api/authen/register";
+                log.logRequest(mlog);
+                monitor.sendMessage(url, IPAddress, data, new { code = 500, message = e.Message, data = mlog });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
@@ -119,6 +127,7 @@ namespace DeMobile.Controllers
                         {
                             mlog.cust_no = result.CUST_NO;
                             mlog.device_id = deviceId;
+                            mlog.tel = result.TEL;
                             mlog.serial_sim = serial_sim;
                             mlog.ip_addr = IPAddress;
                             mlog.status = "SUCCESS";
@@ -131,6 +140,7 @@ namespace DeMobile.Controllers
                         {
                             mlog.cust_no = result.CUST_NO;
                             mlog.device_id = deviceId;
+                            mlog.tel = result.TEL;
                             mlog.serial_sim = serial_sim;
                             mlog.ip_addr = IPAddress;
                             mlog.status = "FAIL";
@@ -143,6 +153,7 @@ namespace DeMobile.Controllers
                         {
                             mlog.cust_no = result.CUST_NO;
                             mlog.device_id = deviceId;
+                            mlog.tel = result.TEL;
                             mlog.serial_sim = serial_sim;
                             mlog.ip_addr = IPAddress;
                             mlog.status = "FAIL";
@@ -156,6 +167,7 @@ namespace DeMobile.Controllers
                     {
                         mlog.cust_no = result.CUST_NO;
                         mlog.device_id = deviceId;
+                        mlog.tel = result.TEL;
                         mlog.serial_sim = serial_sim;
                         mlog.ip_addr = IPAddress;
                         mlog.status = "FAIL";
@@ -169,6 +181,7 @@ namespace DeMobile.Controllers
                 {
                     mlog.cust_no = 0;
                     mlog.device_id = deviceId;
+                    mlog.tel = string.Empty;
                     mlog.serial_sim = serial_sim;
                     mlog.ip_addr = IPAddress;
                     mlog.status = "FAIL";
@@ -182,6 +195,7 @@ namespace DeMobile.Controllers
             {
                 mlog.cust_no = 0;
                 mlog.device_id = deviceId;
+                mlog.tel = string.Empty;
                 mlog.serial_sim = serial_sim;
                 mlog.ip_addr = IPAddress;
                 mlog.status = "FAIL";

@@ -260,13 +260,14 @@ namespace DeMobile.Services
                     conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
                     device_status = (string)reader["DEVICE_STATUS"],
                     tel = (string)reader["TEL"],
+                    tel_sim = (string)reader["TEL_SIM"],
                     serial_sim = (string)reader["SERIAL_SIM"],
                     operator_name = (string)reader["OPERATOR"],
                     brand = (string)reader["BRAND"],
                     model = (string)reader["MODEL"],
                     api_version = Int32.Parse(reader["API_VERSION"].ToString()),
                     pin = (string)reader["PIN"],
-                    created_time = (DateTime)reader["CREATED_TIME"],              
+                    created_time = (DateTime)reader["CREATED_TIME"]
                 };
                 reader.Dispose();
                 oracle.OracleDisconnect();
@@ -347,6 +348,7 @@ namespace DeMobile.Services
                 new OracleParameter("device_id", regis.device_id),
                 new OracleParameter("cust_no", cust_no),
                 new OracleParameter("tel", regis.phone_no),
+                new OracleParameter("telSim", regis.phone_no_sim),
                 new OracleParameter("serial_sim", regis.serial_sim),
                 new OracleParameter("operator", regis.operator_name),
                 new OracleParameter("brand", regis.brand),
@@ -373,7 +375,8 @@ namespace DeMobile.Services
             List<OracleParameter> parameter = new List<OracleParameter> {
                 new OracleParameter("device_id", regis.device_id),
                 new OracleParameter("cust_no", cust_no),
-                new OracleParameter("tel", regis.phone_no),          
+                new OracleParameter("tel", regis.phone_no),   
+                new OracleParameter("telSim", regis.phone_no_sim),
                 new OracleParameter("serial_sim", regis.serial_sim),
                 new OracleParameter("operator", regis.operator_name),
                 new OracleParameter("brand", regis.brand),

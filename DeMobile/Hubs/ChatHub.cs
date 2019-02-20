@@ -119,6 +119,8 @@ namespace DeMobile.Hubs
             reader.Read();
             var connectionId = (string)reader["CONN_ID"];
             context.Clients.Client(connectionId).sms(value);
+            reader.Dispose();
+            oracle.OracleDisconnect();
         }
         public void SendMessageAll(string msg)
         {

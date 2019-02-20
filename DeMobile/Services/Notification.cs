@@ -25,7 +25,7 @@ namespace DeMobile.Services
             oracle.SqlExecuteWithParams(SqlCmd.Notification.createNotification, parameter);
             oracle.OracleDisconnect();
         }
-        public void createSms(m_SMS010 value)
+        public int createSms(m_SMS010 value)
         {
             oracle = new Database();
             List<OracleParameter> parameter = new List<OracleParameter>
@@ -34,10 +34,18 @@ namespace DeMobile.Services
                 new OracleParameter(":con_no", value.CON_NO),
                 new OracleParameter(":sms_note", value.SMS_NOTE),
                 new OracleParameter(":sender", value.SENDER),
-                new OracleParameter(":sender_type", value.SENDER_TYPE)
+                new OracleParameter(":sender_type", value.SENDER_TYPE),
+                new OracleParameter
+                {
+                    ParameterName = "sms010_pk",
+                    OracleDbType = OracleDbType.Int32,
+                    Direction = ParameterDirection.Output
+                }
             };
-            oracle.SqlExecuteWithParams(SqlCmd.Notification.newSms, parameter);
+            var resInsert = oracle.SqlExecuteWithParams(SqlCmd.Notification.newSms, parameter);
+            var lastSms = Int32.Parse(resInsert.Parameters["sms010_pk"].Value.ToString());
             oracle.OracleDisconnect();
+            return lastSms;
         }
         public List<m_Notification> genNotification(m_SMS010[] value)
         {
