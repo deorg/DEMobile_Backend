@@ -33,6 +33,7 @@ namespace DeMobile.Services
                 new OracleParameter("tel", log.tel),
                 new OracleParameter("serial_sim", log.serial_sim),
                 new OracleParameter("ip_addr", log.ip_addr),
+                new OracleParameter("action", log.action),
                 new OracleParameter("status", log.status),
                 new OracleParameter("note", log.note)
             };

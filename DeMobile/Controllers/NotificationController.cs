@@ -167,9 +167,9 @@ namespace DeMobile.Controllers
                 sms.SENDER_TYPE = "SYSTEM";
                 sms.READ_STATUS = "UNREAD";
                 Notification noti = new Notification();
-                var lastSms = noti.createSms(sms);
+                //var lastSms = noti.createSms(sms);
                 sms.SMS_TIME = DateTime.Now;
-                sms.SMS010_PK = lastSms;
+                sms.SMS010_PK = value.sms010_pk;
                 chat.SendSmsByConnId(sms);
                 monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "Admin ส่งข้อความ", data = sms });
                 return Ok(new { code = 200, message = "ส่งข้อความสำเร็จ", data = sms });

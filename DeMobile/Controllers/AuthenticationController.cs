@@ -26,33 +26,39 @@ namespace DeMobile.Controllers
 
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             data.ip_addr = IPAddress;
+            data.phone_no_sim = data.phone_no_sim.Replace("+66", "0");
             //string IPAddress = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
+            m_LogReq mlog = new m_LogReq();
             try
             {
                 var result = _user.getProfileByCitizenNo(data.citizen_no);
                 var result2 = _user.getProfileByPhoneNO(data.phone_no);
                 if(result == null)
                 {
-                    m_LogReq mlog = new m_LogReq();
                     mlog.cust_no = 0;
                     mlog.device_id = data.device_id;
+                    mlog.tel = data.phone_no;
+                    mlog.serial_sim = data.serial_sim;
                     mlog.ip_addr = IPAddress;
-                    mlog.note = "ไม่พบเลขประจำตัวประชาชนของลูกค้าในระบบ";
-                    mlog.url = "api/authen/register";
-                    log.logRequest(mlog);
+                    mlog.action = "REGISTER";
+                    mlog.status = "FAIL";
+                    mlog.note = "ไม่พบเลขประจำตัวประชาชนลูกค้าในระบบ";
+                    log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, data, new { code = 406, message = "ไม่พบเลขประจำตัวประชาชนของลูกค้าในระบบ!", data = result });
                     return Ok(new { code = 406, message = "ไม่พบเลขประจำตัวประชาชนของลูกค้าในระบบ!", data = result });
                 }
                 if(result2 == null)
                 {
-                    m_LogReq mlog = new m_LogReq();
                     mlog.cust_no = 0;
                     mlog.device_id = data.device_id;
+                    mlog.tel = data.phone_no;
+                    mlog.serial_sim = data.serial_sim;
                     mlog.ip_addr = IPAddress;
-                    mlog.note = "ไม่พบเบอร์โทรศัพท์ลูกค้าในระบบ";
-                    mlog.url = "api/authen/register";
-                    log.logRequest(mlog);
+                    mlog.action = "REGISTER";
+                    mlog.status = "FAIL";
+                    mlog.note = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ";
+                    log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, data, new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result });
                     return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result });
                 }
@@ -60,12 +66,20 @@ namespace DeMobile.Controllers
                 {
                     var currentDevice = _user.checkCurrentDevice(data.device_id);
                     if (currentDevice != null)
-                    {
-                        
-
+                    {                   
                         _user.registerCurrentDevice(data, result.CUST_NO);
                         //Notification otp = new Notification();
                         //otp.sendOTP(result.CUST_NO);
+
+                        mlog.cust_no = result.CUST_NO;
+                        mlog.device_id = data.device_id;
+                        mlog.tel = result.TEL;
+                        mlog.serial_sim = data.serial_sim;
+                        mlog.ip_addr = IPAddress;
+                        mlog.action = "REGISTER NEW DEVICE";
+                        mlog.status = "SUCCESS";
+                        mlog.note = "ลงทะเบียนสำเร็จ";
+                        log.logSignin(mlog);
                         monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
                         return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
                     }
@@ -74,32 +88,45 @@ namespace DeMobile.Controllers
                         _user.registerDevice(data, result.CUST_NO);
                         //Notification otp = new Notification();
                         //otp.sendOTP(result.CUST_NO);
+                        mlog.cust_no = result.CUST_NO;
+                        mlog.device_id = data.device_id;
+                        mlog.tel = result.TEL;
+                        mlog.serial_sim = data.serial_sim;
+                        mlog.ip_addr = IPAddress;
+                        mlog.action = "REGISTER CURRENT DEVICE";
+                        mlog.status = "SUCCESS";
+                        mlog.note = "ลงทะเบียนสำเร็จ";
+                        log.logSignin(mlog);
                         monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
                         return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
                     }
                 }
                 else
                 {
-                    m_LogReq mlog = new m_LogReq();
                     mlog.cust_no = 0;
                     mlog.device_id = data.device_id;
+                    mlog.tel = data.phone_no;
+                    mlog.serial_sim = data.serial_sim;
                     mlog.ip_addr = IPAddress;
-                    mlog.note = "ไม่พบข้อมูลลูกค้า / มีคนพยายามแอบอ้างลงทะเบียนเครื่อง";
-                    mlog.url = "api/authen/register";
-                    log.logRequest(mlog);
+                    mlog.action = "REGISTER";
+                    mlog.status = "FAIL";
+                    mlog.note = "ไม่พบข้อมูลลูกค้า";
+                    log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, data, new { code = 400, message = "ไม่พบข้อมูลค้า!", data = result });
                     return Ok(new { code = 400, message = "ไม่พบข้อมูลค้า!", data = result });
                 }
             }
             catch (Exception e)
             {
-                m_LogReq mlog = new m_LogReq();
                 mlog.cust_no = 0;
                 mlog.device_id = data.device_id;
+                mlog.tel = data.phone_no;
+                mlog.serial_sim = data.serial_sim;
                 mlog.ip_addr = IPAddress;
+                mlog.action = "REGISTER";
+                mlog.status = "FAIL";
                 mlog.note = e.Message;
-                mlog.url = "api/authen/register";
-                log.logRequest(mlog);
+                log.logSignin(mlog);
                 monitor.sendMessage(url, IPAddress, data, new { code = 500, message = e.Message, data = mlog });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
@@ -130,6 +157,7 @@ namespace DeMobile.Controllers
                             mlog.tel = result.TEL;
                             mlog.serial_sim = serial_sim;
                             mlog.ip_addr = IPAddress;
+                            mlog.action = "IDENTIFY";
                             mlog.status = "SUCCESS";
                             mlog.note = "ระบุตัวตนสำเร็จ";
                             log.logSignin(mlog);
@@ -143,6 +171,7 @@ namespace DeMobile.Controllers
                             mlog.tel = result.TEL;
                             mlog.serial_sim = serial_sim;
                             mlog.ip_addr = IPAddress;
+                            mlog.action = "IDENTIFY";
                             mlog.status = "FAIL";
                             mlog.note = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์";
                             log.logSignin(mlog);
@@ -156,6 +185,7 @@ namespace DeMobile.Controllers
                             mlog.tel = result.TEL;
                             mlog.serial_sim = serial_sim;
                             mlog.ip_addr = IPAddress;
+                            mlog.action = "IDENTIFY";
                             mlog.status = "FAIL";
                             mlog.note = "เครื่องลูกค้าถูกระงับการใช้งาน";
                             log.logSignin(mlog);
@@ -170,6 +200,7 @@ namespace DeMobile.Controllers
                         mlog.tel = result.TEL;
                         mlog.serial_sim = serial_sim;
                         mlog.ip_addr = IPAddress;
+                        mlog.action = "IDENTIFY";
                         mlog.status = "FAIL";
                         mlog.note = "ไม่พบเครื่องลูกค้าในระบบ";
                         log.logSignin(mlog);
@@ -184,6 +215,7 @@ namespace DeMobile.Controllers
                     mlog.tel = string.Empty;
                     mlog.serial_sim = serial_sim;
                     mlog.ip_addr = IPAddress;
+                    mlog.action = "IDENTIFY";
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบซิมลูกค้าในระบบ";
                     log.logSignin(mlog);
@@ -198,6 +230,7 @@ namespace DeMobile.Controllers
                 mlog.tel = string.Empty;
                 mlog.serial_sim = serial_sim;
                 mlog.ip_addr = IPAddress;
+                mlog.action = "IDENTIFY";
                 mlog.status = "FAIL";
                 mlog.note = e.Message;
                 log.logSignin(mlog);

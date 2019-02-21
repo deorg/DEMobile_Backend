@@ -22,8 +22,8 @@ namespace DeMobile.Concrete
             public const string registerCurrentDevice = "UPDATE MPAY020 SET CUST_NO = :cust_no, DEVICE_STATUS = 'ACT', TEL = :tel, TEL_SIM = :telSim, SERIAL_SIM = :serial_sim, OPERATOR = :operator, BRAND = :brand, MODEL = :model, API_VERSION = :api_version, PIN = :pin, CREATED_TIME = SYSDATE WHERE DEVICE_ID = :device_id";
             public const string checkCurrentDevice = "SELECT * FROM MPAY020 WHERE DEVICE_ID = :device_id";
             public const string getDeviceByStatus = "SELECT * FROM MPAY020 WHERE DEVICE_STATUS = :status";
-            public const string getDeviceByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no";
-            public const string getConnIdByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no";
+            public const string getDeviceByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no AND DEVICE_STATUS = 'ACT'";
+            public const string getConnIdByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no AND DEVICE_STATUS = 'ACT'";
         }
         public static class Payment
         {
@@ -52,7 +52,7 @@ namespace DeMobile.Concrete
         {
             public const string logReq = "INSERT INTO MPAY200(NOTE, CUST_NO, DEVICE_ID, IP_ADDR, URL) VALUES(:note, :cust_no, :device_id, :ip_addr, :url)";
             public const string logRegister = "INSERT INTO MPAY201(CUST_NO, DEVICE_ID, TEL, IP_ADDR) VALUES(:cust_no, :device_id, :tel, :ip_addr)";
-            public const string logSignin = "INSERT INTO MPAY202(CUST_NO, DEVICE_ID, TEL, SERIAL_SIM, IP_ADDR, STATUS, NOTE) VALUES(:cust_no, :device_id, :tel, :serial_sim, :ip_addr, :status, :note)";
+            public const string logSignin = "INSERT INTO MPAY202(CUST_NO, DEVICE_ID, TEL, SERIAL_SIM, IP_ADDR,ACTION, STATUS, NOTE) VALUES(:cust_no, :device_id, :tel, :serial_sim, :ip_addr,:action, :status, :note)";
             public const string logOrder = "INSERT INTO MPAY203(CUST_NO, CON_NO, ORDER_NO, TRANS_NO, CHANNEL_ID, PAY_AMT, TRANS_AMT, DEVICE_ID, TEL, NOTE, IP_ADDR) VALUES(:cust_no, :con_no, :order_no, :trans_no, :channel_id, :pay_amt, :trans_amt, :device_id, :tel, :note, :ip_addr)";
         }
         public static class Information

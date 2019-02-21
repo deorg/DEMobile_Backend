@@ -46,6 +46,7 @@ namespace DeMobile.Models.AppModel
 
     public class m_CustMessage
     {
+        public int sms010_pk { get; set; }
         public int cust_no { get; set; }
         public string message { get; set; }
     }

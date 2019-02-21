@@ -40,7 +40,7 @@ namespace DeMobile.Services
             {
                 reader.Dispose();
                 oracle.OracleDisconnect();
-                return null;
+                return data;
             }
             reader.Dispose();
             oracle.OracleDisconnect();
@@ -357,16 +357,14 @@ namespace DeMobile.Services
                 new OracleParameter("pin", regis.pin)
             };
             var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerNewDevice, parameter);
-            //var resInsert = oracle.SqlExecuteWithParams(cmd, parameter);
-            //string cmd = $@"INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS) VALUES('{regis.device_id}', {cust_no}, 'ACT')";
-            //var result = oracle.SqlExcute(cmd);
-            parameter = new List<OracleParameter>
-            {
-                new OracleParameter("cust_no", cust_no),
-                new OracleParameter("device_id", regis.device_id),
-                new OracleParameter("ip_addr", regis.ip_addr)
-            };
-            oracle.SqlExecuteWithParams(SqlCmd.Log.logRegister, parameter);
+
+            //parameter = new List<OracleParameter>
+            //{
+            //    new OracleParameter("cust_no", cust_no),
+            //    new OracleParameter("device_id", regis.device_id),
+            //    new OracleParameter("ip_addr", regis.ip_addr)
+            //};
+            //oracle.SqlExecuteWithParams(SqlCmd.Log.logRegister, parameter);
             oracle.OracleDisconnect();
         }
         public void registerCurrentDevice(m_Register regis, int cust_no)
@@ -387,13 +385,13 @@ namespace DeMobile.Services
             //string cmd = $@"UPDATE MPAY020 SET CUST_NO = {cust_no}, CREATED_TIME = SYSDATE WHERE DEVICE_ID = '{regis.device_id}'";
             var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerCurrentDevice, parameter);
             //var resInsert = oracle.SqlExecuteWithParams(cmd, parameter);
-            parameter = new List<OracleParameter>
-            {
-                new OracleParameter("cust_no", cust_no),
-                new OracleParameter("device_id", regis.device_id),
-                new OracleParameter("ip_addr", regis.ip_addr)
-            };
-            oracle.SqlExecuteWithParams(SqlCmd.Log.logRegister, parameter);
+            //parameter = new List<OracleParameter>
+            //{
+            //    new OracleParameter("cust_no", cust_no),
+            //    new OracleParameter("device_id", regis.device_id),
+            //    new OracleParameter("ip_addr", regis.ip_addr)
+            //};
+            //oracle.SqlExecuteWithParams(SqlCmd.Log.logRegister, parameter);
             oracle.OracleDisconnect();
         }
         public m_Customer getProfileById(int id)

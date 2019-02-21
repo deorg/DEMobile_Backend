@@ -13,6 +13,7 @@ namespace DeMobile.Models.AppModel
         public string tel { get; set; }
         public string serial_sim { get; set; }
         public string ip_addr { get; set; }
+        public string action { get; set; }
         public string status { get; set; }
         public string url { get; set; }
     }
