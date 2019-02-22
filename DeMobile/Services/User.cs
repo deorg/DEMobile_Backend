@@ -259,14 +259,14 @@ namespace DeMobile.Services
                     cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
                     conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
                     device_status = (string)reader["DEVICE_STATUS"],
-                    tel = (string)reader["TEL"],
-                    tel_sim = (string)reader["TEL_SIM"],
-                    serial_sim = (string)reader["SERIAL_SIM"],
-                    operator_name = (string)reader["OPERATOR"],
-                    brand = (string)reader["BRAND"],
-                    model = (string)reader["MODEL"],
+                    tel = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+                    tel_sim = reader["TEL_SIM"] == DBNull.Value ? string.Empty : (string)reader["TEL_SIM"],
+                    serial_sim = reader["SERIAL_SIM"] == DBNull.Value ? string.Empty : (string)reader["SERIAL_SIM"],
+                    operator_name = reader["OPERATOR"] == DBNull.Value ? string.Empty : (string)reader["OPERATOR"],
+                    brand = reader["BRAND"] == DBNull.Value ? string.Empty : (string)reader["BRAND"],
+                    model = reader["MODEL"] == DBNull.Value ? string.Empty : (string)reader["MODEL"],
                     api_version = Int32.Parse(reader["API_VERSION"].ToString()),
-                    pin = (string)reader["PIN"],
+                    pin = reader["PIN"] == DBNull.Value ? string.Empty : (string)reader["PIN"],
                     created_time = (DateTime)reader["CREATED_TIME"]
                 };
                 reader.Dispose();

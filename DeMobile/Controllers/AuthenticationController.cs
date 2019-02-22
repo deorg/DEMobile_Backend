@@ -18,20 +18,23 @@ namespace DeMobile.Controllers
         [Route("api/authen/register")]
         public IHttpActionResult PostRegister([FromBody]m_Register data)
         {
-            //User cust = new User();    
-            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
-            var appService = setting.Settings["AppService"].Value;
-            if (appService == "False")
-                return Unauthorized();
-
-            string IPAddress = HttpContext.Current.Request.UserHostAddress;
-            data.ip_addr = IPAddress;
-            data.phone_no_sim = data.phone_no_sim.Replace("+66", "0");
-            //string IPAddress = HttpContext.Current.Request.UserHostName;
-            string url = HttpContext.Current.Request.Path;
             m_LogReq mlog = new m_LogReq();
+            string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string url = HttpContext.Current.Request.Path;
             try
             {
+                var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+                var appService = setting.Settings["AppService"].Value;
+                if (appService == "False")
+                    return Unauthorized();
+
+                
+                data.ip_addr = IPAddress;
+                if(data.phone_no_sim != null)
+                    data.phone_no_sim = data.phone_no_sim.Replace("+66", "0");
+                
+                
+
                 var result = _user.getProfileByCitizenNo(data.citizen_no);
                 var result2 = _user.getProfileByPhoneNO(data.phone_no);
                 if(result == null)
@@ -127,7 +130,7 @@ namespace DeMobile.Controllers
                 mlog.status = "FAIL";
                 mlog.note = e.Message;
                 log.logSignin(mlog);
-                monitor.sendMessage(url, IPAddress, data, new { code = 500, message = e.Message, data = mlog });
+                monitor.sendMessage(url, IPAddress, data, new { code = 500, message = e.Message, data = data });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
