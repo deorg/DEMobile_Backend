@@ -31,26 +31,14 @@ namespace DeMobile.Hubs
         }
         public void receiveMessage(int sms010PK)
         {
-            string connectid = Context.ConnectionId;
             oracle = new Database();
             try
             {
                 List<OracleParameter> parameter = new List<OracleParameter>
                 {
-                    new OracleParameter("conn_id", connectid)
-                };
-                var reader = oracle.SqlQueryWithParams(SqlCmd.Notification.getCustNo, parameter);
-                reader.Read();
-                if (reader["CUST_NO"] != DBNull.Value)
-                {
-                    var cust_no = Int32.Parse(reader["CUST_NO"].ToString());
-                    parameter = new List<OracleParameter>
-                {
                     new OracleParameter("sms010pk", sms010PK)
                 };
-                    oracle.SqlExecuteWithParams(SqlCmd.Notification.markToRecieve, parameter);
-                }
-                reader.Dispose();
+                oracle.SqlExecuteWithParams(SqlCmd.Notification.markToRecieve, parameter);
                 oracle.OracleDisconnect();
             }
             catch (Exception e)
