@@ -289,10 +289,10 @@ namespace DeMobile.Controllers
                 sms.CUST_NO = cust_no;
                 sms.CON_NO = string.Empty;
                 sms.SMS_NOTE = message;
-                sms.SENDER = cust_no;
                 sms.SENDER_TYPE = "SYSTEM";
+                sms.READ_STATUS = "UNREAD";
                 Notification noti = new Notification();
-                noti.createSms(sms);
+                sms.SMS010_PK = noti.createSms(sms);
                 sms.SMS_TIME = DateTime.Now;
                 chat.SendSmsByConnId(sms);
                 //monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "Admin ส่งข้อความ", data = sms });
