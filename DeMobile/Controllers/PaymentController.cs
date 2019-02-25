@@ -285,6 +285,7 @@ namespace DeMobile.Controllers
                 var text2 = value.events.First().message.text.Split(new char[0]);
                 var cust_no = Int32.Parse(text2[0]);
                 var message = text2[1];
+                message = String.Join("", text2).Replace(text2[0], "");
                 m_SMS010 sms = new m_SMS010();
                 sms.CUST_NO = cust_no;
                 sms.CON_NO = string.Empty;
