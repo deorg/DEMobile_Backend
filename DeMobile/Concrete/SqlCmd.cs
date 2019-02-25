@@ -45,8 +45,10 @@ namespace DeMobile.Concrete
             public const string updateConnectId = "UPDATE MPAY020 SET CONN_ID = :conn_id WHERE DEVICE_ID = :device_id";
             public const string createNotification = "INSERT INTO SMS030(TYPE, TITLE, CONTENT, CUST_NO) VALUES(:type, :title, :content, :cust_no)";
             public const string getNotification = "SELECT * FROM SMS030 WHERE CUST_NO = :cust_no";
+            public const string getCustNo = "SELECT * FROM MPAY020 WHERE CONN_ID = :conn_id";
             public const string getConnectionid = "SELECT CONN_ID FROM MPAY020 WHERE CUST_NO = :cust_no";
             public const string newSms = "INSERT INTO SMS010(CUST_NO, CON_NO, SMS_NOTE, SENDER, SENDER_TYPE) VALUES(:cust_no, :con_no, :sms_note, :sender, :sender_type) RETURNING SMS010_PK INTO :sms010_pk";
+            public const string markToRecieve = "UPDATE SMS010 SET RECEIVED = 'Y' WHERE SMS010_PK = :sms010pk";
         }
         public static class Log
         {

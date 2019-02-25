@@ -20,7 +20,7 @@ namespace DeMobile.Hubs
         {
             string username = Context.User.Identity.Name;
             string connectId = Context.ConnectionId;
-            Clients.Caller.Login($"Your ConnectionId is {connectId}");       
+            Clients.Caller.Login($"Your ConnectionId is {connectId}");
             return base.OnConnected();
         }
         public override Task OnDisconnected(bool stopCalled)
@@ -28,6 +28,35 @@ namespace DeMobile.Hubs
             string username = Context.User.Identity.Name;
             string connectId = Context.ConnectionId;
             return base.OnDisconnected(stopCalled);
+        }
+        public void receiveMessage(int sms010PK)
+        {
+            string connectid = Context.ConnectionId;
+            oracle = new Database();
+            try
+            {
+                List<OracleParameter> parameter = new List<OracleParameter>
+                {
+                    new OracleParameter("conn_id", connectid)
+                };
+                var reader = oracle.SqlQueryWithParams(SqlCmd.Notification.getCustNo, parameter);
+                reader.Read();
+                if (reader["CUST_NO"] != DBNull.Value)
+                {
+                    var cust_no = Int32.Parse(reader["CUST_NO"].ToString());
+                    parameter = new List<OracleParameter>
+                {
+                    new OracleParameter("sms010pk", sms010PK)
+                };
+                    oracle.SqlExecuteWithParams(SqlCmd.Notification.markToRecieve, parameter);
+                }
+                reader.Dispose();
+                oracle.OracleDisconnect();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
         public void registerContext(string device_id)
         {
@@ -54,7 +83,7 @@ namespace DeMobile.Hubs
                     context.Clients.All.Monitor(new { ConnectionId = Context.ConnectionId, DeviceId = device_id, Message = "Not found device!" });
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var context = GlobalHost.ConnectionManager.GetHubContext<MonitorHub>();
                 context.Clients.All.Monitor(new { ConnectionId = Context.ConnectionId, DeviceId = device_id, Message = e.Message });
@@ -96,13 +125,13 @@ namespace DeMobile.Hubs
             try
             {
                 SignalrClient temp = DataRepository.signalrClients.Where(w => w.Username.Equals(user)).FirstOrDefault();
-                if(temp != null)
+                if (temp != null)
                 {
                     var context = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
                     context.Clients.Client(temp.ConnectionId).serversend(new { username = "Admin", message = msg });
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
@@ -126,8 +155,8 @@ namespace DeMobile.Hubs
         {
             //try
             //{
-                var context = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-                context.Clients.All.broadcast(new { username = "Admin", message = msg });
+            var context = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+            context.Clients.All.broadcast(new { username = "Admin", message = msg });
             //}
             //catch (Exception e)
             //{
