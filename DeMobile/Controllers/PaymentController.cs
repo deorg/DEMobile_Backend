@@ -295,7 +295,8 @@ namespace DeMobile.Controllers
                 Notification noti = new Notification();
                 sms.SMS010_PK = noti.createSms(sms);
                 sms.SMS_TIME = DateTime.Now;
-                chat.SendSmsByConnId(sms);
+                //chat.SendSmsByConnId(sms);
+
                 //monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "Admin ส่งข้อความ", data = sms });
             }
             return Ok();
