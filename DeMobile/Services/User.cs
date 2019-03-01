@@ -14,37 +14,80 @@ namespace DeMobile.Services
         private Database oracle;
         public List<m_SMS010> getNotification(int id)
         {
-            oracle = new Database();
-            List<m_SMS010> data = new List<m_SMS010>();
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            parameter.Add(new OracleParameter("cust_no", id));
-            //var reader = oracle.SqlQuery(cmd);
-            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getSms, parameter);
-            while (reader.Read())
+            using (OracleConnection conn = new OracleConnection(Database.conString))
             {
-                var test = reader["CON_NO"];
-                data.Add(new m_SMS010
+                try
                 {
-                    SMS010_PK = Int32.Parse(reader["SMS010_PK"].ToString()),
-                    CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
-                    CON_NO = reader["CON_NO"] == DBNull.Value ? string.Empty : (string)reader["CON_NO"],
-                    SMS_NOTE = reader["SMS_NOTE"] == DBNull.Value ? string.Empty : (string)reader["SMS_NOTE"],
-                    SMS_TIME = (DateTime)reader["SMS_TIME"],
-                    SENDER = reader["SENDER"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SENDER"].ToString()),
-                    SENDER_TYPE = (string)reader["SENDER_TYPE"],
-                    SMS010_REF = reader["SMS010_REF"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SMS010_REF"].ToString()),
-                    READ_STATUS = (string)reader["READ_STATUS"]
-                });
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.getSms, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        //cmd.CommandTimeout = 30;
+                        cmd.Parameters.Add(new OracleParameter("cust_no", id));
+                        var reader = cmd.ExecuteReader();
+                        List<m_SMS010> data = new List<m_SMS010>();
+                        while (reader.Read())
+                        {
+                            data.Add(new m_SMS010
+                            {
+                                SMS010_PK = Int32.Parse(reader["SMS010_PK"].ToString()),
+                                CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                                CON_NO = reader["CON_NO"] == DBNull.Value ? string.Empty : (string)reader["CON_NO"],
+                                SMS_NOTE = reader["SMS_NOTE"] == DBNull.Value ? string.Empty : (string)reader["SMS_NOTE"],
+                                SMS_TIME = (DateTime)reader["SMS_TIME"],
+                                SENDER = reader["SENDER"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SENDER"].ToString()),
+                                SENDER_TYPE = (string)reader["SENDER_TYPE"],
+                                SMS010_REF = reader["SMS010_REF"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SMS010_REF"].ToString()),
+                                READ_STATUS = (string)reader["READ_STATUS"]
+                            });
+                        }
+                        if (data.Count == 0)
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return data;
+                        }
+                        cmd.Dispose();
+                        reader.Dispose();
+                        return data;
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
             }
-            if (data.Count == 0)
-            {
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return data;
-            }
-            reader.Dispose();
-            oracle.OracleDisconnect();
-            return data;
+
+            //oracle = new Database();
+            //List<m_SMS010> data = new List<m_SMS010>();
+            //List<OracleParameter> parameter = new List<OracleParameter>();
+            //parameter.Add(new OracleParameter("cust_no", id));
+            //var reader = oracle.SqlQueryWithParams(SqlCmd.User.getSms, parameter);
+            //while (reader.Read())
+            //{
+            //    var test = reader["CON_NO"];
+            //    data.Add(new m_SMS010
+            //    {
+            //        SMS010_PK = Int32.Parse(reader["SMS010_PK"].ToString()),
+            //        CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+            //        CON_NO = reader["CON_NO"] == DBNull.Value ? string.Empty : (string)reader["CON_NO"],
+            //        SMS_NOTE = reader["SMS_NOTE"] == DBNull.Value ? string.Empty : (string)reader["SMS_NOTE"],
+            //        SMS_TIME = (DateTime)reader["SMS_TIME"],
+            //        SENDER = reader["SENDER"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SENDER"].ToString()),
+            //        SENDER_TYPE = (string)reader["SENDER_TYPE"],
+            //        SMS010_REF = reader["SMS010_REF"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SMS010_REF"].ToString()),
+            //        READ_STATUS = (string)reader["READ_STATUS"]
+            //    });
+            //}
+            //if (data.Count == 0)
+            //{
+            //    reader.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return data;
+            //}
+            //reader.Dispose();
+            //oracle.OracleDisconnect();
+            //return data;
         }
         public void readSms(m_CustReadMsg value)
         {
@@ -181,35 +224,106 @@ namespace DeMobile.Services
                 return null;
             }
         }
+        public int getAppVersion()
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.Information.getAppVersion, conn) { CommandType = CommandType.Text })
+                    {
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if (reader.HasRows)
+                        {
+                            var version = Int32.Parse(reader["APP_VERSION"].ToString());
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return version;
+                        }
+                        else
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return 0;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
         public m_Customer getProfileBySerialSim(string serial_sim)
         {
-            oracle = new Database();
-            List<OracleParameter> parameter = new List<OracleParameter>
+            using (OracleConnection conn = new OracleConnection(Database.conString))
             {
-                new OracleParameter("serial_sim", serial_sim)
-            };
-            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getProfileBySerialSim, parameter);
-            reader.Read();
-            if (reader.HasRows)
-            {
-                var data = new m_Customer
+                try
                 {
-                    CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
-                    CUST_NAME = (string)reader["CUST_NAME"],
-                    CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
-                    TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
-                    PERMIT = (string)reader["PERMIT"]
-                };
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return data;
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.getProfileBySerialSim, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("serial_sim", serial_sim));
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if (reader.HasRows)
+                        {
+                            var data = new m_Customer
+                            {
+                                CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                                CUST_NAME = (string)reader["CUST_NAME"],
+                                CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
+                                TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+                                PERMIT = (string)reader["PERMIT"]
+                            };
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return data;
+                        }
+                        else
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return null;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
             }
-            else
-            {
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return null;
-            }
+            //oracle = new Database();
+            //List<OracleParameter> parameter = new List<OracleParameter>
+            //{
+            //    new OracleParameter("serial_sim", serial_sim)
+            //};
+            //var reader = oracle.SqlQueryWithParams(SqlCmd.User.getProfileBySerialSim, parameter);
+            //reader.Read();
+            //if (reader.HasRows)
+            //{
+            //    var data = new m_Customer
+            //    {
+            //        CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+            //        CUST_NAME = (string)reader["CUST_NAME"],
+            //        CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
+            //        TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+            //        PERMIT = (string)reader["PERMIT"]
+            //    };
+            //    reader.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return data;
+            //}
+            //else
+            //{
+            //    reader.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return null;
+            //}
         }
         public m_Customer getProfileByCitizenNo(string citizen)
         {
@@ -243,42 +357,110 @@ namespace DeMobile.Services
                 return null;
             }
         }
+        public void updateAppVersion(int version, string device_id)
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.User.updateAppVersion, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("app_version", version));
+                        cmd.Parameters.Add(new OracleParameter("device_id", device_id));
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
         public m_device checkCurrentDevice(string id)
         {
-            oracle = new Database();
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            parameter.Add(new OracleParameter("device_id", id));
-            var reader = oracle.SqlQueryWithParams(SqlCmd.User.checkCurrentDevice, parameter);
-            //var reader = oracle.SqlQuery(cmd);
-            reader.Read();
-            if (reader.HasRows)
+            using (OracleConnection conn = new OracleConnection(Database.conString))
             {
-                var data = new m_device
+                try
                 {
-                    device_id = (string)reader["DEVICE_ID"],
-                    cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
-                    conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
-                    device_status = (string)reader["DEVICE_STATUS"],
-                    tel = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
-                    tel_sim = reader["TEL_SIM"] == DBNull.Value ? string.Empty : (string)reader["TEL_SIM"],
-                    serial_sim = reader["SERIAL_SIM"] == DBNull.Value ? string.Empty : (string)reader["SERIAL_SIM"],
-                    operator_name = reader["OPERATOR"] == DBNull.Value ? string.Empty : (string)reader["OPERATOR"],
-                    brand = reader["BRAND"] == DBNull.Value ? string.Empty : (string)reader["BRAND"],
-                    model = reader["MODEL"] == DBNull.Value ? string.Empty : (string)reader["MODEL"],
-                    api_version = Int32.Parse(reader["API_VERSION"].ToString()),
-                    pin = reader["PIN"] == DBNull.Value ? string.Empty : (string)reader["PIN"],
-                    created_time = (DateTime)reader["CREATED_TIME"]
-                };
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return data;
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.checkCurrentDevice, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("device_id", id));
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if (reader.HasRows)
+                        {
+                            var data = new m_device
+                            {
+                                device_id = (string)reader["DEVICE_ID"],
+                                cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
+                                conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
+                                device_status = (string)reader["DEVICE_STATUS"],
+                                tel = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+                                tel_sim = reader["TEL_SIM"] == DBNull.Value ? string.Empty : (string)reader["TEL_SIM"],
+                                serial_sim = reader["SERIAL_SIM"] == DBNull.Value ? string.Empty : (string)reader["SERIAL_SIM"],
+                                operator_name = reader["OPERATOR"] == DBNull.Value ? string.Empty : (string)reader["OPERATOR"],
+                                brand = reader["BRAND"] == DBNull.Value ? string.Empty : (string)reader["BRAND"],
+                                model = reader["MODEL"] == DBNull.Value ? string.Empty : (string)reader["MODEL"],
+                                api_version = Int32.Parse(reader["API_VERSION"].ToString()),
+                                pin = reader["PIN"] == DBNull.Value ? string.Empty : (string)reader["PIN"],
+                                created_time = (DateTime)reader["CREATED_TIME"],
+                                app_version = Int32.Parse(reader["APP_VERSION"].ToString())
+                            };
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return data;
+                        }
+                        else
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return null;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
             }
-            else
-            {
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return null;
-            }
+                //oracle = new Database();
+                //List<OracleParameter> parameter = new List<OracleParameter>();
+                //parameter.Add(new OracleParameter("device_id", id));
+                //var reader = oracle.SqlQueryWithParams(SqlCmd.User.checkCurrentDevice, parameter);
+                //reader.Read();
+                //if (reader.HasRows)
+                //{
+                //    var data = new m_device
+                //    {
+                //        device_id = (string)reader["DEVICE_ID"],
+                //        cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
+                //        conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
+                //        device_status = (string)reader["DEVICE_STATUS"],
+                //        tel = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+                //        tel_sim = reader["TEL_SIM"] == DBNull.Value ? string.Empty : (string)reader["TEL_SIM"],
+                //        serial_sim = reader["SERIAL_SIM"] == DBNull.Value ? string.Empty : (string)reader["SERIAL_SIM"],
+                //        operator_name = reader["OPERATOR"] == DBNull.Value ? string.Empty : (string)reader["OPERATOR"],
+                //        brand = reader["BRAND"] == DBNull.Value ? string.Empty : (string)reader["BRAND"],
+                //        model = reader["MODEL"] == DBNull.Value ? string.Empty : (string)reader["MODEL"],
+                //        api_version = Int32.Parse(reader["API_VERSION"].ToString()),
+                //        pin = reader["PIN"] == DBNull.Value ? string.Empty : (string)reader["PIN"],
+                //        created_time = (DateTime)reader["CREATED_TIME"]
+                //    };
+                //    reader.Dispose();
+                //    oracle.OracleDisconnect();
+                //    return data;
+                //}
+                //else
+                //{
+                //    reader.Dispose();
+                //    oracle.OracleDisconnect();
+                //    return null;
+                //}
         }
         public void checkCurrentBySerialAndDevice(string serial, string device)
         {
@@ -342,86 +524,159 @@ namespace DeMobile.Services
         }
         public void registerDevice(m_Register regis, int cust_no)
         {
-            oracle = new Database();
-            List<OracleParameter> parameter = new List<OracleParameter>
+            using (OracleConnection conn = new OracleConnection(Database.conString))
             {
-                new OracleParameter("device_id", regis.device_id),
-                new OracleParameter("cust_no", cust_no),
-                new OracleParameter("tel", regis.phone_no),
-                new OracleParameter("telSim", regis.phone_no_sim),
-                new OracleParameter("serial_sim", regis.serial_sim),
-                new OracleParameter("operator", regis.operator_name),
-                new OracleParameter("brand", regis.brand),
-                new OracleParameter("model", regis.model),
-                new OracleParameter("api_version", regis.api_version),
-                new OracleParameter("pin", regis.pin)
-            };
-            var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerNewDevice, parameter);
-
-            //parameter = new List<OracleParameter>
-            //{
-            //    new OracleParameter("cust_no", cust_no),
-            //    new OracleParameter("device_id", regis.device_id),
-            //    new OracleParameter("ip_addr", regis.ip_addr)
-            //};
-            //oracle.SqlExecuteWithParams(SqlCmd.Log.logRegister, parameter);
-            oracle.OracleDisconnect();
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.registerNewDevice, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("device_id", regis.device_id));
+                        cmd.Parameters.Add(new OracleParameter("cust_no", cust_no));
+                        cmd.Parameters.Add(new OracleParameter("tel", regis.phone_no));
+                        cmd.Parameters.Add(new OracleParameter("telSim", regis.phone_no_sim));
+                        cmd.Parameters.Add(new OracleParameter("serial_sim", regis.serial_sim));
+                        cmd.Parameters.Add(new OracleParameter("operator", regis.operator_name));
+                        cmd.Parameters.Add(new OracleParameter("brand", regis.brand));
+                        cmd.Parameters.Add(new OracleParameter("model", regis.model));
+                        cmd.Parameters.Add(new OracleParameter("api_version", regis.api_version));
+                        cmd.Parameters.Add(new OracleParameter("pin", regis.pin));
+                        cmd.ExecuteNonQueryAsync();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+                //oracle = new Database();
+                //List<OracleParameter> parameter = new List<OracleParameter>
+                //{
+                //    new OracleParameter("device_id", regis.device_id),
+                //    new OracleParameter("cust_no", cust_no),
+                //    new OracleParameter("tel", regis.phone_no),
+                //    new OracleParameter("telSim", regis.phone_no_sim),
+                //    new OracleParameter("serial_sim", regis.serial_sim),
+                //    new OracleParameter("operator", regis.operator_name),
+                //    new OracleParameter("brand", regis.brand),
+                //    new OracleParameter("model", regis.model),
+                //    new OracleParameter("api_version", regis.api_version),
+                //    new OracleParameter("pin", regis.pin)
+                //};
+                //var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerNewDevice, parameter);
+                //oracle.OracleDisconnect();
+            }
         }
         public void registerCurrentDevice(m_Register regis, int cust_no)
         {
-            oracle = new Database();
-            List<OracleParameter> parameter = new List<OracleParameter> {
-                new OracleParameter("device_id", regis.device_id),
-                new OracleParameter("cust_no", cust_no),
-                new OracleParameter("tel", regis.phone_no),   
-                new OracleParameter("telSim", regis.phone_no_sim),
-                new OracleParameter("serial_sim", regis.serial_sim),
-                new OracleParameter("operator", regis.operator_name),
-                new OracleParameter("brand", regis.brand),
-                new OracleParameter("model", regis.model),
-                new OracleParameter("api_version", regis.api_version),
-                new OracleParameter("pin", regis.pin)
-            };
-            //string cmd = $@"UPDATE MPAY020 SET CUST_NO = {cust_no}, CREATED_TIME = SYSDATE WHERE DEVICE_ID = '{regis.device_id}'";
-            var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerCurrentDevice, parameter);
-            //var resInsert = oracle.SqlExecuteWithParams(cmd, parameter);
-            //parameter = new List<OracleParameter>
-            //{
-            //    new OracleParameter("cust_no", cust_no),
-            //    new OracleParameter("device_id", regis.device_id),
-            //    new OracleParameter("ip_addr", regis.ip_addr)
-            //};
-            //oracle.SqlExecuteWithParams(SqlCmd.Log.logRegister, parameter);
-            oracle.OracleDisconnect();
+            using (OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.registerCurrentDevice, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("device_id", regis.device_id));
+                        cmd.Parameters.Add(new OracleParameter("cust_no", cust_no));
+                        cmd.Parameters.Add(new OracleParameter("tel", regis.phone_no));
+                        cmd.Parameters.Add(new OracleParameter("telSim", regis.phone_no_sim));
+                        cmd.Parameters.Add(new OracleParameter("serial_sim", regis.serial_sim));
+                        cmd.Parameters.Add(new OracleParameter("operator", regis.operator_name));
+                        cmd.Parameters.Add(new OracleParameter("brand", regis.brand));
+                        cmd.Parameters.Add(new OracleParameter("model", regis.model));
+                        cmd.Parameters.Add(new OracleParameter("api_version", regis.api_version));
+                        cmd.Parameters.Add(new OracleParameter("pin", regis.pin));
+                        cmd.ExecuteNonQueryAsync();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+                //oracle = new Database();
+                //List<OracleParameter> parameter = new List<OracleParameter> {
+                //    new OracleParameter("device_id", regis.device_id),
+                //    new OracleParameter("cust_no", cust_no),
+                //    new OracleParameter("tel", regis.phone_no),   
+                //    new OracleParameter("telSim", regis.phone_no_sim),
+                //    new OracleParameter("serial_sim", regis.serial_sim),
+                //    new OracleParameter("operator", regis.operator_name),
+                //    new OracleParameter("brand", regis.brand),
+                //    new OracleParameter("model", regis.model),
+                //    new OracleParameter("api_version", regis.api_version),
+                //    new OracleParameter("pin", regis.pin)
+                //};
+                //var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerCurrentDevice, parameter);
+                //oracle.OracleDisconnect();
         }
         public m_Customer getProfileById(int id)
         {
-            oracle = new Database();
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            parameter.Add(new OracleParameter("cust_no", id));
-            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getProfileById, parameter);
-            //var reader = oracle.SqlQuery(cmd);
-            reader.Read();
-            if (reader.HasRows)
+            using (OracleConnection conn = new OracleConnection(Database.conString))
             {
-                var data = new m_Customer
+                try
                 {
-                    CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
-                    CUST_NAME = (string)reader["CUST_NAME"],
-                    CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
-                    TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
-                    PERMIT = (string)reader["PERMIT"]
-                };
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return data;
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.getProfileById, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.CommandTimeout = 30;
+                        cmd.Parameters.Add(new OracleParameter("cust_no", id));
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if (reader.HasRows)
+                        {
+                            var data = new m_Customer
+                            {
+                                CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                                CUST_NAME = (string)reader["CUST_NAME"],
+                                CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
+                                TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+                                PERMIT = (string)reader["PERMIT"]
+                            };
+                            reader.Dispose();
+                            return data;
+                        }
+                        else
+                        {
+                            reader.Dispose();
+                            return null;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Dispose();
+                }
             }
-            else
-            {
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return null;
-            }
+
+            //oracle = new Database();
+            //List<OracleParameter> parameter = new List<OracleParameter>();
+            //parameter.Add(new OracleParameter("cust_no", id));
+            //var reader = oracle.SqlQueryWithParams(SqlCmd.User.getProfileById, parameter);
+            //reader.Read();
+            //if (reader.HasRows)
+            //{
+            //    var data = new m_Customer
+            //    {
+            //        CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+            //        CUST_NAME = (string)reader["CUST_NAME"],
+            //        CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
+            //        TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+            //        PERMIT = (string)reader["PERMIT"]
+            //    };
+            //    reader.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return data;
+            //}
+            //else
+            //{
+            //    reader.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return null;
+            //}
         }
     }
 }

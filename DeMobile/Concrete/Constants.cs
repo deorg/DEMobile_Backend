@@ -11,6 +11,7 @@ namespace DeMobile.Concrete
         {
             public static class Development
             {
+                public const string conString = "User Id=DMOBILE;Password=DMOBILE;Data Source=35.247.128.114:1521/DEORCL;";
                 public const string Host = "35.247.128.114";
                 public const string Port = "1521";
                 public const string Source = "DEORCL";
@@ -19,6 +20,7 @@ namespace DeMobile.Concrete
             }
             public static class Production
             {
+                public const string conString = "User Id=DMOBILE;Password=DMOBILE;Data Source=localhost:1521/DEORCL;";
                 public const string Host = "localhost";
                 public const string Port = "1521";
                 public const string Source = "DEORCL";

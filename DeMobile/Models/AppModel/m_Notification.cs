@@ -28,6 +28,20 @@ namespace DeMobile.Models.AppModel
         public DateTime EXPIRE_DT { get; set; }
         public string STATUS { get; set; }
     }
+    public class m_sendSms
+    {
+        public int SMS010_PK { get; set; }
+        public int CUST_NO { get; set; }
+        public string CONN_ID { get; set; }
+        public string DEVICE_STATUS { get; set; }
+        public string SMS_NOTE { get; set; }
+        public string CON_NO { get; set; }
+        public DateTime SMS_TIME { get; set; }
+        public int SENDER { get; set; }
+        public string SENDER_TYPE { get; set; }
+        public int SMS010_REF { get; set; }
+        public string READ_STATUS { get; set; }
+    }
 
     public class m_ConfirmOTP
     {

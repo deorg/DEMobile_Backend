@@ -10,7 +10,14 @@ namespace DeMobile.Concrete
         public static class User
         {
             public const string getSms = "SELECT * FROM SMS010 WHERE CUST_NO = :cust_no ORDER BY SMS010_PK";
-            public const string readSms = "UPDATE SMS010 SET READ_STATUS = 'READ' WHERE CUST_NO = :cust_no AND SMS010_PK <= :sms010_pk AND SENDER_TYPE != 'CUST'";
+            public const string getSmsWithConnId = @"select sms010_pk, s010.cust_no, conn_id, device_status, sms_note,  con_no, sms_time, sender, sender_type, sms010_ref, read_status
+                                                        from sms010 s010 join mpay020 m020
+                                                        on s010.cust_no = m020.cust_no
+                                                        where s010.cust_no = :cust_no";
+            public const string getAllSmsWithConnId = @"select sms010_pk, s010.cust_no, conn_id, device_status, sms_note,  s010.con_no, sms_time, sender, sender_type, sms010_ref, read_status, received
+                                                        from sms010 s010 join mpay020 m020
+                                                        on s010.cust_no = m020.cust_no where received = 'N'";
+            public const string readSms = "UPDATE SMS010 SET READ_STATUS = 'READ', RECEIVED = 'Y' WHERE CUST_NO = :cust_no AND SMS010_PK <= :sms010_pk AND SENDER_TYPE != 'CUST'";
             public const string getContract = "SELECT CON_NO, CUST_NO, TOT_AMT, PAY_AMT, PERIOD, BAL_AMT, CON_DATE, DISC_AMT FROM CONTRACT WHERE CUST_NO = :cust_no ORDER BY CON_DATE";
             public const string findContract = "SELECT * FROM CONTRACT WHERE CUST_NO = :cust_no AND CON_NO = :con_no";
             public const string getContractPayment = "SELECT LNC_NO CON_NO, LNL_PAY_DATE PAY_DATE, LNL_PAY_AMT PAY_AMT FROM VW_LOAN_LEDGER_CO WHERE LNC_NO = :lnc_no ORDER BY LNL_SEQ DESC";
@@ -24,6 +31,7 @@ namespace DeMobile.Concrete
             public const string getDeviceByStatus = "SELECT * FROM MPAY020 WHERE DEVICE_STATUS = :status";
             public const string getDeviceByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no AND DEVICE_STATUS = 'ACT'";
             public const string getConnIdByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no AND DEVICE_STATUS = 'ACT'";
+            public const string updateAppVersion = "UPDATE MPAY020 SET APP_VERSION = :app_version WHERE DEVICE_ID = :device_id";
         }
         public static class Payment
         {
@@ -33,7 +41,7 @@ namespace DeMobile.Concrete
             public const string saveTransaction = "INSERT INTO MPAY110(TRANS_NO, ORDER_NO, CUST_NO, CHANNEL_ID, REQ_STATUS_ID, TRANS_STATUS_ID, PAY_AMT, RETURN_URL, PAYMENT_URL, IP_ADDR, TOKEN, CREATED_TIME, EXPIRE_TIME, TRANS_AMT) VALUES(:transNo, :orderNo, :custNo, :channelId, :reqStatus, :tranStatus, :payAmt, :returnUrl, :paymentUrl, :ip, :token, :createTime, :expireTime, :transAmt) RETURNING TRANS_NO INTO :trans_no";
             public const string updateTransaction = "UPDATE MPAY110 SET TRANS_STATUS_ID = :trans_status_id, BANK_REF_CODE = :bank_ref_code, RESULT_STATUS_ID = :result_status_id, PAYMENT_TIME = :payment_time WHERE TRANS_NO = :trans_no";
             public const string getTransactionByOrder_no = "SELECT * FROM MPAY110 WHERE ORDER_NO = :order_no";
-            public const string getContractById = "SELECT * FROM CONTRACT WHERE CON_NO = :con_no";
+            public const string getContractById = "SELECT * FROM CONTRACT WHERE CON_NO = :con_no";           
         }
         public static class Notification
         {
@@ -49,6 +57,7 @@ namespace DeMobile.Concrete
             public const string getConnectionid = "SELECT CONN_ID FROM MPAY020 WHERE CUST_NO = :cust_no";
             public const string newSms = "INSERT INTO SMS010(CUST_NO, CON_NO, SMS_NOTE, SENDER, SENDER_TYPE) VALUES(:cust_no, :con_no, :sms_note, :sender, :sender_type) RETURNING SMS010_PK INTO :sms010_pk";
             public const string markToRecieve = "UPDATE SMS010 SET RECEIVED = 'Y' WHERE SMS010_PK = :sms010pk";
+            public const string markToSent = "UPDATE SMS010 SET RECEIVED = 'S' WHERE RECEIVED = 'N'";
         }
         public static class Log
         {
@@ -56,9 +65,11 @@ namespace DeMobile.Concrete
             public const string logRegister = "INSERT INTO MPAY201(CUST_NO, DEVICE_ID, TEL, IP_ADDR) VALUES(:cust_no, :device_id, :tel, :ip_addr)";
             public const string logSignin = "INSERT INTO MPAY202(CUST_NO, DEVICE_ID, TEL, SERIAL_SIM, IP_ADDR,ACTION, STATUS, NOTE) VALUES(:cust_no, :device_id, :tel, :serial_sim, :ip_addr,:action, :status, :note)";
             public const string logOrder = "INSERT INTO MPAY203(CUST_NO, CON_NO, ORDER_NO, TRANS_NO, CHANNEL_ID, PAY_AMT, TRANS_AMT, DEVICE_ID, TEL, NOTE, IP_ADDR) VALUES(:cust_no, :con_no, :order_no, :trans_no, :channel_id, :pay_amt, :trans_amt, :device_id, :tel, :note, :ip_addr)";
+            public const string logTest = "INSERT INTO LOG_TEST(TXT) VALUES(:msg)";
         }
         public static class Information
         {
+            public const string getAppVersion = "SELECT APP_VERSION FROM MPAY999";
             public const string getStatusCode = "SELECT * FROM MPAY060";
             public const string getNumMember = "SELECT COUNT(*) SUM_NEW_USER FROM CUSTOMER";
             public const string getRegisteredMember = "select count(distinct cust_no) from mpay020";

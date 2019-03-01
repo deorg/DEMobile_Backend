@@ -25,19 +25,44 @@ namespace DeMobile.Services
         }
         public void logSignin(m_LogReq log)
         {
-            oracle = new Database();
-            List<OracleParameter> parameter = new List<OracleParameter>
+            using (OracleConnection conn = new OracleConnection(Database.conString))
             {
-                new OracleParameter("cust_no", log.cust_no),
-                new OracleParameter("device_id", log.device_id),
-                new OracleParameter("tel", log.tel),
-                new OracleParameter("serial_sim", log.serial_sim),
-                new OracleParameter("ip_addr", log.ip_addr),
-                new OracleParameter("action", log.action),
-                new OracleParameter("status", log.status),
-                new OracleParameter("note", log.note)
-            };
-            oracle.SqlExecuteWithParams(SqlCmd.Log.logSignin, parameter);
+                try
+                {
+                    conn.OpenAsync();
+                    using (var cmd = new OracleCommand(SqlCmd.Log.logSignin, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("cust_no", log.cust_no));
+                        cmd.Parameters.Add(new OracleParameter("device_id", log.device_id));
+                        cmd.Parameters.Add(new OracleParameter("tel", log.tel));
+                        cmd.Parameters.Add(new OracleParameter("serial_sim", log.serial_sim));
+                        cmd.Parameters.Add(new OracleParameter("ip_addr", log.ip_addr));
+                        cmd.Parameters.Add(new OracleParameter("action", log.action));
+                        cmd.Parameters.Add(new OracleParameter("status", log.status));
+                        cmd.Parameters.Add(new OracleParameter("note", log.note));
+
+                        cmd.ExecuteNonQueryAsync();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+            //oracle = new Database();
+            //List<OracleParameter> parameter = new List<OracleParameter>
+            //{
+            //    new OracleParameter("cust_no", log.cust_no),
+            //    new OracleParameter("device_id", log.device_id),
+            //    new OracleParameter("tel", log.tel),
+            //    new OracleParameter("serial_sim", log.serial_sim),
+            //    new OracleParameter("ip_addr", log.ip_addr),
+            //    new OracleParameter("action", log.action),
+            //    new OracleParameter("status", log.status),
+            //    new OracleParameter("note", log.note)
+            //};
+            //oracle.SqlExecuteWithParams(SqlCmd.Log.logSignin, parameter);
         }
         public void logOrder(m_LogOrder log)
         {

@@ -167,7 +167,6 @@ namespace DeMobile.Controllers
                 sms.SENDER_TYPE = "SYSTEM";
                 sms.READ_STATUS = "UNREAD";
                 Notification noti = new Notification();
-                //var lastSms = noti.createSms(sms);
                 sms.SMS_TIME = DateTime.Now;
                 sms.SMS010_PK = value.sms010_pk;
                 chat.SendSmsByConnId(sms);
@@ -178,6 +177,38 @@ namespace DeMobile.Controllers
             {
                 monitor.sendMessage(url, clientHostname, value, new { Message = e.Message });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
+            }
+        }
+        [Route("api/test/sendmessageall")]
+        public IHttpActionResult PostTestSendMessage([FromBody]m_CustMessage value)
+        {
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
+            try
+            {
+                chat.sendSmsAll();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                monitor.sendMessage(url, clientHostname, new { parameter = "no data" }, new { Message = e.Message });
+                return Ok(e.Message);
+            }
+        }
+        [Route("api/test/sendmessage")]
+        public IHttpActionResult GetTestSendSms(int cust_no)
+        {
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;
+            try
+            {
+                chat.sendSmsByCustNo(cust_no);
+                return Ok();
+            }
+            catch(Exception e)
+            {
+                monitor.sendMessage(url, clientHostname, new { cust_no = cust_no }, new { Message = e.Message });
+                return Ok(e.Message);
             }
         }
         //[Route("api/notification/get")]
