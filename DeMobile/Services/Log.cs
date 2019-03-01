@@ -13,15 +13,37 @@ namespace DeMobile.Services
         private Database oracle;
         public void logRequest(m_LogReq log)
         {
-            oracle = new Database();
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            parameter.Add(new OracleParameter("note", log.note));
-            parameter.Add(new OracleParameter("cust_no", log.cust_no));
-            parameter.Add(new OracleParameter("device_id", log.device_id));
-            parameter.Add(new OracleParameter("ip_addr", log.ip_addr));
-            parameter.Add(new OracleParameter("url", log.url));
-            oracle.SqlExecuteWithParams(SqlCmd.Log.logReq, parameter);
-            oracle.OracleDisconnect();
+            using (OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.Log.logReq, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("note", log.note));
+                        cmd.Parameters.Add(new OracleParameter("cust_no", log.cust_no));
+                        cmd.Parameters.Add(new OracleParameter("device_id", log.device_id));
+                        cmd.Parameters.Add(new OracleParameter("ip_addr", log.ip_addr));
+                        cmd.Parameters.Add(new OracleParameter("url", log.url));
+                        cmd.ExecuteNonQueryAsync();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+            //oracle = new Database();
+            //List<OracleParameter> parameter = new List<OracleParameter>();
+            //parameter.Add(new OracleParameter("note", log.note));
+            //parameter.Add(new OracleParameter("cust_no", log.cust_no));
+            //parameter.Add(new OracleParameter("device_id", log.device_id));
+            //parameter.Add(new OracleParameter("ip_addr", log.ip_addr));
+            //parameter.Add(new OracleParameter("url", log.url));
+            //oracle.SqlExecuteWithParams(SqlCmd.Log.logReq, parameter);
+            //oracle.OracleDisconnect();
         }
         public void logSignin(m_LogReq log)
         {
@@ -29,7 +51,7 @@ namespace DeMobile.Services
             {
                 try
                 {
-                    conn.OpenAsync();
+                    conn.Open();
                     using (var cmd = new OracleCommand(SqlCmd.Log.logSignin, conn) { CommandType = System.Data.CommandType.Text })
                     {
                         cmd.Parameters.Add(new OracleParameter("cust_no", log.cust_no));
@@ -42,6 +64,7 @@ namespace DeMobile.Services
                         cmd.Parameters.Add(new OracleParameter("note", log.note));
 
                         cmd.ExecuteNonQueryAsync();
+                        cmd.Dispose();
                     }
                 }
                 finally

@@ -279,11 +279,11 @@ namespace DeMobile.Controllers
                     return Ok(new { code = 200, message = "ค้นหาข้อมูลสำเร็จ", data = result });
                 else
                 {
-                    mlog = new m_LogReq();
-                    mlog.ip_addr = IPAddress;
-                    mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล Profile ของลูกค้าโดยไม่ได้รับอนุญาต";
-                    mlog.url = "api/customer/profile";
-                    log.logRequest(mlog);
+                    //mlog = new m_LogReq();
+                    //mlog.ip_addr = IPAddress;
+                    //mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล Profile ของลูกค้าโดยไม่ได้รับอนุญาต";
+                    //mlog.url = "api/customer/profile";
+                    //log.logRequest(mlog);
                     monitor.sendMessage(url, IPAddress, new { id = id }, new { Message = "Not found customer!" });
                     return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
                 }
@@ -322,11 +322,11 @@ namespace DeMobile.Controllers
                 }
                 else
                 {
-                    mlog = new m_LogReq();
-                    mlog.ip_addr = IPAddress;
-                    mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล SMS ของลูกค้าโดยไม่ได้รับอนุญาต";
-                    mlog.url = "api/customer/sms";
-                    log.logRequest(mlog);
+                    //mlog = new m_LogReq();
+                    //mlog.ip_addr = IPAddress;
+                    //mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล SMS ของลูกค้าโดยไม่ได้รับอนุญาต";
+                    //mlog.url = "api/customer/sms";
+                    //log.logRequest(mlog);
                     monitor.sendMessage(url, IPAddress, new { id = id }, new { Message = "Not found customer!" });
                     return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
                 }
@@ -359,11 +359,11 @@ namespace DeMobile.Controllers
                 }
                 else
                 {
-                    mlog = new m_LogReq();
-                    mlog.ip_addr = IPAddress;
-                    mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล SMS ของลูกค้าโดยไม่ได้รับอนุญาต";
-                    mlog.url = "api/customer/sms/marktoread";
-                    log.logRequest(mlog);
+                    //mlog = new m_LogReq();
+                    //mlog.ip_addr = IPAddress;
+                    //mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล SMS ของลูกค้าโดยไม่ได้รับอนุญาต";
+                    //mlog.url = "api/customer/sms/marktoread";
+                    //log.logRequest(mlog);
                     monitor.sendMessage(url, IPAddress, value, new { Message = "Not found customer!" });
                     return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
                 }
@@ -402,11 +402,11 @@ namespace DeMobile.Controllers
                 }
                 else
                 {
-                    mlog = new m_LogReq();
-                    mlog.ip_addr = IPAddress;
-                    mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูลสัญญาของลูกค้าโดยไม่ได้รับอนุญาต";
-                    mlog.url = "api/customer/contract";
-                    log.logRequest(mlog);
+                    //mlog = new m_LogReq();
+                    //mlog.ip_addr = IPAddress;
+                    //mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูลสัญญาของลูกค้าโดยไม่ได้รับอนุญาต";
+                    //mlog.url = "api/customer/contract";
+                    //log.logRequest(mlog);
                     monitor.sendMessage(url, IPAddress, new { id = id }, new { Message = "Not found customer!" });
                     return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
                 }
