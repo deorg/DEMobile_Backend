@@ -155,7 +155,7 @@ namespace DeMobile.Controllers
                         var device = _user.checkCurrentDevice(deviceId);
                         if (device != null)
                         {
-                            if (version != app_version)
+                            if (app_version != device.app_version)
                                 _user.updateAppVersion(app_version, deviceId);
 
                             if (device.device_status == "ACT")
@@ -169,7 +169,7 @@ namespace DeMobile.Controllers
                                 mlog.status = "SUCCESS";
                                 mlog.note = "ระบุตัวตนสำเร็จ";
                                 log.logSignin(mlog);
-                                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 200, message = "ระบุตัวตนสำเร็จ", data = result });
+                                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId, app_version = app_version }, new { code = 200, message = "ระบุตัวตนสำเร็จ", data = result });
                                 return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = new m_identify { CUST_NO = result.CUST_NO, CUST_NAME = result.CUST_NAME, CITIZEN_NO = result.CITIZEN_NO, TEL = result.TEL, PERMIT = result.PERMIT, APP_VERSION = version} });
                             }
                             else if (device.device_status == "CHANGE_TEL")
@@ -183,7 +183,7 @@ namespace DeMobile.Controllers
                                 mlog.status = "FAIL";
                                 mlog.note = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์";
                                 log.logSignin(mlog);
-                                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 402, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์", data = result });
+                                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId, app_version = app_version }, new { code = 402, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์", data = result });
                                 return Ok(new { code = 402, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์", data = result });
                             }
                             else
@@ -197,7 +197,7 @@ namespace DeMobile.Controllers
                                 mlog.status = "FAIL";
                                 mlog.note = "เครื่องลูกค้าถูกระงับการใช้งาน";
                                 log.logSignin(mlog);
-                                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
+                                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId, app_version= app_version }, new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                                 return Ok(new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                             }                           
                         }
@@ -212,7 +212,7 @@ namespace DeMobile.Controllers
                             mlog.status = "FAIL";
                             mlog.note = "ไม่พบเครื่องลูกค้าในระบบ";
                             log.logSignin(mlog);
-                            monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 404, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
+                            monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId, app_version = app_version }, new { code = 404, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
                             return Ok(new { code = 404, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
                         }
                     }
@@ -227,7 +227,7 @@ namespace DeMobile.Controllers
                         mlog.status = "FAILE";
                         mlog.note = "ลูกค้าถูกระงับบริการ SMS";
                         log.logSignin(mlog);
-                        monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 401, message = "ลูกค้าถูกระงับบริการ SMS!", data = result });
+                        monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId, app_version = app_version }, new { code = 401, message = "ลูกค้าถูกระงับบริการ SMS!", data = result });
                         return Ok(new { code = 401, message = "ลูกค้าถูกระงับบริการ SMS!", data = result });
                     }
                 }
@@ -242,7 +242,7 @@ namespace DeMobile.Controllers
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบซิมลูกค้าในระบบ";
                     log.logSignin(mlog);
-                    monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { code = 407, message = "ไม่พบเลขซิมการ์ดของลูกค้าในระบบ!", data = result });
+                    monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId, app_version = app_version }, new { code = 407, message = "ไม่พบเลขซิมการ์ดของลูกค้าในระบบ!", data = result });
                     return Ok(new { code = 407, message = "ไม่พบเลขซิมการ์ดลูกค้าในระบบ!", data = result });
                 }
             }
@@ -257,7 +257,7 @@ namespace DeMobile.Controllers
                 mlog.status = "FAIL";
                 mlog.note = e.Message;
                 log.logSignin(mlog);
-                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId }, new { Message = e.Message });
+                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId, app_version = app_version }, new { Message = e.Message });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
