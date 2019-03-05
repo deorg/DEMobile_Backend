@@ -15,6 +15,7 @@ namespace DeMobile.Controllers
         private User _user = new User();
         Log log = new Log();
 
+        #region ลงทะเบียนติด Application DMobile
         [Route("api/authen/register")]
         public IHttpActionResult PostRegister([FromBody]m_Register data)
         {
@@ -134,6 +135,9 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
+        #endregion
+
+        #region ละบุตัวตนก่อนเข้าใช้งาน Application
         [Route("api/authen/identify")]
         public IHttpActionResult GetCheckPhone(string serial_sim, string deviceId, int app_version)
         {
@@ -261,6 +265,9 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
+        #endregion
+
+        #region ดูข้อมูลส่วนตัวของลูกค้า
         [Route("api/customer/profile")]
         public IHttpActionResult GetProfile(int id)
         {
@@ -299,6 +306,9 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
+        #endregion
+
+        #region ดูข้อมูล SMS ของลูกค้า
         [Route("api/customer/sms")]
         public IHttpActionResult GetSms(int id)
         {
@@ -342,6 +352,9 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
+        #endregion
+
+        #region กำหนดสถานะให้ข้อความว่าลูกค้าอ่านแล้ว
         [Route("api/customer/sms/marktoread")]
         public IHttpActionResult PostMarktoRead([FromBody]m_CustReadMsg value)
         {
@@ -379,6 +392,9 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
+        #endregion
+
+        #region ดูข้อมูลสัญญาของลูกค้า
         [Route("api/customer/contract")]
         public IHttpActionResult GetContract(int id)
         {
@@ -422,6 +438,9 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
+        #endregion
+
+        #region ดูข้อมูลการชำระค่างวดของสัญญานั้นๆ
         [Route("api/customer/payment")]
         public IHttpActionResult GetPayment(string no)
         {
@@ -444,5 +463,6 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
+        #endregion
     }
 }

@@ -18,6 +18,8 @@ namespace DeMobile.Controllers
         MonitorHub monitor = new MonitorHub();
         ChatHub chat = new ChatHub();
         Payment payment = new Payment();
+
+        #region ส่งรหัส OTP ไปให้ลูกค้า
         [Route("api/sms/sendOtp")]
         public IHttpActionResult GetSendOtp(int cust_no)
         {
@@ -34,6 +36,9 @@ namespace DeMobile.Controllers
                 return InternalServerError(e.InnerException);
             }
         }
+        #endregion
+
+        #region ตรวจสอบระหัส OTP จากลูกค้า
         [Route("api/sms/confirmOtp")]
         public IHttpActionResult PostConfirmOTP([FromBody]m_ConfirmOTP value)
         {
@@ -53,6 +58,9 @@ namespace DeMobile.Controllers
                 return InternalServerError(e.InnerException);
             }
         }
+        #endregion
+
+        #region ทดสอบส่งข้อความผ่าน Websocket ไปหา client ทุกคน
         [Route("api/notification/send/all")]
         public IHttpActionResult GetSendNotiAll(string title, string message)
         {
@@ -75,6 +83,9 @@ namespace DeMobile.Controllers
                 return InternalServerError(e.InnerException);
             }
         }
+        #endregion
+
+        #region ทดสอบส่งข้อความผ่าน Websocket ไปหา client ทุกคน2
         [Route("api/notification/send/all")]
         public IHttpActionResult GetTestNoti(string message)
         {
@@ -82,43 +93,9 @@ namespace DeMobile.Controllers
             hub.SendMessageAll(message);
             return Ok();
         }
-        [Route("api/notification/send/cust_no")]
-        public IHttpActionResult GetSendNotiCust(int cust_no, string type,  string title, string message)
-        {
-            //user = new User();
-            try
-            {
-                var device = user.getDeviceByCustNo(cust_no);
-                if(device != null)
-                {
-                    Notification noti = new Notification();
-                    noti.createNoti(type, title, message, cust_no);
-                    TransactionHub sender = new TransactionHub();
-                    sender.sendMessage("SYSTEM", new List<string> { device.conn_id }, title, message);
-                }
-                return Ok("sent");
-            }
-            catch (Exception e)
-            {
-                return InternalServerError(e.InnerException);
-            }
-        }
-        [Route("api/notification/send/sms")]
-        public IHttpActionResult PostSendSMS([FromBody]m_SMS010[] msg)
-        {
-            try
-            {
-                Notification noti = new Notification();
-                TransactionHub sender = new TransactionHub();
-                var notiData = noti.genNotification(msg);
-                sender.sendSMS(notiData);
-                return Ok("sent");
-            }
-            catch(Exception e)
-            {
-                return InternalServerError(e.InnerException);
-            }
-        }
+        #endregion
+
+        #region ลูกค้าส่งข้อความมาหาระบบ
         [Route("api/customer/sendmessage")]
         public IHttpActionResult PostCustSendMsg([FromBody]m_CustMessage value)
         {
@@ -133,6 +110,7 @@ namespace DeMobile.Controllers
                 sms.SENDER = value.cust_no;
                 sms.SENDER_TYPE = "CUST";
                 Notification noti = new Notification();
+                ////////// insert ข้อความของลูกค้าลง sms010 ////////////
                 var lastSms = noti.createSms(sms);
                 sms.SMS010_PK = lastSms;
                 sms.READ_STATUS = "UNREAD";
@@ -152,6 +130,9 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
+        #endregion
+
+        #region ส่งขอความหาลูกค้าด้วย cust_no
         [Route("api/admin/sendmessage")]
         public IHttpActionResult PostAdminSendMsg([FromBody]m_CustMessage value)
         {
@@ -179,6 +160,9 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
+        #endregion
+
+        #region ดึงข้อความ sms ทั้งหมดของลูกค้าทุกคนจาก sms010 และส่งไปหาลูกค้าทาง Websocket
         [Route("api/test/sendmessageall")]
         public IHttpActionResult PostTestSendMessage([FromBody]m_CustMessage value)
         {
@@ -195,6 +179,9 @@ namespace DeMobile.Controllers
                 return Ok(e.Message);
             }
         }
+        #endregion
+
+        #region ดึงข้อความ sms ทั้งหมดของลูกค้านั้นๆ จาก sms010 และส่งไปหาลูกค้าทาง Websocket
         [Route("api/test/sendmessage")]
         public IHttpActionResult GetTestSendSms(int cust_no)
         {
@@ -211,24 +198,6 @@ namespace DeMobile.Controllers
                 return Ok(e.Message);
             }
         }
-        //[Route("api/notification/get")]
-        //public IHttpActionResult GetNotification(int cust_no)
-        //{
-        //    Notification noti = new Notification();
-        //    MonitorHub monitor = new MonitorHub();
-        //    string clientHostname = HttpContext.Current.Request.UserHostName;
-        //    string url = HttpContext.Current.Request.Path;
-        //    try
-        //    {      
-        //        var notis = noti.getNotification(cust_no);
-        //        monitor.sendMessage(url, clientHostname, new { cust_no = cust_no }, notis);
-        //        return Ok(notis);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        monitor.sendMessage(url, clientHostname, new { cust_no = cust_no }, new { Message = e.Message });
-        //        return InternalServerError(e.InnerException);
-        //    }
-        //}
+        #endregion
     }
 }

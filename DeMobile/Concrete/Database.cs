@@ -22,8 +22,8 @@ namespace DeMobile.Concrete
         //private static string database = Constants.OracleDb.Production.Source;
 
 
-        //public static string conString = "User Id=DMOBILE;Password=DMOBILE;Connection Timeout=600; Max Pool Size=150;Data Source=35.197.153.92:1521/DEORCL;";
-        public const string conString = "User Id=DMOBILE;Password=DMOBILE;Connection Timeout=600; Max Pool Size=150;Data Source=localhost:1521/DEORCL;";
+        public static string conString = "User Id=DMOBILE;Password=DMOBILE;Connection Timeout=600; Max Pool Size=150;Data Source=35.197.153.92:1521/DEORCL;";
+        //public const string conString = "User Id=DMOBILE;Password=DMOBILE;Connection Timeout=600; Max Pool Size=150;Data Source=localhost:1521/DEORCL;";
 
         //public static string conString = $"User Id={username};Password={password};Data Source={host}:{port}/{database};";
 

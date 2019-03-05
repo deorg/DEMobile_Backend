@@ -139,8 +139,6 @@ namespace DeMobile.Services
         {
             try
             {
-                //string cmd = $@"INSERT INTO  MPAY100(CUST_NO, CON_NO, DEVICE_ID, CHANNEL_ID, PAY_AMT, TEL, IP_ADDR, DESCRIPTION)
-                //                VALUES({value.CustomerId}, '{value.ContractNo}', '{value.DeviceId}', '{value.ChannelCode}', {value.Amount}, '{value.PhoneNumber}', '{ip}', '{value.Description}')";
                 var lastOrder = createOrder(value);
                 if (lastOrder > 0)
                 {
@@ -175,20 +173,20 @@ namespace DeMobile.Services
                         responseObj = JsonConvert.DeserializeObject<PaymentRes>(response.Result.Content.ReadAsStringAsync().Result);
                         var lastTransaction = saveTransaction(value, responseObj);
                         if(responseObj.Status == 0 && responseObj.Code == 200)
-                            setStatusOrder(lastOrder, "ACT");
+                           // setStatusOrder(lastOrder, "ACT");
                         if(responseObj.Status != 0)
                         {
-                            if (responseObj.Status == 1)
-                                setStatusOrder(lastOrder, "FAL");
-                            else
-                                setStatusOrder(lastOrder, "ERR");
+                           // if (responseObj.Status == 1)
+                               // setStatusOrder(lastOrder, "FAL");
+                           // else
+                               // setStatusOrder(lastOrder, "ERR");
                         }
                         if(responseObj.Code != 200)
                         {
-                            if (responseObj.Code < 2007)
-                                setStatusOrder(lastOrder, "CAN");
-                            else
-                                setStatusOrder(lastOrder, "ERR");
+                           // if// (responseObj.Code < 2007)
+                            //    setStatusOrder(lastOrder, "CAN");
+                          //  else
+                               // setStatusOrder(lastOrder, "ERR");
                         }
                         return responseObj;
                     }
@@ -216,10 +214,6 @@ namespace DeMobile.Services
             reader.Read();
             if (reader.HasRows)
             {
-                //int trans_no = Int32.Parse(reader["TRANS_NO"].ToString());
-                //var bankref_code = reader["BANK_REF_CODE"] == DBNull.Value ? string.Empty : (string)reader["BANK_REF_CODE"];
-                //var result_status_id = reader["RESULT_STATUS_ID"] == DBNull.Value ? null : (int?)Int32.Parse(reader["RESULT_STATUS_ID"].ToString());
-                //var payment_time = reader["PAYMENT_TIME"];
                 var data = new m_Transaction
                 {
                     TRANS_NO = Int32.Parse(reader["TRANS_NO"].ToString()),
@@ -327,117 +321,245 @@ namespace DeMobile.Services
         }
         public void setStatusOrder(int order_no, string status)
         {
-            oracle = new Database();
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            parameter.Add(new OracleParameter("order_no", order_no));
-            parameter.Add(new OracleParameter("status", status));
-            oracle.SqlExecuteWithParams(SqlCmd.Payment.setStatusOrder, parameter);
-            oracle.OracleDisconnect();
+            using(var conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.Payment.setStatusOrder, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add("order_no", order_no);
+                        cmd.Parameters.Add("status", status);
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+            //oracle = new Database();
+            //List<OracleParameter> parameter = new List<OracleParameter>();
+            //parameter.Add(new OracleParameter("order_no", order_no));
+            //parameter.Add(new OracleParameter("status", status));
+            //oracle.SqlExecuteWithParams(SqlCmd.Payment.setStatusOrder, parameter);
+            //oracle.OracleDisconnect();
         }
         public void updateTransaction(PaymentStatusRes value)
         {
-            oracle = new Database();
-            DateTime paymentTime;
-            if(!string.IsNullOrEmpty(value.PaymentDate))
-                paymentTime = DateTime.ParseExact(value.PaymentDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            parameter.Add(new OracleParameter("trans_no", value.TransactionId));
-            parameter.Add(new OracleParameter("trans_status_id", value.Code));
-            parameter.Add(new OracleParameter("bank_ref_code", value.BankRefCode));
-            parameter.Add(new OracleParameter("result_status_id", value.PaymentStatus));
-            if (!string.IsNullOrEmpty(value.PaymentDate))
+            using(var conn = new OracleConnection(Database.conString))
             {
-                paymentTime = DateTime.ParseExact(value.PaymentDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
-                parameter.Add(new OracleParameter("payment_time", paymentTime));
+                try
+                {
+                    DateTime paymentTime;
+                    if (!string.IsNullOrEmpty(value.PaymentDate))
+                        paymentTime = DateTime.ParseExact(value.PaymentDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                    using(var cmd = new OracleCommand(SqlCmd.Payment.updateTransaction, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("trans_no", value.TransactionId));
+                        cmd.Parameters.Add(new OracleParameter("trans_status_id", value.Code));
+                        cmd.Parameters.Add(new OracleParameter("bank_ref_code", value.BankRefCode));
+                        cmd.Parameters.Add(new OracleParameter("result_status_id", value.PaymentStatus));
+                        if (!string.IsNullOrEmpty(value.PaymentDate))
+                        {
+                            paymentTime = DateTime.ParseExact(value.PaymentDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                            cmd.Parameters.Add(new OracleParameter("payment_time", paymentTime));
+                        }
+                        else
+                            cmd.Parameters.Add(new OracleParameter("payment_time", null));
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
             }
-            else
-                parameter.Add(new OracleParameter("payment_time", null));
-            oracle.SqlExecuteWithParams(SqlCmd.Payment.updateTransaction, parameter);
-            oracle.OracleDisconnect();
+            //oracle = new Database();
+            //DateTime paymentTime;
+            //if(!string.IsNullOrEmpty(value.PaymentDate))
+            //    paymentTime = DateTime.ParseExact(value.PaymentDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+            //List<OracleParameter> parameter = new List<OracleParameter>();
+            //parameter.Add(new OracleParameter("trans_no", value.TransactionId));
+            //parameter.Add(new OracleParameter("trans_status_id", value.Code));
+            //parameter.Add(new OracleParameter("bank_ref_code", value.BankRefCode));
+            //parameter.Add(new OracleParameter("result_status_id", value.PaymentStatus));
+            //if (!string.IsNullOrEmpty(value.PaymentDate))
+            //{
+            //    paymentTime = DateTime.ParseExact(value.PaymentDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+            //    parameter.Add(new OracleParameter("payment_time", paymentTime));
+            //}
+            //else
+            //    parameter.Add(new OracleParameter("payment_time", null));
+            //oracle.SqlExecuteWithParams(SqlCmd.Payment.updateTransaction, parameter);
+            //oracle.OracleDisconnect();
         }
         public int createOrder(PaymentReq value)
         {
-            try
+            using(var conn = new OracleConnection(Database.conString))
             {
-                oracle = new Database();
-                //string cmd = $@"INSERT INTO  MPAY100(CUST_NO, CON_NO, DEVICE_ID, CHANNEL_ID, PAY_AMT, TEL, IP_ADDR, DESCRIPTION)
-                //                VALUES(:custId, :contractNo, :deviceId, :channelCode, :amount, :phone, :ip, :description) RETURNING ORDER_NO INTO :order_no";
-                List<OracleParameter> parameter = new List<OracleParameter>();
-                parameter.Add(new OracleParameter("custId", value.CustomerId));
-                parameter.Add(new OracleParameter("contractNo", value.ContractNo));
-                //parameter.Add(new OracleParameter("deviceId", value.DeviceId));
-                parameter.Add(new OracleParameter("channelCode", value.ChannelCode));
-                parameter.Add(new OracleParameter("payAmt", value.PayAmt));
-                parameter.Add(new OracleParameter("phone", value.PhoneNumber));
-                parameter.Add(new OracleParameter("ip", value.IPAddress));
-                parameter.Add(new OracleParameter("description", value.Description));
-                parameter.Add(new OracleParameter("transAmt", value.Amount));
-                parameter.Add(new OracleParameter
+                try
                 {
-                    ParameterName = "order_no",
-                    OracleDbType = OracleDbType.Int32,
-                    Direction = ParameterDirection.Output
-                });
-                var resInsert = oracle.SqlExecuteWithParams(SqlCmd.Payment.createOrder, parameter);
-                //var resInsert = oracle.SqlExecuteWithParams(cmd, parameter);
-                var lastOrder = Int32.Parse(resInsert.Parameters["order_no"].Value.ToString());
-                resInsert.Dispose();
-                oracle.OracleDisconnect();
-                return lastOrder;
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.Payment.createOrder, conn) {CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("custId", value.CustomerId));
+                        cmd.Parameters.Add(new OracleParameter("contractNo", value.ContractNo));
+                        cmd.Parameters.Add(new OracleParameter("channelCode", value.ChannelCode));
+                        cmd.Parameters.Add(new OracleParameter("payAmt", value.PayAmt));
+                        cmd.Parameters.Add(new OracleParameter("phone", value.PhoneNumber));
+                        cmd.Parameters.Add(new OracleParameter("ip", value.IPAddress));
+                        cmd.Parameters.Add(new OracleParameter("description", value.Description));
+                        cmd.Parameters.Add(new OracleParameter("transAmt", value.Amount));
+                        cmd.Parameters.Add(new OracleParameter
+                        {
+                            ParameterName = "order_no",
+                            OracleDbType = OracleDbType.Int32,
+                            Direction = ParameterDirection.Output
+                        });
+                        var resInsert = cmd.ExecuteNonQuery();
+                        var lastOrder = Int32.Parse(cmd.Parameters["order_no"].Value.ToString());
+                        cmd.Dispose();
+                        return lastOrder;
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return 0;
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
             }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return 0;
-            }
-            //oracle.OracleDisconnect();
+            //try
+            //{
+            //    oracle = new Database();
+            //    List<OracleParameter> parameter = new List<OracleParameter>();
+            //    parameter.Add(new OracleParameter("custId", value.CustomerId));
+            //    parameter.Add(new OracleParameter("contractNo", value.ContractNo));
+            //    parameter.Add(new OracleParameter("channelCode", value.ChannelCode));
+            //    parameter.Add(new OracleParameter("payAmt", value.PayAmt));
+            //    parameter.Add(new OracleParameter("phone", value.PhoneNumber));
+            //    parameter.Add(new OracleParameter("ip", value.IPAddress));
+            //    parameter.Add(new OracleParameter("description", value.Description));
+            //    parameter.Add(new OracleParameter("transAmt", value.Amount));
+            //    parameter.Add(new OracleParameter
+            //    {
+            //        ParameterName = "order_no",
+            //        OracleDbType = OracleDbType.Int32,
+            //        Direction = ParameterDirection.Output
+            //    });
+            //    var resInsert = oracle.SqlExecuteWithParams(SqlCmd.Payment.createOrder, parameter);
+            //    var lastOrder = Int32.Parse(resInsert.Parameters["order_no"].Value.ToString());
+            //    resInsert.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return lastOrder;
+            //}
+            //catch(Exception e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //    return 0;
+            //}
         }
         public int saveTransaction(PaymentReq value, PaymentRes value2)
         {
-            try
+            using(var conn = new OracleConnection(Database.conString))
             {
-                oracle = new Database();
-                var createDate = DateTime.ParseExact(value2.CreatedDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
-                var expireDate = DateTime.ParseExact(value2.ExpiredDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
-                //string cmd = $@"INSERT INTO MPAY110(TRANS_NO, ORDER_NO, CUST_NO, CHANNEL_ID, REQ_STATUS_ID, TRANS_STATUS_ID, PAY_AMT, RETURN_URL, PAYMENT_URL, IP_ADDR, TOKEN, CREATED_TIME, EXPIRE_TIME)
-                //                VALUES(:transNo, :orderNo, :custNo, :channelId, :reqStatus, :tranStatus, :amount, :returnUrl, :paymentUrl, :ip, :token, :createTime, :expireTime) RETURNING TRANS_NO INTO :trans_no";
-                List<OracleParameter> parameter = new List<OracleParameter>();
-                parameter.Add(new OracleParameter("transNo", value2.TransactionId));
-                parameter.Add(new OracleParameter("orderNo", Int32.Parse(value2.OrderNo)));
-                parameter.Add(new OracleParameter("custNo", Int32.Parse(value2.CustomerId)));
-                parameter.Add(new OracleParameter("channelId", value2.ChannelCode));
-                parameter.Add(new OracleParameter("reqStatus", value2.Status));
-                parameter.Add(new OracleParameter("tranStatus", value2.Code));
-                parameter.Add(new OracleParameter("payAmt", value.PayAmt));
-                parameter.Add(new OracleParameter("returnUrl", value2.ReturnUrl));
-                parameter.Add(new OracleParameter("paymentUrl", value2.PaymentUrl));
-                parameter.Add(new OracleParameter("ip", value2.IpAddress));
-                parameter.Add(new OracleParameter("token", value2.Token));
-                parameter.Add(new OracleParameter("createTime", createDate));
-                parameter.Add(new OracleParameter("expireTime", expireDate));
-                parameter.Add(new OracleParameter("transAmt", value2.Amount));
-                parameter.Add(new OracleParameter
+                try
                 {
-                    ParameterName = "trans_no",
-                    OracleDbType = OracleDbType.Int32,
-                    Direction = ParameterDirection.Output
-                });
-                var resInsert = oracle.SqlExecuteWithParams(SqlCmd.Payment.saveTransaction, parameter);
-                //var resInsert = oracle.SqlExecuteWithParams(cmd, parameter);
-                var lastTransaction = Int32.Parse(resInsert.Parameters["trans_no"].Value.ToString());
-                //parameter.Clear();
-                //parameter.Add(new OracleParameter("order_no", value.OrderNo));
-                //oracle.SqlExecuteWithParams(SqlCmd.Payment.setActiveOrder, parameter);
+                    conn.Open();
+                    var createDate = DateTime.ParseExact(value2.CreatedDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                    var expireDate = DateTime.ParseExact(value2.ExpiredDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                    using (var cmd = new OracleCommand(SqlCmd.Payment.saveTransaction, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add("transNo", value2.TransactionId);
+                        cmd.Parameters.Add(new OracleParameter("orderNo", Int32.Parse(value2.OrderNo)));
+                        cmd.Parameters.Add(new OracleParameter("custNo", Int32.Parse(value2.CustomerId)));
+                        cmd.Parameters.Add(new OracleParameter("channelId", value2.ChannelCode));
+                        cmd.Parameters.Add(new OracleParameter("reqStatus", value2.Status));
+                        cmd.Parameters.Add(new OracleParameter("tranStatus", value2.Code));
+                        cmd.Parameters.Add(new OracleParameter("payAmt", value.PayAmt));
+                        cmd.Parameters.Add(new OracleParameter("returnUrl", value2.ReturnUrl));
+                        cmd.Parameters.Add(new OracleParameter("paymentUrl", value2.PaymentUrl));
+                        cmd.Parameters.Add(new OracleParameter("ip", value2.IpAddress));
+                        cmd.Parameters.Add(new OracleParameter("token", value2.Token));
+                        cmd.Parameters.Add(new OracleParameter("createTime", createDate));
+                        cmd.Parameters.Add(new OracleParameter("expireTime", expireDate));
+                        cmd.Parameters.Add(new OracleParameter("transAmt", value2.Amount));
+                        cmd.Parameters.Add(new OracleParameter
+                        {
+                            ParameterName = "trans_no",
+                            OracleDbType = OracleDbType.Int32,
+                            Direction = ParameterDirection.Output
+                        });
+                        cmd.ExecuteNonQuery();
+                        var lastInsert = Int32.Parse(cmd.Parameters["trans_no"].Value.ToString());
+                        cmd.Dispose();
+                        return lastInsert;
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return 0;
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+            //try
+            //{
+            //    oracle = new Database();
+            //    var createDate = DateTime.ParseExact(value2.CreatedDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+            //    var expireDate = DateTime.ParseExact(value2.ExpiredDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+            //    //string cmd = $@"INSERT INTO MPAY110(TRANS_NO, ORDER_NO, CUST_NO, CHANNEL_ID, REQ_STATUS_ID, TRANS_STATUS_ID, PAY_AMT, RETURN_URL, PAYMENT_URL, IP_ADDR, TOKEN, CREATED_TIME, EXPIRE_TIME)
+            //    //                VALUES(:transNo, :orderNo, :custNo, :channelId, :reqStatus, :tranStatus, :amount, :returnUrl, :paymentUrl, :ip, :token, :createTime, :expireTime) RETURNING TRANS_NO INTO :trans_no";
+            //    List<OracleParameter> parameter = new List<OracleParameter>();
+            //    parameter.Add(new OracleParameter("transNo", value2.TransactionId));
+            //    parameter.Add(new OracleParameter("orderNo", Int32.Parse(value2.OrderNo)));
+            //    parameter.Add(new OracleParameter("custNo", Int32.Parse(value2.CustomerId)));
+            //    parameter.Add(new OracleParameter("channelId", value2.ChannelCode));
+            //    parameter.Add(new OracleParameter("reqStatus", value2.Status));
+            //    parameter.Add(new OracleParameter("tranStatus", value2.Code));
+            //    parameter.Add(new OracleParameter("payAmt", value.PayAmt));
+            //    parameter.Add(new OracleParameter("returnUrl", value2.ReturnUrl));
+            //    parameter.Add(new OracleParameter("paymentUrl", value2.PaymentUrl));
+            //    parameter.Add(new OracleParameter("ip", value2.IpAddress));
+            //    parameter.Add(new OracleParameter("token", value2.Token));
+            //    parameter.Add(new OracleParameter("createTime", createDate));
+            //    parameter.Add(new OracleParameter("expireTime", expireDate));
+            //    parameter.Add(new OracleParameter("transAmt", value2.Amount));
+            //    parameter.Add(new OracleParameter
+            //    {
+            //        ParameterName = "trans_no",
+            //        OracleDbType = OracleDbType.Int32,
+            //        Direction = ParameterDirection.Output
+            //    });
+            //    var resInsert = oracle.SqlExecuteWithParams(SqlCmd.Payment.saveTransaction, parameter);
+            //    //var resInsert = oracle.SqlExecuteWithParams(cmd, parameter);
+            //    var lastTransaction = Int32.Parse(resInsert.Parameters["trans_no"].Value.ToString());
+            //    //parameter.Clear();
+            //    //parameter.Add(new OracleParameter("order_no", value.OrderNo));
+            //    //oracle.SqlExecuteWithParams(SqlCmd.Payment.setActiveOrder, parameter);
 
-                resInsert.Dispose();
-                oracle.OracleDisconnect();
-                return lastTransaction;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return 0;
-            }
+            //    resInsert.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return lastTransaction;
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //    return 0;
+            //}
         }
     }
 }

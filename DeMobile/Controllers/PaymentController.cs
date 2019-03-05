@@ -24,6 +24,7 @@ namespace DeMobile.Controllers
         ChatHub chat = new ChatHub();
         m_LogReq mlog;
         m_LogOrder mlogOrder;
+
         [Route("api/payment/newpayment2")]
         public IHttpActionResult PostNewPayment2([FromBody]PaymentReq value)
         {
@@ -59,23 +60,20 @@ namespace DeMobile.Controllers
                             PaymentRes res = payment.createPayment(value);
                             if (res == null)
                             {
-                                mlogOrder = new m_LogOrder();
-                                mlogOrder.cust_no = value.CustomerId;
-                                mlogOrder.con_no = value.ContractNo;
-                                mlogOrder.channel_id = value.ChannelCode;
-                                mlogOrder.pay_amt = value.PayAmt;
-                                mlogOrder.trans_amt = value.Amount;
-                                mlogOrder.device_id = value.DeviceId;
-                                mlogOrder.tel = value.PhoneNumber;
-                                mlogOrder.note = "ระบบขัดข้อง ไม่สามารถทำรายการได้";
-                                mlogOrder.ip_addr = value.IPAddress;
-                                log.logOrder(mlogOrder);
-                                //mlog.cust_no = value.CustomerId;
-                                //mlog.device_id = value.DeviceId;
-                                //mlog.ip_addr = value.IPAddress;
-                                //mlog.note = "ระบบขัดข้อง ไม่สามารถทำรายการได้";
-                                //mlog.url = "api/authen/newpayment2";
-                                //log.logRequest(mlog);
+                                //mlogOrder = new m_LogOrder();
+                                //mlogOrder.cust_no = value.CustomerId;
+                                //mlogOrder.con_no = value.ContractNo;
+                                //mlogOrder.channel_id = value.ChannelCode;
+                                //mlogOrder.pay_amt = value.PayAmt;
+                                //mlogOrder.trans_amt = value.Amount;
+                                //mlogOrder.device_id = value.DeviceId;
+                                //mlogOrder.tel = value.PhoneNumber;
+                                //mlogOrder.note = "ระบบขัดข้อง ไม่สามารถทำรายการได้";
+                                //mlogOrder.ip_addr = value.IPAddress;
+                                //log.logOrder(mlogOrder);
+
+
+                                
                                 monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
                                 return Ok(new { code = 500, message = "ระบบขัดข้อง ไม่สามารถทำรายการได้", data = res });
                             }

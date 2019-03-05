@@ -130,35 +130,77 @@ namespace DeMobile.Services
         }
         public m_Contract findContract(int cust_no, string con_no)
         {
-            oracle = new Database();
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            parameter.Add(new OracleParameter("cust_no", cust_no));
-            parameter.Add(new OracleParameter("con_no", con_no));
-            var reader = oracle.SqlQueryWithParams(SqlCmd.User.findContract, parameter);
-            reader.Read();
-            if (reader.HasRows)
+            using(var conn = new OracleConnection(Database.conString))
             {
-                var data = new m_Contract
+                try
                 {
-                    CON_NO = (string)reader["CON_NO"],
-                    CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
-                    TOT_AMT = double.Parse(reader["TOT_AMT"].ToString()),
-                    PAY_AMT = double.Parse(reader["PAY_AMT"].ToString()),
-                    PERIOD = Int32.Parse(reader["PERIOD"].ToString()),
-                    BAL_AMT = double.Parse(reader["BAL_AMT"].ToString()),
-                    CON_DATE = (DateTime)reader["CON_DATE"],
-                    DISC_AMT = double.Parse(reader["DISC_AMT"].ToString())
-                };
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return data;
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.findContract, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("cust_no", cust_no));
+                        cmd.Parameters.Add(new OracleParameter("con_no", con_no));
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if (reader.HasRows)
+                        {
+                            var data = new m_Contract
+                            {
+                                CON_NO = (string)reader["CON_NO"],
+                                CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                                TOT_AMT = double.Parse(reader["TOT_AMT"].ToString()),
+                                PAY_AMT = double.Parse(reader["PAY_AMT"].ToString()),
+                                PERIOD = Int32.Parse(reader["PERIOD"].ToString()),
+                                BAL_AMT = double.Parse(reader["BAL_AMT"].ToString()),
+                                CON_DATE = (DateTime)reader["CON_DATE"],
+                                DISC_AMT = double.Parse(reader["DISC_AMT"].ToString())
+                            };
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return data;
+                        }
+                        else
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return null;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
             }
-            else
-            {
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return null;
-            }
+            //oracle = new Database();
+            //List<OracleParameter> parameter = new List<OracleParameter>();
+            //parameter.Add(new OracleParameter("cust_no", cust_no));
+            //parameter.Add(new OracleParameter("con_no", con_no));
+            //var reader = oracle.SqlQueryWithParams(SqlCmd.User.findContract, parameter);
+            //reader.Read();
+            //if (reader.HasRows)
+            //{
+            //    var data = new m_Contract
+            //    {
+            //        CON_NO = (string)reader["CON_NO"],
+            //        CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+            //        TOT_AMT = double.Parse(reader["TOT_AMT"].ToString()),
+            //        PAY_AMT = double.Parse(reader["PAY_AMT"].ToString()),
+            //        PERIOD = Int32.Parse(reader["PERIOD"].ToString()),
+            //        BAL_AMT = double.Parse(reader["BAL_AMT"].ToString()),
+            //        CON_DATE = (DateTime)reader["CON_DATE"],
+            //        DISC_AMT = double.Parse(reader["DISC_AMT"].ToString())
+            //    };
+            //    reader.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return data;
+            //}
+            //else
+            //{
+            //    reader.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return null;
+            //}
         }
         public List<m_Contract> getContract(int id)
         {
@@ -570,48 +612,48 @@ namespace DeMobile.Services
         }
         public void registerCurrentDevice(m_Register regis, int cust_no)
         {
-            using (OracleConnection conn = new OracleConnection(Database.conString))
-            {
-                try
-                {
-                    conn.Open();
-                    using (var cmd = new OracleCommand(SqlCmd.User.registerCurrentDevice, conn) { CommandType = System.Data.CommandType.Text })
-                    {
-                        cmd.Parameters.Add(new OracleParameter("device_id", regis.device_id));
-                        cmd.Parameters.Add(new OracleParameter("cust_no", cust_no));
-                        cmd.Parameters.Add(new OracleParameter("tel", regis.phone_no));
-                        cmd.Parameters.Add(new OracleParameter("telSim", regis.phone_no_sim));
-                        cmd.Parameters.Add(new OracleParameter("serial_sim", regis.serial_sim));
-                        cmd.Parameters.Add(new OracleParameter("operator", regis.operator_name));
-                        cmd.Parameters.Add(new OracleParameter("brand", regis.brand));
-                        cmd.Parameters.Add(new OracleParameter("model", regis.model));
-                        cmd.Parameters.Add(new OracleParameter("api_version", regis.api_version));
-                        cmd.Parameters.Add(new OracleParameter("pin", regis.pin));
-                        cmd.ExecuteNonQueryAsync();
-                        cmd.Dispose();
-                    }
-                }
-                finally
-                {
-                    conn.Close();
-                    conn.Dispose();
-                }
-            }
-                //oracle = new Database();
-                //List<OracleParameter> parameter = new List<OracleParameter> {
-                //    new OracleParameter("device_id", regis.device_id),
-                //    new OracleParameter("cust_no", cust_no),
-                //    new OracleParameter("tel", regis.phone_no),   
-                //    new OracleParameter("telSim", regis.phone_no_sim),
-                //    new OracleParameter("serial_sim", regis.serial_sim),
-                //    new OracleParameter("operator", regis.operator_name),
-                //    new OracleParameter("brand", regis.brand),
-                //    new OracleParameter("model", regis.model),
-                //    new OracleParameter("api_version", regis.api_version),
-                //    new OracleParameter("pin", regis.pin)
-                //};
-                //var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerCurrentDevice, parameter);
-                //oracle.OracleDisconnect();
+            //using (OracleConnection conn = new OracleConnection(Database.conString))
+            //{
+            //    try
+            //    {
+            //        conn.Open();
+            //        using (var cmd = new OracleCommand(SqlCmd.User.registerCurrentDevice, conn) { CommandType = System.Data.CommandType.Text })
+            //        {
+            //            cmd.Parameters.Add(new OracleParameter("device_id", regis.device_id));
+            //            cmd.Parameters.Add(new OracleParameter("cust_no", cust_no));
+            //            cmd.Parameters.Add(new OracleParameter("tel", regis.phone_no));
+            //            cmd.Parameters.Add(new OracleParameter("telSim", regis.phone_no_sim));
+            //            cmd.Parameters.Add(new OracleParameter("serial_sim", regis.serial_sim));
+            //            cmd.Parameters.Add(new OracleParameter("operator", regis.operator_name));
+            //            cmd.Parameters.Add(new OracleParameter("brand", regis.brand));
+            //            cmd.Parameters.Add(new OracleParameter("model", regis.model));
+            //            cmd.Parameters.Add(new OracleParameter("api_version", regis.api_version));
+            //            cmd.Parameters.Add(new OracleParameter("pin", regis.pin));
+            //            cmd.ExecuteNonQuery();
+            //            cmd.Dispose();
+            //        }
+            //    }
+            //    finally
+            //    {
+            //        conn.Close();
+            //        conn.Dispose();
+            //    }
+            //}
+            oracle = new Database();
+            List<OracleParameter> parameter = new List<OracleParameter> {
+                    new OracleParameter("device_id", regis.device_id),
+                    new OracleParameter("cust_no", cust_no),
+                    new OracleParameter("tel", regis.phone_no),
+                    new OracleParameter("telSim", regis.phone_no_sim),
+                    new OracleParameter("serial_sim", regis.serial_sim),
+                    new OracleParameter("operator", regis.operator_name),
+                    new OracleParameter("brand", regis.brand),
+                    new OracleParameter("model", regis.model),
+                    new OracleParameter("api_version", regis.api_version),
+                    new OracleParameter("pin", regis.pin)
+                };
+            var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerCurrentDevice, parameter);
+            oracle.OracleDisconnect();
         }
         public m_Customer getProfileById(int id)
         {
@@ -648,6 +690,7 @@ namespace DeMobile.Services
                 }
                 finally
                 {
+                    conn.Close();
                     conn.Dispose();
                 }
             }
