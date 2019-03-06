@@ -76,9 +76,15 @@ namespace DeMobile.Models.AppModel
         public List<string> to { get; set; }
         public List<m_LineMessage> messages { get; set; }
     }
+    public class m_LineReply
+    {
+        public string replyToken { get; set; }
+        public List<m_LineMessage> messages { get; set; }
+    }
     public class m_LineMessage
     {
         public string type { get; set; }
         public string text { get; set; }
     }
+
 }

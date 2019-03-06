@@ -275,27 +275,48 @@ namespace DeMobile.Controllers
             payment.sendMessageToLine("test");
             return Json(new { result = "sent" });
         }
+        //[Route("api/line/webhook")]
+        //public IHttpActionResult PostWebhook([FromBody]lineData value)
+        //{
+        //    if (value.events.First().message.type == "text")
+        //    {
+        //        var text2 = value.events.First().message.text.Split(new char[0]);
+        //        var cust_no = Int32.Parse(text2[0]);
+        //        var message = text2[1];
+        //        message = String.Join("", text2).Replace(text2[0], "");
+        //        m_SMS010 sms = new m_SMS010();
+        //        sms.CUST_NO = cust_no;
+        //        sms.CON_NO = string.Empty;
+        //        sms.SMS_NOTE = message;
+        //        sms.SENDER_TYPE = "SYSTEM";
+        //        sms.READ_STATUS = "UNREAD";
+        //        Notification noti = new Notification();
+        //        sms.SMS010_PK = noti.createSms(sms);
+        //        sms.SMS_TIME = DateTime.Now;
+
+
+        //        //chat.SendSmsByConnId(sms);
+
+        //        //monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "Admin ส่งข้อความ", data = sms });
+        //    }
+        //    return Ok();
+        //}
         [Route("api/line/webhook")]
         public IHttpActionResult PostWebhook([FromBody]lineData value)
         {
-            if (value.events.First().message.type == "text")
+            Line line = new Line();
+            foreach(var e in value.events)
             {
-                var text2 = value.events.First().message.text.Split(new char[0]);
-                var cust_no = Int32.Parse(text2[0]);
-                var message = text2[1];
-                message = String.Join("", text2).Replace(text2[0], "");
-                m_SMS010 sms = new m_SMS010();
-                sms.CUST_NO = cust_no;
-                sms.CON_NO = string.Empty;
-                sms.SMS_NOTE = message;
-                sms.SENDER_TYPE = "SYSTEM";
-                sms.READ_STATUS = "UNREAD";
-                Notification noti = new Notification();
-                sms.SMS010_PK = noti.createSms(sms);
-                sms.SMS_TIME = DateTime.Now;
-                //chat.SendSmsByConnId(sms);
-
-                //monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "Admin ส่งข้อความ", data = sms });
+                if(e.type == "message")
+                {
+                    if(e.message.type == "text")
+                    {
+                        if(e.message.text == "ลงทะเบียน")
+                        {
+                            line.sendMessageUserId(e.source.userId, "กรุณากรอกเลขประจำตัวประชาชน");
+                        }
+                    }
+                }
             }
             return Ok();
         }
