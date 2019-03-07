@@ -12,6 +12,7 @@ namespace DeMobile.Models.AppModel
         public string CITIZEN_NO { get; set; } 
         public string TEL { get; set; }
         public string PERMIT { get; set; }
+        public string LINE_USER_ID { get; set; }
     }
     public class m_identify
     {

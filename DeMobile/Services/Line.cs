@@ -1,5 +1,8 @@
-﻿using DeMobile.Models.AppModel;
+﻿using DeMobile.Concrete;
+using DeMobile.Models.AppModel;
+using DeMobile.Models.Line;
 using Newtonsoft.Json;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +20,7 @@ namespace DeMobile.Services
     {
         private HttpClient client;
         private string host2 = "https://api.line.me";
+        private Database oracle;
 
         private static bool AllwaysGoodCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors policyErrors)
         {
@@ -30,6 +34,47 @@ namespace DeMobile.Services
             client.BaseAddress = new Uri(host2);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Add("Authorization", "Bearer i0NdEjILrlbWZUfsjjGWMRfh8qXtt0USpM87WuIHs5135Qu/fU/kkr0HgX80Q0RJduLr/pU9Q05/ZFMtbX6YhNRZSj75rEbv8nzmzycV+84WzGBJ+L1sTKeq8/lH+i2sBMW4rR1Q4C54U4eOjk6W5AdB04t89/1O/w1cDnyilFU=");
+        }
+        public m_process getProcessByUserId(string user_id)
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.Line.getProcessByUserId, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add("line_user_id", user_id);
+                        var reader = cmd.ExecuteReader();
+                        List<m_process> data = new List<m_process>();
+                        while(reader.Read())
+                        {
+                            data.Add(new m_process
+                            {
+                                MPAY300_SEQ = Int32.Parse(reader["MPAY300_SEQ"].ToString()),
+                                LINE_USER_ID = reader["LINE_USER_ID"] == DBNull.Value ? string.Empty : reader["LINE_USER_ID"].ToString(),
+                                PROCESS = reader["PROCESS"].ToString(),
+                                PROCESS_STATUS = reader["PROCESS_STATUS"].ToString(),
+                                ACTION = reader["ACTION"].ToString(),
+                                ACTION_STATUS = reader["ACTION_STATUS"].ToString(),
+                                CREATED_TIME = (DateTime)reader["CREATED_TIME"]
+                            });
+                        }
+                        if(data.Count == 0)
+                        {
+                            reader.Dispose();
+                            return null;
+                        }
+                        cmd.Dispose();
+                        return data.LastOrDefault();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
         }
         public void sendMessageByToken(string token, string message)
         {
@@ -62,6 +107,31 @@ namespace DeMobile.Services
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+            }
+        }
+        public void setRegister(string user_id, string process_status, string action, string action_status)
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.Line.setRegister, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add(":line_user_id", user_id);
+                        cmd.Parameters.Add(":process", "REGISTER");
+                        cmd.Parameters.Add(":process_status", process_status);
+                        cmd.Parameters.Add(":action", action);
+                        cmd.Parameters.Add(":action_status", action_status);
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
             }
         }
         public void sendMessageUserId(string user_id, string message)
@@ -98,6 +168,13 @@ namespace DeMobile.Services
             {
                 Console.WriteLine(e.Message);
             }
+        }
+        public bool IsNumeric(string Expression)
+        {
+            long retNum;
+
+            bool isNum = long.TryParse(Expression, System.Globalization.NumberStyles.Any, System.Globalization.NumberFormatInfo.InvariantInfo, out retNum);
+            return isNum;
         }
     }
 }

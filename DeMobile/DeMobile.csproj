@@ -229,6 +229,7 @@
     <Compile Include="Hubs\MonitorHub.cs" />
     <Compile Include="Models\AppModel\m_LogReq.cs" />
     <Compile Include="Models\AppModel\m_Transaction.cs" />
+    <Compile Include="Models\Line\m_process.cs" />
     <Compile Include="Models\Management\m_Member.cs" />
     <Compile Include="Models\Management\m_Service.cs" />
     <Compile Include="Models\Management\m_StatusCode.cs" />

@@ -253,7 +253,8 @@ namespace DeMobile.Services
                     CUST_NAME = (string)reader["CUST_NAME"],
                     CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
                     TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
-                    PERMIT = (string)reader["PERMIT"]
+                    PERMIT = (string)reader["PERMIT"],
+                    LINE_USER_ID = reader["LINE_USER_ID"] == DBNull.Value ? string.Empty : reader["LINE_USER_ID"].ToString()
                 };
                 reader.Dispose();
                 oracle.OracleDisconnect();
@@ -386,7 +387,8 @@ namespace DeMobile.Services
                     CUST_NAME = (string)reader["CUST_NAME"],
                     CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
                     TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
-                    PERMIT = (string)reader["PERMIT"]
+                    PERMIT = (string)reader["PERMIT"],
+                    LINE_USER_ID = reader["LINE_USER_ID"] == DBNull.Value ? string.Empty : reader["LINE_USER_ID"].ToString()
                 };
                 reader.Dispose();
                 oracle.OracleDisconnect();

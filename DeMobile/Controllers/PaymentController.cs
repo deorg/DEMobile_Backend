@@ -18,7 +18,7 @@ namespace DeMobile.Controllers
 {
     public class PaymentController : ApiController
     {
-        User user;
+        User user = new User();
         MonitorHub monitor = new MonitorHub();
         Log log = new Log();
         ChatHub chat = new ChatHub();
@@ -73,7 +73,7 @@ namespace DeMobile.Controllers
                                 //log.logOrder(mlogOrder);
 
 
-                                
+
                                 monitor.sendMessage(url, clientHostname, value, new { request_status = "FAILURE", desc = "Internal server error / Invalid parameter!", data = res });
                                 return Ok(new { code = 500, message = "ระบบขัดข้อง ไม่สามารถทำรายการได้", data = res });
                             }
@@ -305,15 +305,150 @@ namespace DeMobile.Controllers
         public IHttpActionResult PostWebhook([FromBody]lineData value)
         {
             Line line = new Line();
-            foreach(var e in value.events)
+            foreach (var e in value.events)
             {
-                if(e.type == "message")
+                if (e.type == "message")
                 {
-                    if(e.message.type == "text")
+                    if (e.message.type == "text")
                     {
-                        if(e.message.text == "ลงทะเบียน")
+                        if (e.message.text == "ลงทะเบียน")
                         {
-                            line.sendMessageUserId(e.source.userId, "กรุณากรอกเลขประจำตัวประชาชน");
+                            var process = line.getProcessByUserId(e.source.userId);
+                            if (process == null)
+                            {
+                                line.setRegister(e.source.userId, "PENDING", "First register", "SUCCESS");
+                                line.sendMessageUserId(e.source.userId, "กรุณากรอกเลขประจำตัวประชาชน");
+                            }
+                            else
+                            {
+                                if (process.PROCESS == "REGISTER")
+                                {
+                                    if (process.PROCESS_STATUS == "SUCCESS")
+                                    {
+                                        line.sendMessageUserId(e.source.userId, "ข้อมูลของคุณได้รับการลงทะเบียนแล้ว");
+                                    }
+                                    else
+                                    {
+                                        if (process.ACTION == "First register")
+                                        {
+                                            line.sendMessageUserId(e.source.userId, "กรุณากรอกเลขประจำตัวประชาชน");
+                                        }
+                                        else if (process.ACTION == "Input citizen_no")
+                                        {
+                                            if (process.ACTION_STATUS == "FAILED")
+                                            {
+                                                line.sendMessageUserId(e.source.userId, "กรุณากรอกเลขประจำตัวประชาชน");
+                                            }
+                                            else if (process.ACTION_STATUS == "SUCCESS")
+                                            {
+                                                line.sendMessageUserId(e.source.userId, "กรุณากรอกหมายเลขโทรศัพท์");
+                                            }
+                                        }
+                                        else if (process.ACTION == "Input phone_no")
+                                        {
+                                            if (process.ACTION_STATUS == "FAILED")
+                                            {
+                                                line.sendMessageUserId(e.source.userId, "กรุณากรอกหมายเลขโทรศัพท์");
+                                            }
+                                            else if (process.ACTION_STATUS == "SUCCESS")
+                                            {
+                                                line.sendMessageUserId(e.source.userId, "ข้อมูลของคุณได้รับการลงทะเบียนแล้ว");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (line.IsNumeric(e.message.text))
+                            {
+                                if (e.message.text.Length == 13)
+                                {
+                                    var process = line.getProcessByUserId(e.source.userId);
+                                    if (process != null)
+                                    {
+                                        if (process.PROCESS == "REGISTER")
+                                        {
+                                            if (process.PROCESS_STATUS == "PENDING")
+                                            {
+                                                if (process.ACTION == "First register")
+                                                {
+                                                    var profile = user.getProfileByCitizenNo(e.message.text);
+                                                    if (profile == null)
+                                                    {
+                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "FAILED");
+                                                        line.sendMessageUserId(e.source.userId, "ไม่พบเลขประจำตัวประชาชนของคุณในระบบ");
+                                                    }
+                                                    else
+                                                    {
+                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "SUCCESS");
+                                                        line.sendMessageUserId(e.source.userId, "กรุณากรอกหมายเลขโทรศัพท์");
+                                                    }
+                                                }
+                                                else if (process.ACTION == "Input citizen_no" && process.ACTION_STATUS == "FAILED")
+                                                {
+                                                    var profile = user.getProfileByCitizenNo(e.message.text);
+                                                    if (profile == null)
+                                                    {
+                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "FAILED");
+                                                        line.sendMessageUserId(e.source.userId, "ไม่พบเลขประจำตัวประชาชนของคุณในระบบ");
+                                                    }
+                                                    else
+                                                    {
+                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "SUCCESS");
+                                                        line.sendMessageUserId(e.source.userId, "กรุณากรอกหมายเลขโทรศัพท์");
+                                                    }
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (e.message.text.Length == 10)
+                                {
+                                    var process = line.getProcessByUserId(e.source.userId);
+                                    if (process != null)
+                                    {
+                                        if (process.PROCESS == "REGISTER")
+                                        {
+                                            if (process.PROCESS_STATUS == "PENDING")
+                                            {
+                                                if (process.ACTION == "Input citizen_no" && process.ACTION_STATUS == "SUCCESS")
+                                                {
+                                                    var profile = user.getProfileByPhoneNO(e.message.text);
+                                                    if (profile == null)
+                                                    {
+                                                        line.setRegister(e.source.userId, "PENDING", "Input phone_no", "FAILED");
+                                                        line.sendMessageUserId(e.source.userId, "ไม่หมายเลขโทรศัพท์ของคุณในระบบ");
+                                                    }
+                                                    else
+                                                    {
+                                                        line.setRegister(e.source.userId, "SUCCESS", "Input phone_no", "SUCCESS");
+                                                        line.sendMessageUserId(e.source.userId, $"ยินดีต้อนรับคุณ{profile.CUST_NAME}");
+                                                    }
+
+                                                }
+                                                else if (process.ACTION == "Input phone_no" && process.ACTION_STATUS == "FAILED")
+                                                {
+                                                    var profile = user.getProfileByPhoneNO(e.message.text);
+                                                    if (profile == null)
+                                                    {
+                                                        line.setRegister(e.source.userId, "PENDING", "Input phone_no", "FAILED");
+                                                        line.sendMessageUserId(e.source.userId, "ไม่พบเลขประจำตัวประชาชนของคุณในระบบ");
+                                                    }
+                                                    else
+                                                    {
+                                                        line.setRegister(e.source.userId, "SUCCESS", "Input phone_no", "SUCCESS");
+                                                        line.sendMessageUserId(e.source.userId, $"ยินดีต้อนรับคุณ{profile.CUST_NAME}");
+                                                    }
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

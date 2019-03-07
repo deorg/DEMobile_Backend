@@ -78,5 +78,10 @@ namespace DeMobile.Concrete
             //public const string getLogRegisteredToday = "SELECT * FROM MPAY201 WHERE TRUNC(CREATED_TIME) = TRUNC(SYSDATE)";
             public const string getLogSigninToday = "SELECT * FROM MPAY202 WHERE TRUNC(CREATED_TIME) = TRUNC(SYSDATE)";
         }
+        public static class Line
+        {
+            public const string getProcessByUserId = "SELECT * FROM MPAY300 WHERE LINE_USER_ID = :line_user_id ORDER BY MPAY300_SEQ";
+            public const string setRegister = "INSERT INTO MPAY300(LINE_USER_ID, PROCESS, PROCESS_STATUS, ACTION, ACTION_STATUS) VALUES(:line_user_id, :process, :process_status, :action, :action_status)";
+        }
     }
 }
