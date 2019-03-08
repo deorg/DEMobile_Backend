@@ -18,6 +18,7 @@ namespace DeMobile.Controllers
         MonitorHub monitor = new MonitorHub();
         ChatHub chat = new ChatHub();
         Payment payment = new Payment();
+        Line line = new Line();
 
         #region ส่งรหัส OTP ไปให้ลูกค้า
         [Route("api/sms/sendOtp")]
@@ -171,6 +172,34 @@ namespace DeMobile.Controllers
             try
             {
                 chat.sendSmsAll();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                monitor.sendMessage(url, clientHostname, new { parameter = "no data" }, new { Message = e.Message });
+                return Ok(e.Message);
+            }
+        }
+        #endregion
+
+        #region ดึงข้อความ sms ทั้งหมดของลูกค้าทุกคนจาก sms010 และส่งไปหาลูกค้าทาง Line API
+        [Route("api/admin/sendmessageall/line")]
+        public IHttpActionResult PostTestSendMessage(long sms010_pk)
+        {
+            string clientHostname = HttpContext.Current.Request.UserHostName;
+            string url = HttpContext.Current.Request.Path;         
+            try
+            {
+                if (sms010_pk == 0)
+                {
+                    monitor.sendMessage(url, clientHostname, new { sms010_pk = sms010_pk }, new { Message = "Send All Sms" });
+                    line.sendSmsAll();
+                }
+                else
+                {
+                    monitor.sendMessage(url, clientHostname, new { sms010_pk = sms010_pk }, new { Message = "Send 1 Sms" });
+                    line.sendSmsById(sms010_pk);
+                }
                 return Ok();
             }
             catch (Exception e)

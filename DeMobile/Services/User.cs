@@ -237,13 +237,9 @@ namespace DeMobile.Services
         public m_Customer getProfileByPhoneNO(string phone)
         {
             oracle = new Database();
-            //string cmd = $@"SELECT CUST_NO, CUST_NAME, CITIZEN_NO, TEL
-            //                FROM CUSTOMER 
-            //                WHERE TEL = '{phone}'";
             List<OracleParameter> parameter = new List<OracleParameter>();
             parameter.Add(new OracleParameter("tel", phone));
             var reader = oracle.SqlQueryWithParams(SqlCmd.User.getProfileByPhone, parameter);
-            //var reader = oracle.SqlQuery(cmd);
             reader.Read();
             if (reader.HasRows)
             {

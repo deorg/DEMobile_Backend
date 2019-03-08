@@ -311,12 +311,24 @@ namespace DeMobile.Controllers
                 {
                     if (e.message.type == "text")
                     {
+                        var prof = line.getProfileByUserId(e.source.userId);
+                        if(prof != null)
+                        {
+                            m_SMS010 sms = new m_SMS010();
+                            sms.CUST_NO = prof.CUST_NO;
+                            sms.CON_NO = string.Empty;
+                            sms.SMS_NOTE = e.message.text;
+                            sms.SENDER = prof.CUST_NO;
+                            sms.SENDER_TYPE = "CUST";
+                            Notification noti = new Notification();
+                            var lastSms = noti.createSms(sms);
+                        }
                         if (e.message.text == "ลงทะเบียน")
                         {
                             var process = line.getProcessByUserId(e.source.userId);
                             if (process == null)
                             {
-                                line.setRegister(e.source.userId, "PENDING", "First register", "SUCCESS");
+                                line.setRegister(e.source.userId, "PENDING", "First register", "SUCCESS", e.message.text);
                                 line.sendMessageUserId(e.source.userId, "กรุณากรอกเลขประจำตัวประชาชน");
                             }
                             else
@@ -377,12 +389,12 @@ namespace DeMobile.Controllers
                                                     var profile = user.getProfileByCitizenNo(e.message.text);
                                                     if (profile == null)
                                                     {
-                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "FAILED");
+                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "FAILED", e.message.text);
                                                         line.sendMessageUserId(e.source.userId, "ไม่พบเลขประจำตัวประชาชนของคุณในระบบ");
                                                     }
                                                     else
                                                     {
-                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "SUCCESS");
+                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "SUCCESS", e.message.text);
                                                         line.sendMessageUserId(e.source.userId, "กรุณากรอกหมายเลขโทรศัพท์");
                                                     }
                                                 }
@@ -391,12 +403,12 @@ namespace DeMobile.Controllers
                                                     var profile = user.getProfileByCitizenNo(e.message.text);
                                                     if (profile == null)
                                                     {
-                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "FAILED");
+                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "FAILED", e.message.text);
                                                         line.sendMessageUserId(e.source.userId, "ไม่พบเลขประจำตัวประชาชนของคุณในระบบ");
                                                     }
                                                     else
                                                     {
-                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "SUCCESS");
+                                                        line.setRegister(e.source.userId, "PENDING", "Input citizen_no", "SUCCESS", e.message.text);
                                                         line.sendMessageUserId(e.source.userId, "กรุณากรอกหมายเลขโทรศัพท์");
                                                     }
                                                 }
@@ -419,12 +431,13 @@ namespace DeMobile.Controllers
                                                     var profile = user.getProfileByPhoneNO(e.message.text);
                                                     if (profile == null)
                                                     {
-                                                        line.setRegister(e.source.userId, "PENDING", "Input phone_no", "FAILED");
+                                                        line.setRegister(e.source.userId, "PENDING", "Input phone_no", "FAILED", e.message.text);
                                                         line.sendMessageUserId(e.source.userId, "ไม่หมายเลขโทรศัพท์ของคุณในระบบ");
                                                     }
                                                     else
                                                     {
-                                                        line.setRegister(e.source.userId, "SUCCESS", "Input phone_no", "SUCCESS");
+                                                        line.setRegister(e.source.userId, "SUCCESS", "Input phone_no", "SUCCESS", e.message.text);
+                                                        line.registerUserId(e.source.userId, profile.CUST_NO);
                                                         line.sendMessageUserId(e.source.userId, $"ยินดีต้อนรับคุณ{profile.CUST_NAME}");
                                                     }
 
@@ -434,12 +447,13 @@ namespace DeMobile.Controllers
                                                     var profile = user.getProfileByPhoneNO(e.message.text);
                                                     if (profile == null)
                                                     {
-                                                        line.setRegister(e.source.userId, "PENDING", "Input phone_no", "FAILED");
+                                                        line.setRegister(e.source.userId, "PENDING", "Input phone_no", "FAILED", e.message.text);
                                                         line.sendMessageUserId(e.source.userId, "ไม่พบเลขประจำตัวประชาชนของคุณในระบบ");
                                                     }
                                                     else
                                                     {
-                                                        line.setRegister(e.source.userId, "SUCCESS", "Input phone_no", "SUCCESS");
+                                                        line.setRegister(e.source.userId, "SUCCESS", "Input phone_no", "SUCCESS", e.message.text);
+                                                        line.registerUserId(e.source.userId, profile.CUST_NO);
                                                         line.sendMessageUserId(e.source.userId, $"ยินดีต้อนรับคุณ{profile.CUST_NAME}");
                                                     }
                                                 }

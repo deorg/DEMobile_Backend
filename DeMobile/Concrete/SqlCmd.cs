@@ -58,6 +58,7 @@ namespace DeMobile.Concrete
             public const string newSms = "INSERT INTO SMS010(CUST_NO, CON_NO, SMS_NOTE, SENDER, SENDER_TYPE) VALUES(:cust_no, :con_no, :sms_note, :sender, :sender_type) RETURNING SMS010_PK INTO :sms010_pk";
             public const string markToRecieve = "UPDATE SMS010 SET RECEIVED = 'Y' WHERE SMS010_PK = :sms010pk";
             public const string markToSent = "UPDATE SMS010 SET RECEIVED = 'S' WHERE RECEIVED = 'N'";
+            public const string markToSentById = "UPDATE SMS010 SET RECEIVED = 'S' WHERE SMS010_PK = :sms010_pk";
         }
         public static class Log
         {
@@ -80,8 +81,20 @@ namespace DeMobile.Concrete
         }
         public static class Line
         {
+
             public const string getProcessByUserId = "SELECT * FROM MPAY300 WHERE LINE_USER_ID = :line_user_id ORDER BY MPAY300_SEQ";
-            public const string setRegister = "INSERT INTO MPAY300(LINE_USER_ID, PROCESS, PROCESS_STATUS, ACTION, ACTION_STATUS) VALUES(:line_user_id, :process, :process_status, :action, :action_status)";
+            public const string getProfileByUserId = "SELECT * FROM CUSTOMER WHERE LINE_USER_ID = :line_user_id";
+            public const string registerUserId = "UPDATE CUSTOMER SET LINE_USER_ID = :line_user_id where CUST_NO = :cust_no";
+            public const string setRegister = @"INSERT INTO MPAY300(LINE_USER_ID, PROCESS, PROCESS_STATUS, ACTION, ACTION_STATUS, NOTE)
+                                                    VALUES(:line_user_id, :process, :process_status, :action, :action_status, :note)";
+            public const string getSmsWithUserId = @"select sms010_pk, s010.cust_no, line_user_id, sms_note,  s010.con_no, sms_time, sender, sender_type, sms010_ref, read_status, received
+                                                        from sms010 s010 join customer cust
+                                                        on s010.cust_no = cust.cust_no where cust.line_user_id is not null and sender_type = 'SYSTEM' and received = 'N'";
+            public const string getSmsByIdWithUserId = @"select sms010_pk, s010.cust_no, line_user_id, sms_note,  s010.con_no, sms_time, sender, sender_type, sms010_ref, read_status, received
+                                                        from sms010 s010 join customer cust
+                                                        on s010.cust_no = cust.cust_no where cust.line_user_id is not null and sender_type = 'SYSTEM' and received = 'N'
+                                                        and sms010_pk = :sms010_pk";
         }
+
     }
 }
