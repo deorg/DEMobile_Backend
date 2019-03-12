@@ -22,7 +22,7 @@ namespace DeMobile.Concrete
             public const string findContract = "SELECT * FROM CONTRACT WHERE CUST_NO = :cust_no AND CON_NO = :con_no";
             public const string getContractPayment = "SELECT LNC_NO CON_NO, LNL_PAY_DATE PAY_DATE, LNL_PAY_AMT PAY_AMT FROM VW_LOAN_LEDGER_CO WHERE LNC_NO = :lnc_no ORDER BY LNL_SEQ DESC";
             public const string getProfileByPhone = "SELECT * FROM CUSTOMER WHERE TEL = :tel";
-            public const string getProfileBySerialSim = "SELECT * FROM CUSTOMER WHERE CUST_NO = (SELECT CUST_NO FROM MPAY020 WHERE SERIAL_SIM = :serial_sim)";
+            public const string getProfileBySerialSim = "SELECT * FROM CUSTOMER WHERE CUST_NO = (SELECT CUST_NO FROM MPAY020 WHERE SERIAL_SIM = :serial_sim AND ROWNUM = 1)";
             public const string getProfileByCitizen = "SELECT * FROM CUSTOMER WHERE CITIZEN_NO = :citizen_no";
             public const string getProfileById = "SELECT * FROM CUSTOMER WHERE CUST_NO = :cust_no";
             public const string registerNewDevice = "INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS, TEL, TEL_SIM, SERIAL_SIM, OPERATOR, BRAND, MODEL, API_VERSION, PIN) VALUES(:device_id, :cust_no, 'ACT', :tel, :telSim, :serial_sim, :operator, :brand, :model, :api_version, :pin)";
