@@ -18,5 +18,6 @@ namespace DeMobile.Models.AppModel
         public int api_version { get; set; }
         public string pin { get; set; }
         public string ip_addr { get; set; }
+        public string platform { get; set; }
     }
 }

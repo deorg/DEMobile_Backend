@@ -44,6 +44,7 @@ namespace DeMobile.Concrete
         }
         public void OracleDisconnect()
         {
+            con.Close();
             con.Dispose();
             cmd.Dispose();
         }

@@ -296,6 +296,47 @@ namespace DeMobile.Services
                 }
             }
         }
+        public m_Customer getProfileByDeviceId(string device_id)
+        {
+            using (OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.getProfileByDeviceId, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("device_id", device_id));
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if (reader.HasRows)
+                        {
+                            var data = new m_Customer
+                            {
+                                CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                                CUST_NAME = (string)reader["CUST_NAME"],
+                                CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
+                                TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+                                PERMIT = (string)reader["PERMIT"]
+                            };
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return data;
+                        }
+                        else
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return null;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
         public m_Customer getProfileBySerialSim(string serial_sim)
         {
             using (OracleConnection conn = new OracleConnection(Database.conString))
@@ -581,6 +622,7 @@ namespace DeMobile.Services
                         cmd.Parameters.Add(new OracleParameter("model", regis.model));
                         cmd.Parameters.Add(new OracleParameter("api_version", regis.api_version));
                         cmd.Parameters.Add(new OracleParameter("pin", regis.pin));
+                        cmd.Parameters.Add(new OracleParameter("platform", regis.platform));
                         cmd.ExecuteNonQueryAsync();
                         cmd.Dispose();
                     }
@@ -648,7 +690,8 @@ namespace DeMobile.Services
                     new OracleParameter("brand", regis.brand),
                     new OracleParameter("model", regis.model),
                     new OracleParameter("api_version", regis.api_version),
-                    new OracleParameter("pin", regis.pin)
+                    new OracleParameter("pin", regis.pin),
+                    new OracleParameter("platform", regis.platform)
                 };
             var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerCurrentDevice, parameter);
             oracle.OracleDisconnect();

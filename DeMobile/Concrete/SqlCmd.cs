@@ -23,10 +23,11 @@ namespace DeMobile.Concrete
             public const string getContractPayment = "SELECT LNC_NO CON_NO, LNL_PAY_DATE PAY_DATE, LNL_PAY_AMT PAY_AMT FROM VW_LOAN_LEDGER_CO WHERE LNC_NO = :lnc_no ORDER BY LNL_SEQ DESC";
             public const string getProfileByPhone = "SELECT * FROM CUSTOMER WHERE TEL = :tel";
             public const string getProfileBySerialSim = "SELECT * FROM CUSTOMER WHERE CUST_NO = (SELECT CUST_NO FROM MPAY020 WHERE SERIAL_SIM = :serial_sim AND ROWNUM = 1)";
+            public const string getProfileByDeviceId = "SELECT * FROM CUSTOMER WHERE CUST_NO = (SELECT CUST_NO FROM MPAY020 WHERE DEVICE_ID = :device_id)";
             public const string getProfileByCitizen = "SELECT * FROM CUSTOMER WHERE CITIZEN_NO = :citizen_no";
             public const string getProfileById = "SELECT * FROM CUSTOMER WHERE CUST_NO = :cust_no";
-            public const string registerNewDevice = "INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS, TEL, TEL_SIM, SERIAL_SIM, OPERATOR, BRAND, MODEL, API_VERSION, PIN) VALUES(:device_id, :cust_no, 'ACT', :tel, :telSim, :serial_sim, :operator, :brand, :model, :api_version, :pin)";
-            public const string registerCurrentDevice = "UPDATE MPAY020 SET CUST_NO = :cust_no, DEVICE_STATUS = 'ACT', TEL = :tel, TEL_SIM = :telSim, SERIAL_SIM = :serial_sim, OPERATOR = :operator, BRAND = :brand, MODEL = :model, API_VERSION = :api_version, PIN = :pin, CREATED_TIME = SYSDATE WHERE DEVICE_ID = :device_id";
+            public const string registerNewDevice = "INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS, TEL, TEL_SIM, SERIAL_SIM, OPERATOR, BRAND, MODEL, API_VERSION, PIN, PLATFORM) VALUES(:device_id, :cust_no, 'ACT', :tel, :telSim, :serial_sim, :operator, :brand, :model, :api_version, :pin, :platform)";
+            public const string registerCurrentDevice = "UPDATE MPAY020 SET CUST_NO = :cust_no, DEVICE_STATUS = 'ACT', TEL = :tel, TEL_SIM = :telSim, SERIAL_SIM = :serial_sim, OPERATOR = :operator, BRAND = :brand, MODEL = :model, API_VERSION = :api_version, PIN = :pin, CREATED_TIME = SYSDATE, PLATFORM = :platform WHERE DEVICE_ID = :device_id";
             public const string checkCurrentDevice = "SELECT * FROM MPAY020 WHERE DEVICE_ID = :device_id";
             public const string getDeviceByStatus = "SELECT * FROM MPAY020 WHERE DEVICE_STATUS = :status";
             public const string getDeviceByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no AND DEVICE_STATUS = 'ACT'";

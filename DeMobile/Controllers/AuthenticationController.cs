@@ -24,17 +24,17 @@ namespace DeMobile.Controllers
             string url = HttpContext.Current.Request.Path;
             try
             {
-                var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
-                var appService = setting.Settings["AppService"].Value;
-                if (appService == "False")
-                    return Unauthorized();
+                //var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+                //var appService = setting.Settings["AppService"].Value;
+                //if (appService == "False")
+                //    return Unauthorized();
 
                 
                 data.ip_addr = IPAddress;
                 if(data.phone_no_sim != null)
                     data.phone_no_sim = data.phone_no_sim.Replace("+66", "0");
-                
-                
+
+                data.platform = string.IsNullOrEmpty(data.platform) ? "ANDROID" : "IOS";
 
                 var result = _user.getProfileByCitizenNo(data.citizen_no);
                 var result2 = _user.getProfileByPhoneNO(data.phone_no);
@@ -151,7 +151,12 @@ namespace DeMobile.Controllers
             try
             {
                 var version = _user.getAppVersion();
-                var result = _user.getProfileBySerialSim(serial_sim);
+                m_Customer result = new m_Customer();
+                if (serial_sim == "1111111111")
+                    result = _user.getProfileByDeviceId(deviceId);
+                else
+                    result = _user.getProfileBySerialSim(serial_sim);
+
                 if (result != null && result.CUST_NO != 0)
                 {
                     if (result.PERMIT == "SMS" || result.PERMIT == "BOTH")
@@ -272,10 +277,10 @@ namespace DeMobile.Controllers
         public IHttpActionResult GetProfile(int id)
         {
             //User cust = new User();
-            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
-            var appService = setting.Settings["AppService"].Value;
-            if (appService == "False")
-                return Unauthorized();
+            //var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            //var appService = setting.Settings["AppService"].Value;
+            //if (appService == "False")
+            //    return Unauthorized();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string url = HttpContext.Current.Request.Path;
@@ -312,11 +317,11 @@ namespace DeMobile.Controllers
         [Route("api/customer/sms")]
         public IHttpActionResult GetSms(int id)
         {
-            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
-            var appService = setting.Settings["AppService"].Value;
-            var smsService = setting.Settings["SmsService"].Value;
-            if (appService == "False" || smsService == "False")
-                return Unauthorized();
+            //var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            //var appService = setting.Settings["AppService"].Value;
+            //var smsService = setting.Settings["SmsService"].Value;
+            //if (appService == "False" || smsService == "False")
+            //    return Unauthorized();
             //User cust = new User();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
@@ -399,11 +404,11 @@ namespace DeMobile.Controllers
         public IHttpActionResult GetContract(int id)
         {
             //User cust = new User();
-            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
-            var appService = setting.Settings["AppService"].Value;
-            var paymentService = setting.Settings["PaymentService"].Value;
-            if (appService == "False" || paymentService == "False")
-                return Unauthorized();
+            //var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            //var appService = setting.Settings["AppService"].Value;
+            //var paymentService = setting.Settings["PaymentService"].Value;
+            //if (appService == "False" || paymentService == "False")
+            //    return Unauthorized();
             m_LogReq mlog;
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string url = HttpContext.Current.Request.Path;
@@ -445,11 +450,11 @@ namespace DeMobile.Controllers
         public IHttpActionResult GetPayment(string no)
         {
             //User payment = new User();
-            var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
-            var appService = setting.Settings["AppService"].Value;
-            var paymentService = setting.Settings["PaymentService"].Value;
-            if (appService == "False" || paymentService == "False")
-                return Unauthorized();
+            //var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            //var appService = setting.Settings["AppService"].Value;
+            //var paymentService = setting.Settings["PaymentService"].Value;
+            //if (appService == "False" || paymentService == "False")
+            //    return Unauthorized();
             string IPAddress = HttpContext.Current.Request.UserHostName;
             string url = HttpContext.Current.Request.Path;
             try
