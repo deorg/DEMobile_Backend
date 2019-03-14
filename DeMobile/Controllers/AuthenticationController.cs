@@ -34,7 +34,7 @@ namespace DeMobile.Controllers
                 if(data.phone_no_sim != null)
                     data.phone_no_sim = data.phone_no_sim.Replace("+66", "0");
 
-                data.platform = string.IsNullOrEmpty(data.platform) ? "ANDROID" : "IOS";
+                //data.platform = string.IsNullOrEmpty(data.platform) ? "ANDROID" : "IOS";
 
                 var result = _user.getProfileByCitizenNo(data.citizen_no);
                 var result2 = _user.getProfileByPhoneNO(data.phone_no);
