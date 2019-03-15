@@ -204,35 +204,70 @@ namespace DeMobile.Services
         }
         public List<m_Contract> getContract(int id)
         {
-            oracle = new Database();
-            List<m_Contract> data = new List<m_Contract>();
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            parameter.Add(new OracleParameter("cust_no", id));
-            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getContract, parameter);
-            //var reader = oracle.SqlQuery(cmd);
-            while (reader.Read())
+            using(var conn = new OracleConnection(Database.conString))
             {
-                data.Add(new m_Contract
+                try
                 {
-                    CON_NO = (string)reader["CON_NO"],
-                    CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
-                    TOT_AMT = Int32.Parse(reader["TOT_AMT"].ToString()),
-                    PAY_AMT = Int32.Parse(reader["PAY_AMT"].ToString()),
-                    PERIOD = Int32.Parse(reader["PERIOD"].ToString()),
-                    BAL_AMT = Int32.Parse(reader["BAL_AMT"].ToString()),
-                    CON_DATE = (DateTime)reader["CON_DATE"],
-                    DISC_AMT = Int32.Parse(reader["DISC_AMT"].ToString())
-                });
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.User.getContract, conn) { CommandType = CommandType.Text })
+                    {
+                        var data = new List<m_Contract>();
+                        cmd.Parameters.Add("cust_no", id);
+                        var reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            data.Add(new m_Contract
+                            {
+                                CON_NO = reader["CON_NO"].ToString(),
+                                CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                                CON_DATE = (DateTime)reader["CON_DATE"],
+                                TOT_AMT = Double.Parse(reader["TOT_AMT"].ToString()),
+                                PAY_AMT = double.Parse(reader["PAY_AMT"].ToString()),
+                                PERIOD = int.Parse(reader["PERIOD"].ToString()),
+                                BAL_AMT = double.Parse(reader["BAL_AMT"].ToString()),
+                                DISC_AMT = double.Parse(reader["DISC_AMT"].ToString())
+                            });
+                        }
+                        reader.Dispose();
+                        cmd.Dispose();
+                        return data;
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
             }
-            if (data.Count == 0)
-            {
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return null;
-            }
-            reader.Dispose();
-            oracle.OracleDisconnect();
-            return data;
+            //oracle = new Database();
+            //List<m_Contract> data = new List<m_Contract>();
+            //List<OracleParameter> parameter = new List<OracleParameter>();
+            //parameter.Add(new OracleParameter("cust_no", id));
+            //var reader = oracle.SqlQueryWithParams(SqlCmd.User.getContract, parameter);
+            ////var reader = oracle.SqlQuery(cmd);
+            //while (reader.Read())
+            //{
+            //    data.Add(new m_Contract
+            //    {
+            //        CON_NO = (string)reader["CON_NO"],
+            //        CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+            //        TOT_AMT = Int32.Parse(reader["TOT_AMT"].ToString()),
+            //        PAY_AMT = Int32.Parse(reader["PAY_AMT"].ToString()),
+            //        PERIOD = Int32.Parse(reader["PERIOD"].ToString()),
+            //        BAL_AMT = Int32.Parse(reader["BAL_AMT"].ToString()),
+            //        CON_DATE = (DateTime)reader["CON_DATE"],
+            //        DISC_AMT = Int32.Parse(reader["DISC_AMT"].ToString())
+            //    });
+            //}
+            //if (data.Count == 0)
+            //{
+            //    reader.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return null;
+            //}
+            //reader.Dispose();
+            //oracle.OracleDisconnect();
+            //return data;
         }
         public m_Customer getProfileByPhoneNO(string phone)
         {
@@ -720,6 +755,7 @@ namespace DeMobile.Services
                                 PERMIT = (string)reader["PERMIT"]
                             };
                             reader.Dispose();
+                            cmd.Dispose();
                             return data;
                         }
                         else

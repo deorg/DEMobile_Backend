@@ -18,7 +18,7 @@ namespace DeMobile.Concrete
                                                         from sms010 s010 join mpay020 m020
                                                         on s010.cust_no = m020.cust_no where received = 'N'";
             public const string readSms = "UPDATE SMS010 SET READ_STATUS = 'READ', RECEIVED = 'Y' WHERE CUST_NO = :cust_no AND SMS010_PK <= :sms010_pk AND SENDER_TYPE != 'CUST'";
-            public const string getContract = "SELECT CON_NO, CUST_NO, TOT_AMT, PAY_AMT, PERIOD, BAL_AMT, CON_DATE, DISC_AMT FROM CONTRACT WHERE CUST_NO = :cust_no ORDER BY CON_DATE";
+            public const string getContract = "SELECT * FROM CONTRACT WHERE CUST_NO = :cust_no ORDER BY CON_DATE";
             public const string findContract = "SELECT * FROM CONTRACT WHERE CUST_NO = :cust_no AND CON_NO = :con_no";
             public const string getContractPayment = "SELECT LNC_NO CON_NO, LNL_PAY_DATE PAY_DATE, LNL_PAY_AMT PAY_AMT FROM VW_LOAN_LEDGER_CO WHERE LNC_NO = :lnc_no ORDER BY LNL_SEQ DESC";
             public const string getProfileByPhone = "SELECT * FROM CUSTOMER WHERE TEL = :tel";
