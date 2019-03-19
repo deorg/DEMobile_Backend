@@ -152,10 +152,10 @@ namespace DeMobile.Controllers
             {
                 var version = _user.getAppVersion();
                 m_Customer result = new m_Customer();
-                if (serial_sim == "1111111111")
+                if (serial_sim == "1111111111" || serial_sim == "2222222222")
                     result = _user.getProfileByDeviceId(deviceId);
-                else
-                    result = _user.getProfileBySerialSim(serial_sim);
+                //else
+                    //result = _user.getProfileBySerialSim(serial_sim);
 
                 if (result != null && result.CUST_NO != 0)
                 {
