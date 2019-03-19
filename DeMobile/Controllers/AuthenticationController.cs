@@ -249,10 +249,10 @@ namespace DeMobile.Controllers
                     mlog.ip_addr = IPAddress;
                     mlog.action = "IDENTIFY";
                     mlog.status = "FAIL";
-                    mlog.note = "ไม่พบซิมลูกค้าในระบบ";
+                    mlog.note = "ไม่พบเครื่องของลูกค้าในระบบ";
                     log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId, app_version = app_version }, new { code = 407, message = "ไม่พบเลขซิมการ์ดของลูกค้าในระบบ!", data = result });
-                    return Ok(new { code = 407, message = "ไม่พบเลขซิมการ์ดลูกค้าในระบบ!", data = result });
+                    return Ok(new { code = 409, message = "ไม่พบเครื่องของลูกค้าในระบบ!", data = result });
                 }
             }
             catch (Exception e)
