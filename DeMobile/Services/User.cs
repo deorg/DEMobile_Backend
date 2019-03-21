@@ -473,7 +473,7 @@ namespace DeMobile.Services
                 return null;
             }
         }
-        public void updateAppVersion(int version, string device_id)
+        public void updateAppVersion(double version, string device_id)
         {
             using(OracleConnection conn = new OracleConnection(Database.conString))
             {
@@ -524,7 +524,7 @@ namespace DeMobile.Services
                                 api_version = Int32.Parse(reader["API_VERSION"].ToString()),
                                 pin = reader["PIN"] == DBNull.Value ? string.Empty : (string)reader["PIN"],
                                 created_time = (DateTime)reader["CREATED_TIME"],
-                                app_version = Int32.Parse(reader["APP_VERSION"].ToString())
+                                app_version = double.Parse(reader["APP_VERSION"].ToString())
                             };
                             cmd.Dispose();
                             reader.Dispose();
@@ -657,7 +657,9 @@ namespace DeMobile.Services
                         cmd.Parameters.Add(new OracleParameter("model", regis.model));
                         cmd.Parameters.Add(new OracleParameter("api_version", regis.api_version));
                         cmd.Parameters.Add(new OracleParameter("pin", regis.pin));
+                        cmd.Parameters.Add(new OracleParameter("app_version", regis.app_version));
                         cmd.Parameters.Add(new OracleParameter("platform", regis.platform));
+                        
                         cmd.ExecuteNonQueryAsync();
                         cmd.Dispose();
                     }

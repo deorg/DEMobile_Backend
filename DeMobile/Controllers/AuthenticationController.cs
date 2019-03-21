@@ -15,7 +15,7 @@ namespace DeMobile.Controllers
         private User _user = new User();
         Log log = new Log();
 
-        #region ลงทะเบียนติด Application DMobile
+        #region ลงทะเบียนติดตั้ง Application DMobile
         [Route("api/authen/register")]
         public IHttpActionResult PostRegister([FromBody]m_Register data)
         {
@@ -139,7 +139,7 @@ namespace DeMobile.Controllers
 
         #region ละบุตัวตนก่อนเข้าใช้งาน Application
         [Route("api/authen/identify")]
-        public IHttpActionResult GetCheckPhone(string serial_sim, string deviceId, int app_version)
+        public IHttpActionResult GetCheckPhone(string serial_sim, string deviceId, double app_version)
         {
             //var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
             //var appService = setting.Settings["AppService"].Value;
