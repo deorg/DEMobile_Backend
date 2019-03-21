@@ -260,3 +260,6 @@ paket-files/
 __pycache__/
 *.pyc
 /DeMobile/libman.json
+
+# Mac os file
+*.DS_Store
