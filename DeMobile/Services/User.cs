@@ -513,15 +513,15 @@ namespace DeMobile.Services
                             {
                                 device_id = (string)reader["DEVICE_ID"],
                                 cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
-                                conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
+                               // conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
                                 device_status = (string)reader["DEVICE_STATUS"],
                                 tel = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
-                                tel_sim = reader["TEL_SIM"] == DBNull.Value ? string.Empty : (string)reader["TEL_SIM"],
+                               // tel_sim = reader["TEL_SIM"] == DBNull.Value ? string.Empty : (string)reader["TEL_SIM"],
                                 serial_sim = reader["SERIAL_SIM"] == DBNull.Value ? string.Empty : (string)reader["SERIAL_SIM"],
-                                operator_name = reader["OPERATOR"] == DBNull.Value ? string.Empty : (string)reader["OPERATOR"],
-                                brand = reader["BRAND"] == DBNull.Value ? string.Empty : (string)reader["BRAND"],
-                                model = reader["MODEL"] == DBNull.Value ? string.Empty : (string)reader["MODEL"],
-                                api_version = Int32.Parse(reader["API_VERSION"].ToString()),
+                                //operator_name = reader["OPERATOR"] == DBNull.Value ? string.Empty : (string)reader["OPERATOR"],
+                                //brand = reader["BRAND"] == DBNull.Value ? string.Empty : (string)reader["BRAND"],
+                                //model = reader["MODEL"] == DBNull.Value ? string.Empty : (string)reader["MODEL"],
+                                //api_version = Int32.Parse(reader["API_VERSION"].ToString()),
                                 pin = reader["PIN"] == DBNull.Value ? string.Empty : (string)reader["PIN"],
                                 created_time = (DateTime)reader["CREATED_TIME"],
                                 app_version = double.Parse(reader["APP_VERSION"].ToString())
@@ -595,7 +595,7 @@ namespace DeMobile.Services
                 {
                     device_id = (string)reader["DEVICE_ID"],
                     cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
-                    conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
+                    //conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
                     device_status = (string)reader["DEVICE_STATUS"],
                     created_time = (DateTime)reader["CREATED_TIME"]
                 };
@@ -623,7 +623,7 @@ namespace DeMobile.Services
                 {
                     device_id = (string)reader["DEVICE_ID"],
                     cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
-                    conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
+                    //conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
                     device_status = (string)reader["DEVICE_STATUS"],
                     created_time = (DateTime)reader["CREATED_TIME"]
                 });

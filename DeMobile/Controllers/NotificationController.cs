@@ -62,28 +62,28 @@ namespace DeMobile.Controllers
         #endregion
 
         #region ทดสอบส่งข้อความผ่าน Websocket ไปหา client ทุกคน
-        [Route("api/notification/send/all")]
-        public IHttpActionResult GetSendNotiAll(string title, string message)
-        {
-            //user = new User();
-            try
-            {
-                var device = user.getDeviceByStatus("ACT");
-                if(device.Count > 0)
-                {
-                    List<string> conn_id = new List<string>();
-                    foreach (var d in device)
-                        conn_id.Add(d.conn_id);
-                    TransactionHub noti = new TransactionHub();
-                    noti.sendMessage("SYSTEM", conn_id, title,  message);
-                }
-                return Ok("sent");
-            }
-            catch(Exception e)
-            {
-                return InternalServerError(e.InnerException);
-            }
-        }
+        //[Route("api/notification/send/all")]
+        //public IHttpActionResult GetSendNotiAll(string title, string message)
+        //{
+        //    //user = new User();
+        //    try
+        //    {
+        //        var device = user.getDeviceByStatus("ACT");
+        //        if(device.Count > 0)
+        //        {
+        //            List<string> conn_id = new List<string>();
+        //            foreach (var d in device)
+        //                conn_id.Add(d.conn_id);
+        //            TransactionHub noti = new TransactionHub();
+        //            noti.sendMessage("SYSTEM", conn_id, title,  message);
+        //        }
+        //        return Ok("sent");
+        //    }
+        //    catch(Exception e)
+        //    {
+        //        return InternalServerError(e.InnerException);
+        //    }
+        //}
         #endregion
 
         #region ทดสอบส่งข้อความผ่าน Websocket ไปหา client ทุกคน2
