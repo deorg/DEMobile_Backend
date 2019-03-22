@@ -31,8 +31,8 @@ namespace DeMobile.Controllers
 
                 
                 data.ip_addr = IPAddress;
-                if(data.phone_no_sim != null)
-                    data.phone_no_sim = data.phone_no_sim.Replace("+66", "0");
+                //if(data.phone_no_sim != null)
+                    //data.phone_no_sim = data.phone_no_sim.Replace("+66", "0");
 
                 //data.platform = string.IsNullOrEmpty(data.platform) ? "ANDROID" : "IOS";
 
