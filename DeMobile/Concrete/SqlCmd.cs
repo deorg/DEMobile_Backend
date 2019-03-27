@@ -40,7 +40,7 @@ namespace DeMobile.Concrete
         {
             public const string getChannelCode = "SELECT * FROM MPAY010";
             public const string createOrder = "INSERT INTO MPAY100(CUST_NO, CON_NO, CHANNEL_ID, PAY_AMT, TEL, IP_ADDR, DESCRIPTION, TRANS_AMT) VALUES(:custId, :contractNo, :channelCode, :payAmt, :phone, :ip, :description, :transAmt) RETURNING ORDER_NO INTO :order_no";
-            public const string setStatusOrder = "UPDATE MPAY100 SET ORDER_STATUS = :status WHERE ORDER_NO = :order_no";
+            public const string setStatusOrder = "UPDATE MPAY100 SET ORDER_STATUS = :order_status WHERE ORDER_NO = :order_no";
             public const string saveTransaction = "INSERT INTO MPAY110(TRANS_NO, ORDER_NO, CUST_NO, CHANNEL_ID, REQ_STATUS_ID, TRANS_STATUS_ID, PAY_AMT, RETURN_URL, PAYMENT_URL, IP_ADDR, TOKEN, CREATED_TIME, EXPIRE_TIME, TRANS_AMT) VALUES(:transNo, :orderNo, :custNo, :channelId, :reqStatus, :tranStatus, :payAmt, :returnUrl, :paymentUrl, :ip, :token, :createTime, :expireTime, :transAmt) RETURNING TRANS_NO INTO :trans_no";
             public const string updateTransaction = "UPDATE MPAY110 SET TRANS_STATUS_ID = :trans_status_id, BANK_REF_CODE = :bank_ref_code, RESULT_STATUS_ID = :result_status_id, PAYMENT_TIME = :payment_time WHERE TRANS_NO = :trans_no";
             public const string getTransactionByOrder_no = "SELECT * FROM MPAY110 WHERE ORDER_NO = :order_no";

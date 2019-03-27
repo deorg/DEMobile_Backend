@@ -271,7 +271,7 @@ namespace DeMobile.Services
                     responseObj = JsonConvert.DeserializeObject<PaymentStatusRes>(response.Result.Content.ReadAsStringAsync().Result);
                     if (responseObj.Code == 200 && responseObj.PaymentStatus == 0)
                         setStatusOrder(Int32.Parse(responseObj.OrderNo), "SUC");
-                    else if(responseObj.Code == 200 && responseObj.PaymentStatus != 0)
+                    else if (responseObj.Code == 200 && responseObj.PaymentStatus != 0)
                     {
                         if (responseObj.PaymentStatus == 1)
                             setStatusOrder(Int32.Parse(responseObj.OrderNo), "FAL");
@@ -328,8 +328,8 @@ namespace DeMobile.Services
                     conn.Open();
                     using(var cmd = new OracleCommand(SqlCmd.Payment.setStatusOrder, conn) { CommandType = CommandType.Text })
                     {
+                        cmd.Parameters.Add("order_status", status);
                         cmd.Parameters.Add("order_no", order_no);
-                        cmd.Parameters.Add("status", status);
                         cmd.ExecuteNonQuery();
                         cmd.Dispose();
                     }
@@ -353,12 +353,12 @@ namespace DeMobile.Services
             {
                 try
                 {
+                    conn.Open();
                     DateTime paymentTime;
                     if (!string.IsNullOrEmpty(value.PaymentDate))
                         paymentTime = DateTime.ParseExact(value.PaymentDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
                     using(var cmd = new OracleCommand(SqlCmd.Payment.updateTransaction, conn) { CommandType = CommandType.Text })
                     {
-                        cmd.Parameters.Add(new OracleParameter("trans_no", value.TransactionId));
                         cmd.Parameters.Add(new OracleParameter("trans_status_id", value.Code));
                         cmd.Parameters.Add(new OracleParameter("bank_ref_code", value.BankRefCode));
                         cmd.Parameters.Add(new OracleParameter("result_status_id", value.PaymentStatus));
@@ -368,7 +368,10 @@ namespace DeMobile.Services
                             cmd.Parameters.Add(new OracleParameter("payment_time", paymentTime));
                         }
                         else
+                        {
                             cmd.Parameters.Add(new OracleParameter("payment_time", null));
+                        }
+                        cmd.Parameters.Add(new OracleParameter("trans_no", value.TransactionId));
                         cmd.ExecuteNonQuery();
                         cmd.Dispose();
                     }
