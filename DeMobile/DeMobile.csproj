@@ -226,6 +226,7 @@
     <Compile Include="Concrete\Database.cs" />
     <Compile Include="Concrete\SqlCmd.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
+    <Compile Include="Controllers\PolicyController.cs" />
     <Compile Include="Hubs\MonitorHub.cs" />
     <Compile Include="Models\AppModel\m_LogReq.cs" />
     <Compile Include="Models\AppModel\m_Transaction.cs" />
@@ -345,6 +346,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Success\Index.cshtml" />
     <Content Include="Views\Success\Redirect.cshtml" />
+    <Content Include="Views\Policy\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
