@@ -1,0 +1,125 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+@*<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>*@
+<!------ Include the above in your HEAD tag ---------->
+<div class="jumbotron jumbotron-sm" style="background: teal;color: #FFF; border-radius: 0px;padding-top: 24px;padding-bottom: 24px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-lg-12">
+                <h3 class="h1">
+                    ติดต่อเรา <small style="color: #FFF;">Domestic leasing (1992) co., ltd.</small>
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="well well-sm">
+                @*<form>*@
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>
+                                    ชื่อติดต่อ
+                                </label>
+                                <input type="text" class="form-control" id="name" placeholder="ชื่อติดต่อ" required="required" />
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    ที่อยู่อีเมลล์
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-envelope"></span>
+                                    </span>
+                                    <input type="email" class="form-control" id="email" placeholder="ที่อยู่อีเมลล์" required="required" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    ติดต่อสอบถาม
+                                </label>
+                                <select id="subject" class="form-control" required="required">
+                                    @*<option value="na" selected="">ติดต่อเรื่อง:</option>*@
+                                    <option value="service">บริการทั่วไป</option>
+                                    <option value="suggestions">แนะนำ</option>
+                                    <option value="product">บริการสินค้า</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>
+                                    ข้อความ
+                                </label>
+                                <textarea id="message" class="form-control" rows="9" cols="25" required="required"
+                                          placeholder="รายละเอียดที่ต้องการติดต่อ"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <button class="btn btn-primary pull-right" id="btnContactUs" onclick="sendMessage()" style="background-color:teal">
+                                ส่งข้อความ
+                            </button>
+                        </div>
+                    </div>
+                @*</form>*@
+            </div>
+        </div>
+        <div class="col-md-4">
+            <form>
+                <legend><span class="glyphicon glyphicon-globe"></span> สำนักงาน</legend>
+                <address>
+                    <strong>Domestic leasing (1992) co., ltd.</strong><br>
+                    117 ซ.บางจะเกร็ง 4, ถ.ธนบุรี-ปากท่อ, ต.แม่กรอง<br>
+                    อ.เมือง, จ.สมุทรสงคราม 75000<br>
+                    โทรศัพท์ 034762422
+                </address>
+                @*<address>
+                    <strong>Full Name</strong><br>
+                    <a href="mailto:#">first.last@example.com</a>
+                </address>*@
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function sendMessage() {
+        var name = document.getElementById("name");
+        var email = document.getElementById("email");
+        var subject = document.getElementById("subject");
+        var message = document.getElementById("message");
+            console.log("name => " + name.value);
+            console.log("email => " + email.value);
+        console.log("subject => " + subject.value);
+        console.log("message => " + message.value);
+        if (name.value != "" && email.value != "" && message.value != "") {
+            console.log("sent")
+            $.post("http://35.197.153.92/api/contact/message",
+                {
+                    name: name.value,
+                    email: email.value,
+                    subject: subject.value,
+                    message: message.value
+                },
+                function (data, status) {
+                    if (status == "success") {
+                        alert("ส่งข้อความสำเร็จ");
+                    }
+                    var name = document.getElementById("name").value = "";
+                    var email = document.getElementById("email").value = "";
+                    var subject = document.getElementById("subject").value = "";
+                    var message = document.getElementById("message").value = "";
+                });
+        }
+        else {
+            alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+        }
+    }
+</script>
+

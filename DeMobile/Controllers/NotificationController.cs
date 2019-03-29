@@ -228,5 +228,14 @@ namespace DeMobile.Controllers
             }
         }
         #endregion
+
+        #region รับข้อความติดต่อจากลูกค้า จากหน้า contact us
+        [Route("api/contact/message")]
+        public IHttpActionResult PostContactMessage([FromBody]m_contact contact)
+        {
+            var data = contact;
+            return Ok();
+        }
+        #endregion
     }
 }
