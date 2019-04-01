@@ -9,7 +9,7 @@ namespace DeMobile.Concrete
     {
         public static class User
         {
-            public const string getSms = "SELECT * FROM SMS010_M WHERE CUST_NO = :cust_no ORDER BY SMS010_PK";
+            public const string getSms = "SELECT * FROM SMS010_M WHERE CUST_NO IN(SELECT CUST_NO FROM MPAY021 WHERE DEVICE_ID = fcust2device_id(:cust_no)) ORDER BY SMS010_PK";
             public const string getSmsWithConnId = @"select sms010_pk, s010.cust_no, conn_id, device_status, sms_note,  con_no, sms_time, sender, sender_type, sms010_ref, read_status
                                                         from sms010_m s010 join mpay020 m020
                                                         on s010.cust_no = m020.cust_no
