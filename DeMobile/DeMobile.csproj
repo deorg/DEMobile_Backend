@@ -227,7 +227,9 @@
     <Compile Include="Concrete\SqlCmd.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\PolicyController.cs" />
+    <Compile Include="Controllers\SupportController.cs" />
     <Compile Include="Hubs\MonitorHub.cs" />
+    <Compile Include="Models\AppModel\m_contact.cs" />
     <Compile Include="Models\AppModel\m_LogReq.cs" />
     <Compile Include="Models\AppModel\m_Transaction.cs" />
     <Compile Include="Models\Line\m_process.cs" />
@@ -280,6 +282,7 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\font-awesome.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -287,6 +290,7 @@
     <Content Include="Images\Banks\kb.png" />
     <Content Include="Images\Banks\krungsri.png" />
     <Content Include="Images\Banks\ktb.png" />
+    <Content Include="Images\Banks\ktb2.png" />
     <Content Include="Images\Banks\scb.png" />
     <Content Include="Images\Banks\tb.png" />
     <Content Include="Scripts\bootstrap.js" />
@@ -347,6 +351,7 @@
     <Content Include="Views\Success\Index.cshtml" />
     <Content Include="Views\Success\Redirect.cshtml" />
     <Content Include="Views\Policy\Index.cshtml" />
+    <Content Include="Views\Support\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
