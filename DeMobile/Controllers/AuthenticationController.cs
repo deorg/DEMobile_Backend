@@ -32,27 +32,13 @@ namespace DeMobile.Controllers
                 
                 data.ip_addr = IPAddress;
                 //if(data.phone_no_sim != null)
-                    //data.phone_no_sim = data.phone_no_sim.Replace("+66", "0");
+                //data.phone_no_sim = data.phone_no_sim.Replace("+66", "0");
 
                 //data.platform = string.IsNullOrEmpty(data.platform) ? "ANDROID" : "IOS";
 
-                var result = _user.getProfileByCitizenNo(data.citizen_no);
-                var result2 = _user.getProfileByPhoneNO(data.phone_no);
-                if(result == null)
-                {
-                    mlog.cust_no = 0;
-                    mlog.device_id = data.device_id;
-                    mlog.tel = data.phone_no;
-                    mlog.serial_sim = data.serial_sim;
-                    mlog.ip_addr = IPAddress;
-                    mlog.action = "REGISTER";
-                    mlog.status = "FAIL";
-                    mlog.note = "ไม่พบเลขประจำตัวประชาชนลูกค้าในระบบ";
-                    log.logSignin(mlog);
-                    monitor.sendMessage(url, IPAddress, data, new { code = 406, message = "ไม่พบเลขประจำตัวประชาชนของลูกค้าในระบบ!", data = result });
-                    return Ok(new { code = 406, message = "ไม่พบเลขประจำตัวประชาชนของลูกค้าในระบบ!", data = result });
-                }
-                if(result2 == null)
+                //var result = _user.getProfileByCitizenNo(data.citizen_no);
+                var cust_no = _user.getCustNoByPhoneNo(data.phone_no);
+                if(cust_no == 0)
                 {
                     mlog.cust_no = 0;
                     mlog.device_id = data.device_id;
@@ -63,49 +49,25 @@ namespace DeMobile.Controllers
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ";
                     log.logSignin(mlog);
-                    monitor.sendMessage(url, IPAddress, data, new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result });
-                    return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result });
+                    monitor.sendMessage(url, IPAddress, data, new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = new m_Customer() });
+                    return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = new m_Customer() });
                 }
-                if ((result != null) && (result2 != null))
-                {
-                    var currentDevice = _user.checkCurrentDevice(data.device_id);
-                    if (currentDevice != null)
-                    {                   
-                        _user.registerCurrentDevice(data, result.CUST_NO);
-                        //Notification otp = new Notification();
-                        //otp.sendOTP(result.CUST_NO);
-
-                        mlog.cust_no = result.CUST_NO;
-                        mlog.device_id = data.device_id;
-                        mlog.tel = result.TEL;
-                        mlog.serial_sim = data.serial_sim;
-                        mlog.ip_addr = IPAddress;
-                        mlog.action = "REGISTER NEW DEVICE";
-                        mlog.status = "SUCCESS";
-                        mlog.note = "ลงทะเบียนสำเร็จ";
-                        log.logSignin(mlog);
-                        monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
-                        return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
-                    }
-                    else
-                    {
-                        _user.registerDevice(data, result.CUST_NO);
-                        //Notification otp = new Notification();
-                        //otp.sendOTP(result.CUST_NO);
-                        mlog.cust_no = result.CUST_NO;
-                        mlog.device_id = data.device_id;
-                        mlog.tel = result.TEL;
-                        mlog.serial_sim = data.serial_sim;
-                        mlog.ip_addr = IPAddress;
-                        mlog.action = "REGISTER CURRENT DEVICE";
-                        mlog.status = "SUCCESS";
-                        mlog.note = "ลงทะเบียนสำเร็จ";
-                        log.logSignin(mlog);
-                        monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
-                        return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result });
-                    }
-                }
-                else
+                var result2 = _user.getProfileById(cust_no);
+                //if (result == null)
+                //{
+                //    mlog.cust_no = 0;
+                //    mlog.device_id = data.device_id;
+                //    mlog.tel = data.phone_no;
+                //    mlog.serial_sim = data.serial_sim;
+                //    mlog.ip_addr = IPAddress;
+                //    mlog.action = "REGISTER";
+                //    mlog.status = "FAIL";
+                //    mlog.note = "ไม่พบเลขประจำตัวประชาชนลูกค้าในระบบ";
+                //    log.logSignin(mlog);
+                //    monitor.sendMessage(url, IPAddress, data, new { code = 406, message = "ไม่พบเลขประจำตัวประชาชนของลูกค้าในระบบ!", data = result });
+                //    return Ok(new { code = 406, message = "ไม่พบเลขประจำตัวประชาชนของลูกค้าในระบบ!", data = result });
+                //}
+                if (result2 == null)
                 {
                     mlog.cust_no = 0;
                     mlog.device_id = data.device_id;
@@ -114,11 +76,64 @@ namespace DeMobile.Controllers
                     mlog.ip_addr = IPAddress;
                     mlog.action = "REGISTER";
                     mlog.status = "FAIL";
-                    mlog.note = "ไม่พบข้อมูลลูกค้า";
+                    mlog.note = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ";
                     log.logSignin(mlog);
-                    monitor.sendMessage(url, IPAddress, data, new { code = 400, message = "ไม่พบข้อมูลค้า!", data = result });
-                    return Ok(new { code = 400, message = "ไม่พบข้อมูลค้า!", data = result });
+                    monitor.sendMessage(url, IPAddress, data, new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result2 });
+                    return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result2 });
                 }
+                else
+                {
+                    var currentDevice = _user.checkCurrentDevice(data.device_id);
+                    if (currentDevice != null)
+                    {                   
+                        _user.registerCurrentDevice(data, result2.CUST_NO);
+                        //Notification otp = new Notification();
+                        //otp.sendOTP(result.CUST_NO);
+
+                        mlog.cust_no = result2.CUST_NO;
+                        mlog.device_id = data.device_id;
+                        mlog.tel = result2.TEL;
+                        mlog.serial_sim = data.serial_sim;
+                        mlog.ip_addr = IPAddress;
+                        mlog.action = "REGISTER NEW DEVICE";
+                        mlog.status = "SUCCESS";
+                        mlog.note = "ลงทะเบียนสำเร็จ";
+                        log.logSignin(mlog);
+                        monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
+                        return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
+                    }
+                    else
+                    {
+                        _user.registerDevice(data, result2.CUST_NO);
+                        //Notification otp = new Notification();
+                        //otp.sendOTP(result.CUST_NO);
+                        mlog.cust_no = result2.CUST_NO;
+                        mlog.device_id = data.device_id;
+                        mlog.tel = result2.TEL;
+                        mlog.serial_sim = data.serial_sim;
+                        mlog.ip_addr = IPAddress;
+                        mlog.action = "REGISTER CURRENT DEVICE";
+                        mlog.status = "SUCCESS";
+                        mlog.note = "ลงทะเบียนสำเร็จ";
+                        log.logSignin(mlog);
+                        monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
+                        return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
+                    }
+                }
+                //else
+                //{
+                //    mlog.cust_no = 0;
+                //    mlog.device_id = data.device_id;
+                //    mlog.tel = data.phone_no;
+                //    mlog.serial_sim = data.serial_sim;
+                //    mlog.ip_addr = IPAddress;
+                //    mlog.action = "REGISTER";
+                //    mlog.status = "FAIL";
+                //    mlog.note = "ไม่พบข้อมูลลูกค้า";
+                //    log.logSignin(mlog);
+                //    monitor.sendMessage(url, IPAddress, data, new { code = 400, message = "ไม่พบข้อมูลค้า!", data = result });
+                //    return Ok(new { code = 400, message = "ไม่พบข้อมูลค้า!", data = result });
+                //}
             }
             catch (Exception e)
             {

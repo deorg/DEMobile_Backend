@@ -298,6 +298,39 @@ namespace DeMobile.Services
                 return null;
             }
         }
+        public int getCustNoByPhoneNo(string phone)
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.User.getCustNoByPhone, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add("phone", phone);
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if (reader.HasRows)
+                        {
+                            var cust_no = Int32.Parse(reader[0].ToString());
+                            return cust_no;
+                        }
+                        reader.Dispose();
+                        cmd.Dispose();
+                        conn.Close();
+                        conn.Dispose();
+                        return 0;
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    conn.Close();
+                    conn.Dispose();
+                    return 0;
+                }
+            }
+        }
         public int getAppVersion()
         {
             using(OracleConnection conn = new OracleConnection(Database.conString))
@@ -492,6 +525,32 @@ namespace DeMobile.Services
                 {
                     conn.Close();
                     conn.Dispose();
+                }
+            }
+        }
+        public string getRegisterType()
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.Information.getRegisterType, conn) { CommandType = CommandType.Text })
+                    {
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        var type = reader["REGISTER_TYPE"].ToString();
+                        reader.Dispose();
+                        conn.Close();
+                        conn.Dispose();
+                        return type;
+                    }
+                }
+                catch
+                {
+                    conn.Close();
+                    conn.Dispose();
+                    return null;
                 }
             }
         }
@@ -717,8 +776,7 @@ namespace DeMobile.Services
             //    }
             //}
             oracle = new Database();
-            List<OracleParameter> parameter = new List<OracleParameter> {
-                    new OracleParameter("device_id", regis.device_id),
+            List<OracleParameter> parameter = new List<OracleParameter> {                
                     new OracleParameter("cust_no", cust_no),
                     new OracleParameter("tel", regis.phone_no),
                   //  new OracleParameter("telSim", regis.phone_no_sim),
@@ -729,7 +787,8 @@ namespace DeMobile.Services
                     //new OracleParameter("api_version", regis.api_version),
                     new OracleParameter("pin", regis.pin),
                     new OracleParameter("app_version", regis.app_version),
-                    new OracleParameter("platform", regis.platform)
+                    new OracleParameter("platform", regis.platform),
+                    new OracleParameter("device_id", regis.device_id),
                 };
             var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerCurrentDevice, parameter);
             oracle.OracleDisconnect();

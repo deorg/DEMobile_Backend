@@ -64,8 +64,7 @@ namespace DeMobile.Services
             oracle.OracleDisconnect();
             return data;
         }
-
-    public m_Member getDashBoard()
+        public m_Member getDashBoard()
         {
             oracle = new Database();
             m_Member data = new m_Member();
