@@ -15,6 +15,25 @@ namespace DeMobile.Controllers
         private User _user = new User();
         Log log = new Log();
 
+        [Route("api/authen/logout")]
+        public IHttpActionResult GetLogout(int cust_no)
+        {
+            m_LogReg mlog = new m_LogReg();
+            string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string url = HttpContext.Current.Request.Path;
+            try
+            {
+                _user.logout(cust_no);
+                monitor.sendMessage(url, IPAddress, cust_no, new { code = 200, message = "ออกจากระบบสำเร็จ" });
+                return Ok(new { code = 200, message = "ออกจากระบบสำเร็จ" });
+            }
+            catch
+            {
+                monitor.sendMessage(url, IPAddress, cust_no, new { code = 411, message = "ออกจากระบบไม่สำเร็จ" });
+                return Ok(new { code = 411, message = "ออกจากระบบไม่สำเร็จ" });
+            }
+        }
+
         #region ลงทะเบียนติดตั้ง Application DMobile
         [Route("api/authen/register")]
         public IHttpActionResult PostRegister([FromBody]m_Register data)

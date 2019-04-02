@@ -36,6 +36,7 @@ namespace DeMobile.Concrete
             public const string getDeviceByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no AND DEVICE_STATUS = 'ACT'";
             public const string getConnIdByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no AND DEVICE_STATUS = 'ACT'";
             public const string updateAppVersion = "UPDATE MPAY020 SET APP_VERSION = :app_version WHERE DEVICE_ID = :device_id";
+            public const string logout = "UPDATE MPAY020 SET DEVICE_STATUS = 'SUS' WHERE CUST_NO = :cust_no";
         }
         public static class Payment
         {

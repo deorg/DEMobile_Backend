@@ -313,21 +313,22 @@ namespace DeMobile.Services
                         if (reader.HasRows)
                         {
                             var cust_no = Int32.Parse(reader[0].ToString());
+                            reader.Dispose();
+                            cmd.Dispose();
                             return cust_no;
                         }
-                        reader.Dispose();
-                        cmd.Dispose();
-                        conn.Close();
-                        conn.Dispose();
-                        return 0;
+                        else
+                        {
+                            reader.Dispose();
+                            cmd.Dispose();
+                            return 0;
+                        }
                     }
                 }
-                catch(Exception e)
+                finally
                 {
-                    Console.WriteLine(e.Message);
                     conn.Close();
                     conn.Dispose();
-                    return 0;
                 }
             }
         }
@@ -696,6 +697,27 @@ namespace DeMobile.Services
             reader.Dispose();
             oracle.OracleDisconnect();
             return data;
+        }
+        public void logout(int cust_no)
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.User.logout, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add("cust_no", cust_no);
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
         }
         public void registerDevice(m_Register regis, int cust_no)
         {
