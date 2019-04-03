@@ -734,9 +734,9 @@ namespace DeMobile.Services
                         //cmd.Parameters.Add(new OracleParameter("telSim", regis.phone_no_sim));
                         cmd.Parameters.Add(new OracleParameter("serial_sim", regis.serial_sim));
                         //cmd.Parameters.Add(new OracleParameter("operator", regis.operator_name));
-                        //cmd.Parameters.Add(new OracleParameter("brand", regis.brand));
-                        //cmd.Parameters.Add(new OracleParameter("model", regis.model));
-                        //cmd.Parameters.Add(new OracleParameter("api_version", regis.api_version));
+                        cmd.Parameters.Add(new OracleParameter("brand", regis.brand));
+                        cmd.Parameters.Add(new OracleParameter("model", regis.model));
+                        cmd.Parameters.Add(new OracleParameter("api_version", regis.api_version));
                         cmd.Parameters.Add(new OracleParameter("pin", regis.pin));
                         cmd.Parameters.Add(new OracleParameter("app_version", regis.app_version));
                         cmd.Parameters.Add(new OracleParameter("platform", regis.platform));
@@ -806,10 +806,10 @@ namespace DeMobile.Services
                    // new OracleParameter("operator", regis.operator_name),
                     //new OracleParameter("brand", regis.brand),
                     //new OracleParameter("model", regis.model),
-                    //new OracleParameter("api_version", regis.api_version),
-                    new OracleParameter("pin", regis.pin),
+                    new OracleParameter("api_version", regis.api_version),
+                    //new OracleParameter("pin", regis.pin),
                     new OracleParameter("app_version", regis.app_version),
-                    new OracleParameter("platform", regis.platform),
+                    //new OracleParameter("platform", regis.platform),
                     new OracleParameter("device_id", regis.device_id),
                 };
             var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerCurrentDevice, parameter);
