@@ -2,6 +2,7 @@
 using DeMobile.Models.AppModel;
 using DeMobile.Services;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Web;
 using System.Web.Configuration;
@@ -33,7 +34,32 @@ namespace DeMobile.Controllers
                 return Ok(new { code = 411, message = "ออกจากระบบไม่สำเร็จ" });
             }
         }
-
+        [Route("api/authen/checkphone")]
+        public IHttpActionResult GetCheckPhone(string phone)
+        {
+            //m_LogReq mlog = new m_LogReq();
+            string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string url = HttpContext.Current.Request.Path;
+            try
+            {
+                var customers = _user.getProfilesByPhone(phone);
+                if(customers != null)
+                {
+                    monitor.sendMessage(url, IPAddress, phone, new { code = 200, message = "พบเบอร์โทรศัพท์", data = customers });
+                    return Ok(new { code = 200, message = "พบเบอร์โทรศัพท์", data = customers });
+                }
+                else
+                {
+                    monitor.sendMessage(url, IPAddress, phone, new { code = 405, message = "พบเบอร์โทรศัพท์", data = customers });
+                    return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์", data = customers });
+                }
+            }
+            catch(Exception e)
+            {
+                monitor.sendMessage(url, IPAddress, phone, new { code = 500, message = e.Message, data = new List<m_Customer>() });
+                return Ok(new { code = 500, message = e.Message, data = new List<m_Customer>() });
+            }
+        }
         #region ลงทะเบียนติดตั้ง Application DMobile
         [Route("api/authen/register")]
         public IHttpActionResult PostRegister([FromBody]m_Register data)
