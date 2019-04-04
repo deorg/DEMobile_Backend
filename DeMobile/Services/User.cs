@@ -312,10 +312,19 @@ namespace DeMobile.Services
                         reader.Read();
                         if (reader.HasRows)
                         {
-                            var cust_no = Int32.Parse(reader[0].ToString());
-                            reader.Dispose();
-                            cmd.Dispose();
-                            return cust_no;
+                            if (reader[0] != DBNull.Value)
+                            {
+                                var cust_no = Int32.Parse(reader[0].ToString());
+                                reader.Dispose();
+                                cmd.Dispose();
+                                return cust_no;
+                            }
+                            else
+                            {
+                                reader.Dispose();
+                                cmd.Dispose();
+                                return 0;
+                            }
                         }
                         else
                         {
