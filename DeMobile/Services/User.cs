@@ -374,6 +374,50 @@ namespace DeMobile.Services
                 }
             }
         }
+        public List<m_Customer> getProfilesByPhone(string phone)
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.User.getProfileByPhone, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add("tel", phone);
+                        var reader = cmd.ExecuteReader();
+                        List<m_Customer> data = new List<m_Customer>();
+                        while (reader.Read())
+                        {
+                            data.Add(new m_Customer
+                            {
+                                CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                                CUST_NAME = reader["CUST_NAME"].ToString(),
+                                CITIZEN_NO = reader["CITIZEN_NO"] == DBNull.Value ? string.Empty : (string)reader["CITIZEN_NO"],
+                                TEL = reader["TEL"] == DBNull.Value ? string.Empty : (string)reader["TEL"],
+                                PERMIT = (string)reader["PERMIT"]
+                            });
+                        }
+                        if(data.Count > 0)
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return data;
+                        }
+                        else
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return null;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
         public m_Customer getProfileByDeviceId(string device_id)
         {
             using (OracleConnection conn = new OracleConnection(Database.conString))
