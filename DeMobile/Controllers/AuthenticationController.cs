@@ -15,6 +15,7 @@ namespace DeMobile.Controllers
         MonitorHub monitor = new MonitorHub();
         private User _user = new User();
         Log log = new Log();
+        Payment payment = new Payment();
 
         [Route("api/authen/logout")]
         public IHttpActionResult GetLogout(int cust_no)
@@ -140,7 +141,7 @@ namespace DeMobile.Controllers
                         mlog.tel = result2.TEL;
                         mlog.serial_sim = data.serial_sim;
                         mlog.ip_addr = IPAddress;
-                        mlog.action = "REGISTER NEW DEVICE";
+                        mlog.action = "REGISTER CURRENT DEVICE";
                         mlog.status = "SUCCESS";
                         mlog.note = "ลงทะเบียนสำเร็จ";
                         log.logSignin(mlog);
@@ -157,10 +158,11 @@ namespace DeMobile.Controllers
                         mlog.tel = result2.TEL;
                         mlog.serial_sim = data.serial_sim;
                         mlog.ip_addr = IPAddress;
-                        mlog.action = "REGISTER CURRENT DEVICE";
+                        mlog.action = "REGISTER NEW DEVICE";
                         mlog.status = "SUCCESS";
                         mlog.note = "ลงทะเบียนสำเร็จ";
                         log.logSignin(mlog);
+                        payment.sendMessageToLine($"[{result2.CUST_NO.ToString()}] คุณ{result2.CUST_NAME} => ลงทะเบียนสำเร็จ");
                         monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                         return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                     }
