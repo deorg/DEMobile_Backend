@@ -29,9 +29,9 @@ namespace DeMobile.Concrete
             public const string getCustNoByPhone = "SELECT  FGETCUST_NO(:phone) FROM DUAL";
             //public const string registerNewDevice = @"INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS, TEL, TEL_SIM, SERIAL_SIM, OPERATOR, BRAND, MODEL, API_VERSION, PIN, APP_VERSION, PLATFORM) " +
             //"VALUES(:device_id, :cust_no, 'ACT', :tel, :telSim, :serial_sim, :operator, :brand, :model, :api_version, :pin, :app_version, :platform)";
-            public const string registerCurrentDevice = "UPDATE MPAY020 SET CUST_NO = :cust_no, DEVICE_STATUS = 'ACT', TEL = :tel, SERIAL_SIM = :serial_sim, API_VERSION = :api_version, APP_VERSION = :app_version, CREATED_TIME = SYSDATE WHERE DEVICE_ID = :device_id";
+            public const string registerCurrentDevice = "UPDATE MPAY020 SET CUST_NO = :cust_no, DEVICE_STATUS = 'ACT', TEL = :tel, SERIAL_SIM = :serial_sim, API_VERSION = :api_version, APP_VERSION = :app_version, CREATED_TIME = SYSDATE, LAST_IDENT = SYSDATE WHERE DEVICE_ID = :device_id";
             public const string registerDevice = @"INSERT INTO MPAY020(DEVICE_ID, CUST_NO, DEVICE_STATUS, TEL, SERIAL_SIM, BRAND, MODEL, API_VERSION,PIN, APP_VERSION, PLATFORM) VALUES(:device_id, :cust_no, 'ACT', :tel, :serial_sim, :brand, :model, :api_version, :pin, :app_version, :platform)";
-            public const string registerNewDevice = "UPDATE MPAY020 SET DEVICE_ID = :device_id, DEVICE_STATUS = 'ACT', TEL = :tel, SERIAL_SIM = :serial_sim, BRAND = :brand, MODEL = :model, API_VERSION = :api_version, APP_VERSION = :app_version, PLATFORM = :platform, CREATED_TIME = SYSDATE WHERE CUST_NO = :cust_no";
+            public const string registerNewDevice = "UPDATE MPAY020 SET DEVICE_ID = :device_id, DEVICE_STATUS = 'ACT', TEL = :tel, SERIAL_SIM = :serial_sim, BRAND = :brand, MODEL = :model, API_VERSION = :api_version, APP_VERSION = :app_version, PLATFORM = :platform, CREATED_TIME = SYSDATE, LAST_IDENT = SYSDATE WHERE CUST_NO = :cust_no";
             public const string checkCurrentDevice = "SELECT * FROM MPAY020 WHERE DEVICE_ID = :device_id";
             public const string getDeviceByStatus = "SELECT * FROM MPAY020 WHERE DEVICE_STATUS = :status";
             public const string getDeviceByCustNo = "SELECT * FROM MPAY020 WHERE CUST_NO = :cust_no";
