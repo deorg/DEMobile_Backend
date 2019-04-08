@@ -890,6 +890,27 @@ namespace DeMobile.Services
                 //oracle.OracleDisconnect();
             }
         }
+        public void updateIdentify(string device_id)
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.updateIdentify, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add("device_id", device_id);
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
         public void registerCurrentDevice(m_Register regis, int cust_no)
         {
             using (OracleConnection conn = new OracleConnection(Database.conString))

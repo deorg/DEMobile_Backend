@@ -247,7 +247,9 @@ namespace DeMobile.Controllers
                         if (device != null)
                         {
                             //if (app_version != device.app_version)
-                                //_user.updateAppVersion(app_version, deviceId);
+                            //_user.updateAppVersion(app_version, deviceId);
+
+                            _user.updateIdentify(deviceId);
 
                             if (device.device_status == "ACT")
                             {
