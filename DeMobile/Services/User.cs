@@ -695,33 +695,74 @@ namespace DeMobile.Services
         {
 
         }
-        public m_device getDeviceByCustNo(int cust_no)
+        public List<m_device> getDeviceByCustNo(int cust_no)
         {
-            oracle = new Database();
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            parameter.Add(new OracleParameter("cust_no", cust_no));
-            var reader = oracle.SqlQueryWithParams(SqlCmd.User.getDeviceByCustNo, parameter);
-            reader.Read();
-            if (reader.HasRows)
+            using (OracleConnection conn = new OracleConnection(Database.conString))
             {
-                var data = new m_device
+                try
                 {
-                    device_id = (string)reader["DEVICE_ID"],
-                    cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
-                    //conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
-                    device_status = (string)reader["DEVICE_STATUS"],
-                    created_time = (DateTime)reader["CREATED_TIME"]
-                };
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return data;
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.getDeviceByCustNo, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("cust_no", cust_no));
+                        var reader = cmd.ExecuteReader();
+                        List<m_device> data = new List<m_device>();
+                        while (reader.Read())
+                        {
+                            data.Add(new m_device
+                            {
+                                device_id = (string)reader["DEVICE_ID"],
+                                cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
+                                //conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
+                                device_status = (string)reader["DEVICE_STATUS"],
+                                created_time = (DateTime)reader["CREATED_TIME"]
+                            });
+                        }
+                        if(data.Count > 0)
+                        {
+                            reader.Dispose();
+                            cmd.Dispose();
+                            return data;
+                        }
+                        else
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return null;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
             }
-            else
-            {
-                reader.Dispose();
-                oracle.OracleDisconnect();
-                return null;
-            }
+            //oracle = new Database();
+            //List<OracleParameter> parameter = new List<OracleParameter>();
+            //parameter.Add(new OracleParameter("cust_no", cust_no));
+            //var reader = oracle.SqlQueryWithParams(SqlCmd.User.getDeviceByCustNo, parameter);
+            //reader.Read();
+            //if (reader.HasRows)
+            //{
+            //    var data = new m_device
+            //    {
+            //        device_id = (string)reader["DEVICE_ID"],
+            //        cust_no = Int32.Parse(reader["CUST_NO"].ToString()),
+            //        //conn_id = reader["CONN_ID"] == DBNull.Value ? string.Empty : (string)reader["CONN_ID"],
+            //        device_status = (string)reader["DEVICE_STATUS"],
+            //        created_time = (DateTime)reader["CREATED_TIME"]
+            //    };
+            //    reader.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return data;
+            //}
+            //else
+            //{
+            //    reader.Dispose();
+            //    oracle.OracleDisconnect();
+            //    return null;
+            //}
         }
         public List<m_device> getDeviceByStatus(string status)
         {
@@ -772,6 +813,34 @@ namespace DeMobile.Services
                 }
             }
         }
+        public void registerNewDevice(m_Register regis, int cust_no)
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString)) {
+                try
+                {
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.User.registerNewDevice, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add("device_id", regis.device_id);
+                        cmd.Parameters.Add("tel", regis.phone_no);
+                        cmd.Parameters.Add("serial_sim", regis.serial_sim);
+                        cmd.Parameters.Add("brand", regis.brand);
+                        cmd.Parameters.Add("model", regis.model);
+                        cmd.Parameters.Add("api_version", regis.api_version);
+                        cmd.Parameters.Add("app_version", regis.app_version);
+                        cmd.Parameters.Add("platform", regis.platform);
+                        cmd.Parameters.Add("cust_no", cust_no);
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
         public void registerDevice(m_Register regis, int cust_no)
         {
             using (OracleConnection conn = new OracleConnection(Database.conString))
@@ -779,7 +848,7 @@ namespace DeMobile.Services
                 try
                 {
                     conn.Open();
-                    using (var cmd = new OracleCommand(SqlCmd.User.registerNewDevice, conn) { CommandType = System.Data.CommandType.Text })
+                    using (var cmd = new OracleCommand(SqlCmd.User.registerDevice, conn) { CommandType = System.Data.CommandType.Text })
                     {
                         cmd.Parameters.Add(new OracleParameter("device_id", regis.device_id));
                         cmd.Parameters.Add(new OracleParameter("cust_no", cust_no));

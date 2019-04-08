@@ -150,21 +150,41 @@ namespace DeMobile.Controllers
                     }
                     else
                     {
-                        _user.registerDevice(data, result2.CUST_NO);
-                        //Notification otp = new Notification();
-                        //otp.sendOTP(result.CUST_NO);
-                        mlog.cust_no = result2.CUST_NO;
-                        mlog.device_id = data.device_id;
-                        mlog.tel = result2.TEL;
-                        mlog.serial_sim = data.serial_sim;
-                        mlog.ip_addr = IPAddress;
-                        mlog.action = "REGISTER NEW DEVICE";
-                        mlog.status = "SUCCESS";
-                        mlog.note = "ลงทะเบียนสำเร็จ";
-                        log.logSignin(mlog);
-                        payment.sendMessageToLine($"[{result2.CUST_NO.ToString()}] คุณ{result2.CUST_NAME} => ลงทะเบียนสำเร็จ");
-                        monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
-                        return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
+                        var devices = _user.getDeviceByCustNo(result2.CUST_NO);
+                        if (devices.Count > 0)
+                        {
+                            _user.registerNewDevice(data, result2.CUST_NO);
+                            mlog.cust_no = result2.CUST_NO;
+                            mlog.device_id = data.device_id;
+                            mlog.tel = result2.TEL;
+                            mlog.serial_sim = data.serial_sim;
+                            mlog.ip_addr = IPAddress;
+                            mlog.action = "REGISTER NEW DEVICE";
+                            mlog.status = "SUCCESS";
+                            mlog.note = "ลงทะเบียนสำเร็จ";
+                            log.logSignin(mlog);
+                            payment.sendMessageToLine($"[{result2.CUST_NO.ToString()}] คุณ{result2.CUST_NAME} => ลงทะเบียนสำเร็จ");
+                            monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
+                            return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
+                        }
+                        else
+                        {
+                            _user.registerDevice(data, result2.CUST_NO);
+                            //Notification otp = new Notification();
+                            //otp.sendOTP(result.CUST_NO);
+                            mlog.cust_no = result2.CUST_NO;
+                            mlog.device_id = data.device_id;
+                            mlog.tel = result2.TEL;
+                            mlog.serial_sim = data.serial_sim;
+                            mlog.ip_addr = IPAddress;
+                            mlog.action = "REGISTER NEW DEVICE";
+                            mlog.status = "SUCCESS";
+                            mlog.note = "ลงทะเบียนสำเร็จ";
+                            log.logSignin(mlog);
+                            payment.sendMessageToLine($"[{result2.CUST_NO.ToString()}] คุณ{result2.CUST_NAME} => ลงทะเบียนสำเร็จ");
+                            monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
+                            return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
+                        }
                     }
                 }
                 //else
