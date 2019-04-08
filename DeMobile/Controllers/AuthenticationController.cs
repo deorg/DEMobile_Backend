@@ -151,7 +151,7 @@ namespace DeMobile.Controllers
                     else
                     {
                         var devices = _user.getDeviceByCustNo(result2.CUST_NO);
-                        if (devices.Count > 0)
+                        if(devices != null)
                         {
                             _user.registerNewDevice(data, result2.CUST_NO);
                             mlog.cust_no = result2.CUST_NO;
