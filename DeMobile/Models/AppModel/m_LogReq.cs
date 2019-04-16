@@ -33,11 +33,17 @@ namespace DeMobile.Models.AppModel
     }
     public class m_LogReg
     {
-        public int log_reg_no { get; set; }
+        public string note { get; set; }
         public int cust_no { get; set; }
         public string device_id { get; set; }
         public string tel { get; set; }
+        public string serial_sim { get; set; }
         public string ip_addr { get; set; }
-        public DateTime created_time { get; set; }
+        public string action { get; set; }
+        public string status { get; set; }
+        public string url { get; set; }
+        public string brand { get; set; }
+        public string model { get; set; }
+        public string api_version { get; set; }
     }
 }

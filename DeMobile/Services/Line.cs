@@ -21,7 +21,7 @@ namespace DeMobile.Services
     {
         private HttpClient client;
         private string host2 = "https://api.line.me";
-        private Database oracle;
+        //private Database oracle;
         private MonitorHub monitor = new MonitorHub();
 
         private static bool AllwaysGoodCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors policyErrors)

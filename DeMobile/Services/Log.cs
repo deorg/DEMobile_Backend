@@ -10,7 +10,7 @@ namespace DeMobile.Services
 {
     public class Log
     {
-        private Database oracle;
+        //private Database oracle;
         public void logRequest(m_LogReq log)
         {
             using (OracleConnection conn = new OracleConnection(Database.conString))
@@ -44,6 +44,29 @@ namespace DeMobile.Services
             //parameter.Add(new OracleParameter("url", log.url));
             //oracle.SqlExecuteWithParams(SqlCmd.Log.logReq, parameter);
             //oracle.OracleDisconnect();
+        }
+
+        public void logSignup(m_LogReg log)
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.Log.logRegister, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add("cust_no", log.cust_no);
+                        cmd.Parameters.Add("device_id", log.device_id);
+                        cmd.Parameters.Add("tel", log.tel);
+                        cmd.Parameters.Add("ip_addr", log.ip_addr);
+                        cmd.Parameters.Add("status", log.status);
+                    }
+                }
+                finally
+                {
+
+                }
+            }
         }
         public void logSignin(m_LogReq log)
         {

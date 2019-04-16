@@ -50,19 +50,19 @@ namespace DeMobile.Controllers
         #endregion
 
         #region เรียกดูประวัติการลงทะเบียน Application Dmobile
-        [Route("api/monitor/logregistered")]
-        public IHttpActionResult GetLogRegis()
-        {
-            try
-            {
-                var result = info.getLogRegistered();
-                return Ok(new { status = "SUCCESS", data = result });
-            }
-            catch(Exception e)
-            {
-                return Ok(new { status = "FAILURE", data = e.Message });
-            }
-        }
+        //[Route("api/monitor/logregistered")]
+        //public IHttpActionResult GetLogRegis()
+        //{
+        //    try
+        //    {
+        //        var result = info.getLogRegistered();
+        //        return Ok(new { status = "SUCCESS", data = result });
+        //    }
+        //    catch(Exception e)
+        //    {
+        //        return Ok(new { status = "FAILURE", data = e.Message });
+        //    }
+        //}
         #endregion
 
         #region เรียกดูสถานะของบริการต่างๆ เปิด/ปิด

@@ -20,7 +20,7 @@ namespace DeMobile.Controllers
         [Route("api/authen/logout")]
         public IHttpActionResult GetLogout(int cust_no)
         {
-            m_LogReg mlog = new m_LogReg();
+            //m_LogReg mlog = new m_LogReg();
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string url = HttpContext.Current.Request.Path;
             try
