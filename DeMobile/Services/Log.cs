@@ -60,11 +60,21 @@ namespace DeMobile.Services
                         cmd.Parameters.Add("tel", log.tel);
                         cmd.Parameters.Add("ip_addr", log.ip_addr);
                         cmd.Parameters.Add("status", log.status);
+                        cmd.Parameters.Add("note", log.note);
+                        cmd.Parameters.Add("action", log.action);
+                        cmd.Parameters.Add("serial_sim", log.serial_sim);
+                        cmd.Parameters.Add("brand", log.brand);
+                        cmd.Parameters.Add("model", log.model);
+                        cmd.Parameters.Add("api_version", log.api_version);
+
+                        cmd.ExecuteNonQueryAsync();
+                        cmd.Dispose();
                     }
                 }
                 finally
                 {
-
+                    conn.Close();
+                    conn.Dispose();
                 }
             }
         }

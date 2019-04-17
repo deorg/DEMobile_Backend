@@ -12,6 +12,7 @@ namespace DeMobile.Services
     public class User
     {
         private Database oracle;
+      
         public List<m_SMS010> getNotification(int id)
         {
             using (OracleConnection conn = new OracleConnection(Database.conString))

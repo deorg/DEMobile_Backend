@@ -7,6 +7,7 @@ using System.Configuration;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.Http;
+using System.Linq;
 
 namespace DeMobile.Controllers
 {
@@ -65,7 +66,8 @@ namespace DeMobile.Controllers
         [Route("api/authen/register")]
         public IHttpActionResult PostRegister([FromBody]m_Register data)
         {
-            m_LogReq mlog = new m_LogReq();
+            //m_LogReq mlog = new m_LogReq();
+            m_LogReg mlog = new m_LogReg();
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string url = HttpContext.Current.Request.Path;
             try
@@ -94,7 +96,11 @@ namespace DeMobile.Controllers
                     mlog.action = "REGISTER";
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ";
-                    log.logSignin(mlog);
+                    mlog.brand = data.brand;
+                    mlog.model = data.model;
+                    mlog.api_version = data.api_version;
+                    log.logSignup(mlog);
+                    //log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, data, new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = new m_Customer() });
                     return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = new m_Customer() });
                 }
@@ -123,7 +129,11 @@ namespace DeMobile.Controllers
                     mlog.action = "REGISTER";
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ";
-                    log.logSignin(mlog);
+                    mlog.brand = data.brand;
+                    mlog.model = data.model;
+                    mlog.api_version = data.api_version;
+                    log.logSignup(mlog);
+                    //log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, data, new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result2 });
                     return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result2 });
                 }
@@ -144,7 +154,11 @@ namespace DeMobile.Controllers
                         mlog.action = "REGISTER CURRENT DEVICE";
                         mlog.status = "SUCCESS";
                         mlog.note = "ลงทะเบียนสำเร็จ";
-                        log.logSignin(mlog);
+                        mlog.brand = data.brand;
+                        mlog.model = data.model;
+                        mlog.api_version = data.api_version;
+                        log.logSignup(mlog);
+                        //log.logSignin(mlog);
                         monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                         return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                     }
@@ -162,7 +176,11 @@ namespace DeMobile.Controllers
                             mlog.action = "REGISTER NEW DEVICE";
                             mlog.status = "SUCCESS";
                             mlog.note = "ลงทะเบียนสำเร็จ";
-                            log.logSignin(mlog);
+                            mlog.brand = data.brand;
+                            mlog.model = data.model;
+                            mlog.api_version = data.api_version;
+                            log.logSignup(mlog);
+                            //log.logSignin(mlog);
                             payment.sendMessageToLine($"[{result2.CUST_NO.ToString()}] คุณ{result2.CUST_NAME} => ลงทะเบียนสำเร็จ");
                             monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                             return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
@@ -180,7 +198,11 @@ namespace DeMobile.Controllers
                             mlog.action = "REGISTER NEW DEVICE";
                             mlog.status = "SUCCESS";
                             mlog.note = "ลงทะเบียนสำเร็จ";
-                            log.logSignin(mlog);
+                            mlog.brand = data.brand;
+                            mlog.model = data.model;
+                            mlog.api_version = data.api_version;
+                            log.logSignup(mlog);
+                            //log.logSignin(mlog);
                             payment.sendMessageToLine($"[{result2.CUST_NO.ToString()}] คุณ{result2.CUST_NAME} => ลงทะเบียนสำเร็จ");
                             monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                             return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
@@ -212,7 +234,11 @@ namespace DeMobile.Controllers
                 mlog.action = "REGISTER";
                 mlog.status = "FAIL";
                 mlog.note = e.Message;
-                log.logSignin(mlog);
+                mlog.brand = data.brand;
+                mlog.model = data.model;
+                mlog.api_version = data.api_version;
+                log.logSignup(mlog);
+                //log.logSignin(mlog);
                 monitor.sendMessage(url, IPAddress, data, new { code = 500, message = e.Message, data = data });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
@@ -392,6 +418,52 @@ namespace DeMobile.Controllers
                 mlog.url = "api/customer/profile";
                 log.logRequest(mlog);
                 monitor.sendMessage(url, IPAddress, new { id = id }, new { Message = e.Message });
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
+            }
+        }
+        #endregion
+
+        #region ดูข้อมูล SMS ของลูกค้าแบบ Offset
+        [Route("api/customer/sms/offset")]
+        public IHttpActionResult GetSmsOffset(int id, int skip, int take)
+        {
+            m_LogReq mlog;
+            string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string url = HttpContext.Current.Request.Path;
+            try
+            {
+                var result = _user.getProfileById(id);
+                if (result != null && result.CUST_NO != 0)
+                {
+                    var sms = _user.getNotification(id);
+                    if (sms.Count > 0)
+                    {
+                        sms = sms.OrderByDescending(p => p.SMS010_PK).Skip(skip).Take(take).ToList();
+                        if(skip == 0)
+                            sms = sms.OrderBy(p => p.SMS010_PK).ToList();
+                    }
+                    monitor.sendMessage(url, IPAddress, new { id = id }, new { data = sms });
+                    return Ok(new { code = 200, message = "ดึงข้อมูล Sms สำเร็จ", data = sms });
+                }
+                else
+                {
+                    //mlog = new m_LogReq();
+                    //mlog.ip_addr = IPAddress;
+                    //mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล SMS ของลูกค้าโดยไม่ได้รับอนุญาต";
+                    //mlog.url = "api/customer/sms";
+                    //log.logRequest(mlog);
+                    monitor.sendMessage(url, IPAddress, new { id = id }, new { Message = "Not found customer!" });
+                    return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
+                }
+            }
+            catch (Exception e)
+            {
+                mlog = new m_LogReq();
+                mlog.ip_addr = IPAddress;
+                mlog.note = e.Message;
+                mlog.url = "api/customer/sms";
+                log.logRequest(mlog);
+                monitor.sendMessage(url, IPAddress, new { id = id }, new { Type = "Error", Message = e.Message });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
