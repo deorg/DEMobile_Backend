@@ -66,8 +66,8 @@ namespace DeMobile.Controllers
         [Route("api/authen/register")]
         public IHttpActionResult PostRegister([FromBody]m_Register data)
         {
-            //m_LogReq mlog = new m_LogReq();
-            m_LogReg mlog = new m_LogReg();
+            m_LogReq mlog = new m_LogReq();
+            //m_LogReg mlog = new m_LogReg();
             string IPAddress = HttpContext.Current.Request.UserHostAddress;
             string url = HttpContext.Current.Request.Path;
             try
@@ -96,11 +96,11 @@ namespace DeMobile.Controllers
                     mlog.action = "REGISTER";
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ";
-                    mlog.brand = data.brand;
-                    mlog.model = data.model;
-                    mlog.api_version = data.api_version;
-                    log.logSignup(mlog);
-                    //log.logSignin(mlog);
+                    //mlog.brand = data.brand;
+                    //mlog.model = data.model;
+                    //mlog.api_version = data.api_version;
+                    //log.logSignup(mlog);
+                    log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, data, new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = new m_Customer() });
                     return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = new m_Customer() });
                 }
@@ -129,11 +129,11 @@ namespace DeMobile.Controllers
                     mlog.action = "REGISTER";
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ";
-                    mlog.brand = data.brand;
-                    mlog.model = data.model;
-                    mlog.api_version = data.api_version;
-                    log.logSignup(mlog);
-                    //log.logSignin(mlog);
+                    //mlog.brand = data.brand;
+                    //mlog.model = data.model;
+                    //mlog.api_version = data.api_version;
+                    //log.logSignup(mlog);
+                    log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, data, new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result2 });
                     return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ!", data = result2 });
                 }
@@ -154,11 +154,11 @@ namespace DeMobile.Controllers
                         mlog.action = "REGISTER CURRENT DEVICE";
                         mlog.status = "SUCCESS";
                         mlog.note = "ลงทะเบียนสำเร็จ";
-                        mlog.brand = data.brand;
-                        mlog.model = data.model;
-                        mlog.api_version = data.api_version;
-                        log.logSignup(mlog);
-                        //log.logSignin(mlog);
+                        //mlog.brand = data.brand;
+                        //mlog.model = data.model;
+                        //mlog.api_version = data.api_version;
+                        //log.logSignup(mlog);
+                        log.logSignin(mlog);
                         monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                         return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                     }
@@ -176,11 +176,11 @@ namespace DeMobile.Controllers
                             mlog.action = "REGISTER NEW DEVICE";
                             mlog.status = "SUCCESS";
                             mlog.note = "ลงทะเบียนสำเร็จ";
-                            mlog.brand = data.brand;
-                            mlog.model = data.model;
-                            mlog.api_version = data.api_version;
-                            log.logSignup(mlog);
-                            //log.logSignin(mlog);
+                            //mlog.brand = data.brand;
+                            //mlog.model = data.model;
+                            //mlog.api_version = data.api_version;
+                            //log.logSignup(mlog);
+                            log.logSignin(mlog);
                             payment.sendMessageToLine($"[{result2.CUST_NO.ToString()}] คุณ{result2.CUST_NAME} => ลงทะเบียนสำเร็จ");
                             monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                             return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
@@ -198,11 +198,11 @@ namespace DeMobile.Controllers
                             mlog.action = "REGISTER NEW DEVICE";
                             mlog.status = "SUCCESS";
                             mlog.note = "ลงทะเบียนสำเร็จ";
-                            mlog.brand = data.brand;
-                            mlog.model = data.model;
-                            mlog.api_version = data.api_version;
-                            log.logSignup(mlog);
-                            //log.logSignin(mlog);
+                            //mlog.brand = data.brand;
+                            //mlog.model = data.model;
+                            //mlog.api_version = data.api_version;
+                            //log.logSignup(mlog);
+                            log.logSignin(mlog);
                             payment.sendMessageToLine($"[{result2.CUST_NO.ToString()}] คุณ{result2.CUST_NAME} => ลงทะเบียนสำเร็จ");
                             monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                             return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
@@ -234,11 +234,11 @@ namespace DeMobile.Controllers
                 mlog.action = "REGISTER";
                 mlog.status = "FAIL";
                 mlog.note = e.Message;
-                mlog.brand = data.brand;
-                mlog.model = data.model;
-                mlog.api_version = data.api_version;
-                log.logSignup(mlog);
-                //log.logSignin(mlog);
+                //mlog.brand = data.brand;
+                //mlog.model = data.model;
+                //mlog.api_version = data.api_version;
+                //log.logSignup(mlog);
+                log.logSignin(mlog);
                 monitor.sendMessage(url, IPAddress, data, new { code = 500, message = e.Message, data = data });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
@@ -276,7 +276,7 @@ namespace DeMobile.Controllers
                             //_user.updateAppVersion(app_version, deviceId);
 
                             _user.updateIdentify(deviceId);
-
+                            var chat = _user.getChatOn();
                             if (device.device_status == "ACT")
                             {
                                 mlog.cust_no = result.CUST_NO;
@@ -289,7 +289,7 @@ namespace DeMobile.Controllers
                                 mlog.note = "ระบุตัวตนสำเร็จ";
                                 log.logSignin(mlog);
                                 monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 200, message = "ระบุตัวตนสำเร็จ", data = result });
-                                return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = new m_identify { CUST_NO = result.CUST_NO, CUST_NAME = result.CUST_NAME, CITIZEN_NO = result.CITIZEN_NO, TEL = result.TEL, PERMIT = result.PERMIT } });
+                                return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = new m_identify { CUST_NO = result.CUST_NO, CUST_NAME = result.CUST_NAME, CITIZEN_NO = result.CITIZEN_NO, TEL = result.TEL, PERMIT = result.PERMIT, CHAT = chat } });
                             }
                             else if (device.device_status == "CHANGE_TEL")
                             {

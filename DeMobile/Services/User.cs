@@ -342,6 +342,39 @@ namespace DeMobile.Services
                 }
             }
         }
+        public string getChatOn()
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.Information.getChatOn, conn) { CommandType = CommandType.Text })
+                    {
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if (reader.HasRows)
+                        {
+                            var chat = reader["CHAT"].ToString();
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return chat;
+                        }
+                        else
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return string.Empty;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
         public int getAppVersion()
         {
             using(OracleConnection conn = new OracleConnection(Database.conString))

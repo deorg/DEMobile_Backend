@@ -87,6 +87,7 @@ namespace DeMobile.Concrete
             //public const string getLogRegisteredToday = "SELECT * FROM MPAY201 WHERE TRUNC(CREATED_TIME) = TRUNC(SYSDATE)";
             public const string getLogSigninToday = "SELECT * FROM MPAY202 WHERE TRUNC(CREATED_TIME) = TRUNC(SYSDATE)";
             public const string getRegisterType = "SELECT REGISTER_TYPE FROM MPAY999";
+            public const string getChatOn = "SELECT CHAT FROM MPAY999";
         }
         public static class Line
         {
