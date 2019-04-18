@@ -78,7 +78,9 @@ namespace DeMobile.Concrete
         }
         public static class Information
         {
-            public const string getAppVersion = "SELECT APP_VERSION FROM MPAY999";
+            //public const string getAppVersion = "SELECT APP_VERSION FROM MPAY999";
+            public const string getAndroidVersion = "SELECT ANDROID_VERSION FROM MPAY999";
+            public const string getIosVersion = "SELECT IOS_VERSION FROM MPAY999";
             public const string getStatusCode = "SELECT * FROM MPAY060";
             public const string getNumMember = "SELECT COUNT(*) SUM_NEW_USER FROM CUSTOMER_M";
             public const string getRegisteredMember = "select count(distinct cust_no) from mpay020";

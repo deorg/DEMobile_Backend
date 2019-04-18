@@ -375,20 +375,20 @@ namespace DeMobile.Services
                 }
             }
         }
-        public int getAppVersion()
+        public double getAppVersion(string serial_sim)
         {
             using(OracleConnection conn = new OracleConnection(Database.conString))
             {
                 try
                 {
                     conn.Open();
-                    using (var cmd = new OracleCommand(SqlCmd.Information.getAppVersion, conn) { CommandType = CommandType.Text })
+                    using (var cmd = new OracleCommand(serial_sim == "1111111111" ? SqlCmd.Information.getIosVersion : SqlCmd.Information.getAndroidVersion, conn) { CommandType = CommandType.Text })
                     {
                         var reader = cmd.ExecuteReader();
                         reader.Read();
                         if (reader.HasRows)
                         {
-                            var version = Int32.Parse(reader["APP_VERSION"].ToString());
+                            var version = serial_sim == "1111111111" ? double.Parse(reader["IOS_VERSION"].ToString()) : double.Parse(reader["ANDROID_VERSION"].ToString());
                             cmd.Dispose();
                             reader.Dispose();
                             return version;
