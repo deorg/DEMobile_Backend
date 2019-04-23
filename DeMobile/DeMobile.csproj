@@ -229,6 +229,7 @@
     <Compile Include="Controllers\PolicyController.cs" />
     <Compile Include="Controllers\SupportController.cs" />
     <Compile Include="Hubs\MonitorHub.cs" />
+    <Compile Include="Models\AppModel\m_Broadcast.cs" />
     <Compile Include="Models\AppModel\m_contact.cs" />
     <Compile Include="Models\AppModel\m_LogReq.cs" />
     <Compile Include="Models\AppModel\m_Transaction.cs" />

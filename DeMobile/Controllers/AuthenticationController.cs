@@ -279,6 +279,7 @@ namespace DeMobile.Controllers
                             if (device.device_status == "ACT")
                             {
                                 var version = _user.getAppVersion(serial_sim);
+                                var broadcast = _user.getBroadcast();
 
                                 mlog.cust_no = result.CUST_NO;
                                 mlog.device_id = deviceId;
@@ -290,7 +291,7 @@ namespace DeMobile.Controllers
                                 mlog.note = "ระบุตัวตนสำเร็จ";
                                 log.logSignin(mlog);
                                 monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 200, message = "ระบุตัวตนสำเร็จ", data = result });
-                                return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = new m_identify { CUST_NO = result.CUST_NO, CUST_NAME = result.CUST_NAME, CITIZEN_NO = result.CITIZEN_NO, TEL = result.TEL, PERMIT = result.PERMIT, CHAT = chat, APP_VERSION = version } });
+                                return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = new m_identify { CUST_NO = result.CUST_NO, CUST_NAME = result.CUST_NAME, CITIZEN_NO = result.CITIZEN_NO, TEL = result.TEL, PERMIT = result.PERMIT, CHAT = chat, APP_VERSION = version, BROADCAST = broadcast } });
                             }
                             else if (device.device_status == "CHANGE_TEL")
                             {

@@ -33,7 +33,7 @@ namespace DeMobile.Services
                                 SMS010_PK = Int32.Parse(reader["SMS010_PK"].ToString()),
                                 CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
                                 CON_NO = reader["CON_NO"] == DBNull.Value ? string.Empty : (string)reader["CON_NO"],
-                                SMS_NOTE = reader["SMS_NOTE"] == DBNull.Value ? string.Empty : (string)reader["SMS_NOTE"],
+                                SMS_NOTE = reader["SMS_NOTE"] == DBNull.Value ? string.Empty : reader["SMS_NOTE"].ToString().Replace("\r", "\n"),
                                 SMS_TIME = (DateTime)reader["SMS_TIME"],
                                 SENDER = reader["SENDER"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SENDER"].ToString()),
                                 SENDER_TYPE = (string)reader["SENDER_TYPE"],
@@ -988,6 +988,43 @@ namespace DeMobile.Services
             //    };
             //var result = oracle.SqlExecuteWithParams(SqlCmd.User.registerCurrentDevice, parameter);
             //oracle.OracleDisconnect();
+        }
+        public m_Broadcast getBroadcast()
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.Information.getBroadcast, conn) { CommandType = CommandType.Text })
+                    {
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if(reader.HasRows)
+                        { 
+                            var data = new m_Broadcast
+                            {
+                                note = reader["NOTE"].ToString(),
+                                start_time = (DateTime)reader["START_TIME"],
+                                end_time = (DateTime)reader["END_TIME"],
+                                created_time = (DateTime)reader["CREATED_TIME"]
+                            };
+                            return data;
+                        }
+                        else
+                        {
+                            reader.Dispose();
+                            cmd.Dispose();
+                            return null;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
         }
         public m_Customer getProfileById(int id)
         {

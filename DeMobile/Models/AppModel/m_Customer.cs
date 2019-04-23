@@ -23,6 +23,7 @@ namespace DeMobile.Models.AppModel
         public string PERMIT { get; set; }
         public double APP_VERSION { get; set; }
         public string CHAT { get; set; }
+        public m_Broadcast BROADCAST { get; set; }
     }
     public class m_device
     {
