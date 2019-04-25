@@ -317,7 +317,7 @@ namespace DeMobile.Controllers
                                 mlog.action = "IDENTIFY";
                                 mlog.status = "FAIL";
                                 mlog.note = "เครื่องลูกค้าถูกระงับการใช้งาน";
-                                log.logSignin(mlog);
+                                //log.logSignin(mlog);
                                 monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version= app_version */}, new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                                 return Ok(new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                             }                           
@@ -345,7 +345,7 @@ namespace DeMobile.Controllers
                         mlog.serial_sim = serial_sim;
                         mlog.ip_addr = IPAddress;
                         mlog.action = "IDENTIFY";
-                        mlog.status = "FAILE";
+                        mlog.status = "FAIL";
                         mlog.note = "ลูกค้าถูกระงับบริการ SMS";
                         log.logSignin(mlog);
                         monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 401, message = "ลูกค้าถูกระงับบริการ SMS!", data = result });
@@ -362,7 +362,7 @@ namespace DeMobile.Controllers
                     mlog.action = "IDENTIFY";
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบเครื่องของลูกค้าในระบบ";
-                    log.logSignin(mlog);
+                    //log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 407, message = "ไม่พบเลขซิมการ์ดของลูกค้าในระบบ!", data = result });
                     return Ok(new { code = 409, message = "ไม่พบเครื่องของลูกค้าในระบบ!", data = result });
                 }
@@ -437,24 +437,37 @@ namespace DeMobile.Controllers
                 var result = _user.getProfileById(id);
                 if (result != null && result.CUST_NO != 0)
                 {
+                    mlog = new m_LogReq();
+                    mlog.cust_no = id;
+                    mlog.tel = result.TEL;
+                    mlog.ip_addr = IPAddress;
+                    mlog.action = "RETRIEVE SMS";
+                    mlog.status = "SUCCESS";
+                    mlog.note = "ดึงข้อมูล SMS สำเร็จ";           
                     var sms = _user.getNotification(id);
+                    //_user.updateReadSms(id);
                     if (sms.Count > 0)
                     {
-                        sms = sms.OrderByDescending(p => p.SMS010_PK).Skip(skip).Take(take).ToList();
+                        if (skip != 0)
+                            skip = skip - 5;
+                        sms = sms.OrderByDescending(p => p.SMS010_PK).Skip(skip).Take(5).ToList();
                         if(skip == 0)
                             sms = sms.OrderBy(p => p.SMS010_PK).ToList();
                     }
-                    monitor.sendMessage(url, IPAddress, new { id = id }, new { data = sms });
+                    log.logRequest(mlog);
+                    monitor.sendMessage(url, IPAddress, new { id = id, skip = skip, take = take }, new { data = sms });
                     return Ok(new { code = 200, message = "ดึงข้อมูล Sms สำเร็จ", data = sms });
                 }
                 else
                 {
-                    //mlog = new m_LogReq();
-                    //mlog.ip_addr = IPAddress;
-                    //mlog.note = "มีคนพยายามแอบอ้างเข้าถึงข้อมูล SMS ของลูกค้าโดยไม่ได้รับอนุญาต";
-                    //mlog.url = "api/customer/sms";
-                    //log.logRequest(mlog);
-                    monitor.sendMessage(url, IPAddress, new { id = id }, new { Message = "Not found customer!" });
+                    mlog = new m_LogReq();
+                    mlog.cust_no = id;
+                    mlog.tel = result.TEL;
+                    mlog.ip_addr = IPAddress;
+                    mlog.action = "RETRIEVE SMS";
+                    mlog.status = "FAIL";
+                    mlog.note = "ไม่พบข้อมูลลูกค้าในระบบ";
+                    monitor.sendMessage(url, IPAddress, new { id = id, skip = skip, take = take }, new { Message = "Not found customer!" });
                     return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
                 }
             }

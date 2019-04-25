@@ -945,6 +945,27 @@ namespace DeMobile.Services
                 }
             }
         }
+        public void updateReadSms(int cust_no)
+        {
+            using (OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.updateReadSMS, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add("cust_no", cust_no);
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
         public void registerCurrentDevice(m_Register regis, int cust_no)
         {
             using (OracleConnection conn = new OracleConnection(Database.conString))

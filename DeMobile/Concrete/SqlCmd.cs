@@ -11,11 +11,11 @@ namespace DeMobile.Concrete
         {
             public const string getSms = "SELECT * FROM SMS010_M WHERE CUST_NO IN(SELECT CUST_NO FROM MPAY021 WHERE DEVICE_ID = fcust2device_id(:cust_no)) ORDER BY SMS010_PK";
             public const string getSmsWithConnId = @"select sms010_pk, s010.cust_no, conn_id, device_status, sms_note,  con_no, sms_time, sender, sender_type, sms010_ref, read_status
-                                                        from sms010_m s010 join mpay020 m020
+                                                        from sms010_m s010 join MPAY020 m020
                                                         on s010.cust_no = m020.cust_no
                                                         where s010.cust_no = :cust_no";
             public const string getAllSmsWithConnId = @"select sms010_pk, s010.cust_no, conn_id, device_status, sms_note,  s010.con_no, sms_time, sender, sender_type, sms010_ref, read_status, received
-                                                        from sms010_m s010 join mpay020 m020
+                                                        from sms010_m s010 join MPAY020 m020
                                                         on s010.cust_no = m020.cust_no where received = 'N'";
             public const string readSms = "UPDATE SMS010_M SET READ_STATUS = 'READ', RECEIVED = 'Y' WHERE CUST_NO = :cust_no AND SMS010_PK <= :sms010_pk AND SENDER_TYPE != 'CUST'";
             public const string getContract = "SELECT * FROM CONTRACT_M WHERE CUST_NO = :cust_no ORDER BY CON_DATE";
@@ -40,6 +40,7 @@ namespace DeMobile.Concrete
             public const string updateMPAY021 = "UPDATE MPAY021 SET DEVICE_ID = :device_id where CUST_NO = :cust_no";
             public const string logout = "UPDATE MPAY020 SET DEVICE_STATUS = 'SUS' WHERE CUST_NO = :cust_no";
             public const string updateIdentify = "UPDATE MPAY020 SET LAST_IDENT = SYSDATE WHERE DEVICE_ID = :device_id";
+            public const string updateReadSMS = "UPDATE MPAY020 SET LAST_RETRIEVE = SYSDATE WHERE CUST_NO = :cust_no";
         }
         public static class Payment
         {
@@ -83,7 +84,7 @@ namespace DeMobile.Concrete
             public const string getIosVersion = "SELECT IOS_VERSION FROM MPAY999";
             public const string getStatusCode = "SELECT * FROM MPAY060";
             public const string getNumMember = "SELECT COUNT(*) SUM_NEW_USER FROM CUSTOMER_M";
-            public const string getRegisteredMember = "select count(distinct cust_no) from mpay020";
+            public const string getRegisteredMember = "select count(distinct cust_no) from MPAY020";
             public const string getSignedInMember = "select count(distinct cust_no) from mpay202";
             public const string getLogRegistered = "SELECT * FROM MPAY202 ORDER BY WHERE ACTION IN('REGISTER', 'REGISTER NEW DEVICE', 'REGISTER CURRENT DEVICE') ORDER BY MPAY202_SEQ";
             //public const string getLogRegisteredToday = "SELECT * FROM MPAY201 WHERE TRUNC(CREATED_TIME) = TRUNC(SYSDATE)";
