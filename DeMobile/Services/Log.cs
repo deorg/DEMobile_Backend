@@ -46,6 +46,14 @@ namespace DeMobile.Services
             //oracle.OracleDisconnect();
         }
 
+        //public void logReadSms(m_LogReq log)
+        //{
+        //    using(OracleConnection conn = new OracleConnection(Database.conString))
+        //    {
+        //        try
+        //    }
+        //}
+
         public void logSignup(m_LogReg log)
         {
             using(OracleConnection conn = new OracleConnection(Database.conString))

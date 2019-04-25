@@ -439,13 +439,15 @@ namespace DeMobile.Controllers
                 {
                     mlog = new m_LogReq();
                     mlog.cust_no = id;
+                    //mlog.device_id = ;
                     mlog.tel = result.TEL;
+                   // mlog.serial_sim = serial_sim;
                     mlog.ip_addr = IPAddress;
                     mlog.action = "RETRIEVE SMS";
                     mlog.status = "SUCCESS";
-                    mlog.note = "ดึงข้อมูล SMS สำเร็จ";           
+                    mlog.note = "ดึงข้อมูล SMS สำเร็จ";
                     var sms = _user.getNotification(id);
-                    //_user.updateReadSms(id);
+                    _user.updateReadSms(id);
                     if (sms.Count > 0)
                     {
                         if (skip != 0)
@@ -454,19 +456,19 @@ namespace DeMobile.Controllers
                         if(skip == 0)
                             sms = sms.OrderBy(p => p.SMS010_PK).ToList();
                     }
-                    log.logRequest(mlog);
+                    log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, new { id = id, skip = skip, take = take }, new { data = sms });
                     return Ok(new { code = 200, message = "ดึงข้อมูล Sms สำเร็จ", data = sms });
                 }
                 else
                 {
-                    mlog = new m_LogReq();
-                    mlog.cust_no = id;
-                    mlog.tel = result.TEL;
-                    mlog.ip_addr = IPAddress;
-                    mlog.action = "RETRIEVE SMS";
-                    mlog.status = "FAIL";
-                    mlog.note = "ไม่พบข้อมูลลูกค้าในระบบ";
+                    //mlog = new m_LogReq();
+                    //mlog.cust_no = id;
+                    //mlog.tel = result.TEL;
+                    //mlog.ip_addr = IPAddress;
+                    //mlog.action = "RETRIEVE SMS";
+                    //mlog.status = "FAIL";
+                    //mlog.note = "ไม่พบข้อมูลลูกค้าในระบบ";
                     monitor.sendMessage(url, IPAddress, new { id = id, skip = skip, take = take }, new { Message = "Not found customer!" });
                     return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
                 }
@@ -503,6 +505,17 @@ namespace DeMobile.Controllers
                 if (result != null && result.CUST_NO != 0)
                 {
                     var sms = _user.getNotification(id);
+                    _user.updateReadSms(id);
+                    mlog = new m_LogReq();
+                    mlog.cust_no = id;
+                    //mlog.device_id = ;
+                    mlog.tel = result.TEL;
+                    // mlog.serial_sim = serial_sim;
+                    mlog.ip_addr = IPAddress;
+                    mlog.action = "RETRIEVE SMS";
+                    mlog.status = "SUCCESS";
+                    mlog.note = "ดึงข้อมูล SMS สำเร็จ";
+                    log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, new { id = id }, new { data = sms });
                     return Ok(new { code = 200, message = "ดึงข้อมูล Sms สำเร็จ", data = sms });
                 }
