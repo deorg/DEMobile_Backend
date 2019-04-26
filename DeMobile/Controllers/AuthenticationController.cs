@@ -302,10 +302,10 @@ namespace DeMobile.Controllers
                                 mlog.ip_addr = IPAddress;
                                 mlog.action = "IDENTIFY";
                                 mlog.status = "FAIL";
-                                mlog.note = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์";
+                                mlog.note = "ลูกค้าเปลี่ยนหมายเลขโทรศัพท์"; 
                                 log.logSignin(mlog);
                                 monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 402, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์", data = result });
-                                return Ok(new { code = 402, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์", data = result });
+                                return Ok(new { code = 402, message = "กรุณาใช้หมายเลขโทรศัพท์ใหม่", data = result });
                             }
                             else
                             {
