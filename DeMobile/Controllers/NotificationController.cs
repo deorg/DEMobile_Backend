@@ -61,6 +61,21 @@ namespace DeMobile.Controllers
         }
         #endregion
 
+        [Route("api/notification/send/all")]
+        public IHttpActionResult GetSendNotiAll(string message)
+        {
+            try
+            {
+                NotificationHub noti = new NotificationHub();
+                noti.sendMessageAll(message);
+                return Ok();
+            }
+            catch(Exception e)
+            {
+                return InternalServerError(e.InnerException);
+            }
+        }
+
         #region ทดสอบส่งข้อความผ่าน Websocket ไปหา client ทุกคน
         //[Route("api/notification/send/all")]
         //public IHttpActionResult GetSendNotiAll(string title, string message)
@@ -87,13 +102,13 @@ namespace DeMobile.Controllers
         #endregion
 
         #region ทดสอบส่งข้อความผ่าน Websocket ไปหา client ทุกคน2
-        [Route("api/notification/send/all")]
-        public IHttpActionResult GetTestNoti(string message)
-        {
-            ChatHub hub = new ChatHub();
-            hub.SendMessageAll(message);
-            return Ok();
-        }
+        //[Route("api/notification/send/all")]
+        //public IHttpActionResult GetTestNoti(string message)
+        //{
+        //    ChatHub hub = new ChatHub();
+        //    hub.SendMessageAll(message);
+        //    return Ok();
+        //}
         #endregion
 
         #region ลูกค้าส่งข้อความมาหาระบบ
