@@ -7,6 +7,7 @@ namespace DeMobile.Models.AppModel
 {
     public class m_Register
     {
+        public int cust_no { get; set; }
         public string citizen_no { get; set; }
         public string phone_no { get; set; }
         public string device_id { get; set; }

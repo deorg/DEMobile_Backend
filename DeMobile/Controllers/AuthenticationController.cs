@@ -53,7 +53,7 @@ namespace DeMobile.Controllers
                 else
                 {
                     monitor.sendMessage(url, IPAddress, phone, new { code = 405, message = "พบเบอร์โทรศัพท์", data = customers });
-                    return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์", data = customers });
+                    return Ok(new { code = 405, message = "ไม่พบหมายเลขโทรศัพท์ของท่านในระบบ", data = customers });
                 }
             }
             catch(Exception e)
@@ -75,17 +75,16 @@ namespace DeMobile.Controllers
                 //var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
                 //var appService = setting.Settings["AppService"].Value;
                 //if (appService == "False")
-                //    return Unauthorized();
-
-                
+                //    return Unauthorized();             
                 data.ip_addr = IPAddress;
-                //if(data.phone_no_sim != null)
-                //data.phone_no_sim = data.phone_no_sim.Replace("+66", "0");
 
-                //data.platform = string.IsNullOrEmpty(data.platform) ? "ANDROID" : "IOS";
+                int cust_no;
 
-                //var result = _user.getProfileByCitizenNo(data.citizen_no);
-                var cust_no = _user.getCustNoByPhoneNo(data.phone_no);
+                if (data.cust_no != 0)
+                    cust_no = data.cust_no;
+                else
+                    cust_no = _user.getCustNoByPhoneNo(data.phone_no);
+
                 if(cust_no == 0)
                 {
                     mlog.cust_no = 0;
