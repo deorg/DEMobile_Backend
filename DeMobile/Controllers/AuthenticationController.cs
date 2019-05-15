@@ -434,6 +434,8 @@ namespace DeMobile.Controllers
             try
             {
                 var result = _user.getProfileById(id);
+                var app_version = _user.getAppVersionByCust_no(id);
+                //app_version = 3.2;
                 if (result != null && result.CUST_NO != 0)
                 {
                     mlog = new m_LogReq();
@@ -449,11 +451,16 @@ namespace DeMobile.Controllers
                     _user.updateReadSms(id);
                     if (sms.Count > 0)
                     {
+                        if (app_version < 3.2)
+                        {
+                            sms.RemoveAll(s => s.MSG_TYPE == "IMAGE");
+                        }
+
                         if (skip != 0)
                             skip = skip - 5;
                         sms = sms.OrderByDescending(p => p.SMS010_PK).Skip(skip).Take(5).ToList();
                         if(skip == 0)
-                            sms = sms.OrderBy(p => p.SMS010_PK).ToList();
+                            sms = sms.OrderBy(p => p.SMS010_PK).ToList();           
                     }
                     log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, new { id = id, skip = skip, take = take }, new { data = sms });
@@ -500,11 +507,16 @@ namespace DeMobile.Controllers
             string url = HttpContext.Current.Request.Path;
             try
             {
+                var app_version = _user.getAppVersionByCust_no(id);
                 var result = _user.getProfileById(id);
                 if (result != null && result.CUST_NO != 0)
                 {
                     var sms = _user.getNotification(id);
                     _user.updateReadSms(id);
+                    if (app_version < 3.2)
+                    {
+                        sms.RemoveAll(s => s.MSG_TYPE == "IMAGE");
+                    }
                     mlog = new m_LogReq();
                     mlog.cust_no = id;
                     //mlog.device_id = ;

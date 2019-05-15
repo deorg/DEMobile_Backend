@@ -38,7 +38,8 @@ namespace DeMobile.Services
                                 SENDER = reader["SENDER"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SENDER"].ToString()),
                                 SENDER_TYPE = (string)reader["SENDER_TYPE"],
                                 SMS010_REF = reader["SMS010_REF"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SMS010_REF"].ToString()),
-                                READ_STATUS = (string)reader["READ_STATUS"]
+                                READ_STATUS = (string)reader["READ_STATUS"],
+                                MSG_TYPE = reader["MSG_TYPE"] == DBNull.Value ? string.Empty : reader["MSG_TYPE"].ToString()
                             });
                         }
                         if (data.Count == 0)
@@ -365,6 +366,39 @@ namespace DeMobile.Services
                             cmd.Dispose();
                             reader.Dispose();
                             return string.Empty;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
+        public double getAppVersionByCust_no(int cust_no)
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.getAppVersion, conn) { CommandType = CommandType.Text }) {
+                        cmd.Parameters.Add("cust_no", cust_no);
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if (reader.HasRows)
+                        {
+                            var version = double.Parse(reader["APP_VERSION"].ToString());
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return version;
+                        }
+                        else
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return 0;
                         }
                     }
                 }
