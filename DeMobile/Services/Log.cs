@@ -3,6 +3,7 @@ using DeMobile.Models.AppModel;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 
@@ -45,6 +46,31 @@ namespace DeMobile.Services
             //oracle.SqlExecuteWithParams(SqlCmd.Log.logReq, parameter);
             //oracle.OracleDisconnect();
         }
+        public void logRequest2(m_LogActivity log)
+        {
+            using (OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.Log.logReq, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        cmd.Parameters.Add(new OracleParameter("note", log.note));
+                        cmd.Parameters.Add(new OracleParameter("cust_no", log.cust_no));
+                        cmd.Parameters.Add(new OracleParameter("device_id", log.device_id));
+                        cmd.Parameters.Add(new OracleParameter("ip_addr", log.ip_addr));
+                        cmd.Parameters.Add(new OracleParameter("url", log.url));
+                        cmd.ExecuteNonQueryAsync();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
 
         //public void logReadSms(m_LogReq log)
         //{
@@ -61,7 +87,7 @@ namespace DeMobile.Services
                 try
                 {
                     conn.Open();
-                    using (var cmd = new OracleCommand(SqlCmd.Log.logRegister, conn) { CommandType = System.Data.CommandType.Text })
+                    using (var cmd = new OracleCommand(SqlCmd.Log.logRegister, conn) { CommandType = CommandType.Text })
                     {
                         cmd.Parameters.Add("cust_no", log.cust_no);
                         cmd.Parameters.Add("device_id", log.device_id);
@@ -86,6 +112,39 @@ namespace DeMobile.Services
                 }
             }
         }
+        public void logActivity(m_LogActivity log)
+        {
+            using(OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using(var cmd = new OracleCommand(SqlCmd.Log.logActivity, conn) { CommandType = CommandType.Text })
+                    {
+                        cmd.Parameters.Add("cust_no", log.cust_no);
+                        cmd.Parameters.Add("device_id", log.device_id);
+                        cmd.Parameters.Add("tel", log.tel);
+                        cmd.Parameters.Add("serial_sim", log.serial_sim);
+                        cmd.Parameters.Add("ip_addr", log.ip_addr);
+                        cmd.Parameters.Add("action", log.action);
+                        cmd.Parameters.Add("status", log.status);
+                        cmd.Parameters.Add("note", log.note);
+                        cmd.Parameters.Add("brand", log.brand);
+                        cmd.Parameters.Add("model", log.model);
+                        cmd.Parameters.Add("app_version", log.app_version);
+                        cmd.Parameters.Add("api_version", log.api_version);
+
+                        cmd.ExecuteNonQueryAsync();
+                        cmd.Dispose();
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
         public void logSignin(m_LogReq log)
         {
             using (OracleConnection conn = new OracleConnection(Database.conString))
@@ -93,7 +152,7 @@ namespace DeMobile.Services
                 try
                 {
                     conn.Open();
-                    using (var cmd = new OracleCommand(SqlCmd.Log.logSignin, conn) { CommandType = System.Data.CommandType.Text })
+                    using (var cmd = new OracleCommand(SqlCmd.Log.logSignin, conn) { CommandType = CommandType.Text })
                     {
                         cmd.Parameters.Add(new OracleParameter("cust_no", log.cust_no));
                         cmd.Parameters.Add(new OracleParameter("device_id", log.device_id));
@@ -135,7 +194,7 @@ namespace DeMobile.Services
                 try
                 {
                     conn.Open();
-                    using(var cmd = new OracleCommand(SqlCmd.Log.logOrder, conn) { CommandType = System.Data.CommandType.Text })
+                    using(var cmd = new OracleCommand(SqlCmd.Log.logOrder, conn) { CommandType = CommandType.Text })
                     {
                         cmd.Parameters.Add("cust_no", log.cust_no);
                         cmd.Parameters.Add("con_no", log.con_no);

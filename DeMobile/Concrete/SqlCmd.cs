@@ -75,6 +75,7 @@ namespace DeMobile.Concrete
             public const string logReq = "INSERT INTO MPAY200(NOTE, CUST_NO, DEVICE_ID, IP_ADDR, URL) VALUES(:note, :cust_no, :device_id, :ip_addr, :url)";
             public const string logRegister = "INSERT INTO MPAY202(CUST_NO, DEVICE_ID, TEL, IP_ADDR, STATUS, NOTE, ACTION, SERIAL_SIM, BRAND, MODEL, API_VERSION) VALUES(:cust_no, :device_id, :tel, :ip_addr, :status, :note, :action, :serial_sim, :brand, :model, :api_version)";
             public const string logSignin = "INSERT INTO MPAY202(CUST_NO, DEVICE_ID, TEL, SERIAL_SIM, IP_ADDR,ACTION, STATUS, NOTE) VALUES(:cust_no, :device_id, :tel, :serial_sim, :ip_addr,:action, :status, :note)";
+            public const string logActivity = "INSERT INTO MPAY202(CUST_NO, DEVICE_ID, TEL, SERIAL_SIM, IP_ADDR,ACTION, STATUS, NOTE, BRAND, MODEL, APP_VERSION, API_VERSION) VALUES(:cust_no, :device_id, :tel, :serial_sim, :ip_addr,:action, :status, :note, :brand, :model, :app_version, :api_version)";
             public const string logOrder = "INSERT INTO MPAY203(CUST_NO, CON_NO, ORDER_NO, TRANS_NO, CHANNEL_ID, PAY_AMT, TRANS_AMT, DEVICE_ID, TEL, NOTE, IP_ADDR) VALUES(:cust_no, :con_no, :order_no, :trans_no, :channel_id, :pay_amt, :trans_amt, :device_id, :tel, :note, :ip_addr)";
             public const string logTest = "INSERT INTO LOG_TEST(TXT) VALUES(:msg)";
             public const string logReadSms = "INSERT INTO MPAY202(CUST_NO, DEVICE_ID, TEL, IP_ADDR, STATUS, NOTE, ACTION, SERIAL_SIM) VALUES(:cust_no, :device_id, :tel, :ip_addr, :status, :note, :action, :serial_sim)";

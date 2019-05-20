@@ -138,6 +138,10 @@ namespace DeMobile.Controllers
                 }
                 else
                 {
+                    var broadcast = _user.getBroadcast();
+                    var version = _user.getAppVersion(data.serial_sim);
+                    var chat = _user.getChatOn();
+
                     var currentDevice = _user.checkCurrentDevice(data.device_id);
                     if (currentDevice != null)
                     {                   
@@ -159,7 +163,8 @@ namespace DeMobile.Controllers
                         //log.logSignup(mlog);
                         log.logSignin(mlog);
                         monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
-                        return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
+                        return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = new m_identify { CUST_NO = result2.CUST_NO, CUST_NAME = result2.CUST_NAME, CITIZEN_NO = result2.CITIZEN_NO, TEL = result2.TEL, PERMIT = result2.PERMIT, CHAT = chat, APP_VERSION = version, BROADCAST = broadcast } });
+                        //return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                     }
                     else
                     {
@@ -182,7 +187,8 @@ namespace DeMobile.Controllers
                             log.logSignin(mlog);
                             payment.sendMessageToLine($"[{result2.CUST_NO.ToString()}] คุณ{result2.CUST_NAME} => ลงทะเบียนสำเร็จ");
                             monitor.sendMessage(url, IPAddress, data, new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
-                            return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
+                            return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = new m_identify { CUST_NO = result2.CUST_NO, CUST_NAME = result2.CUST_NAME, CITIZEN_NO = result2.CITIZEN_NO, TEL = result2.TEL, PERMIT = result2.PERMIT, CHAT = chat, APP_VERSION = version, BROADCAST = broadcast } });
+                            //return Ok(new { code = 200, message = "ลงทะเบียนสำเร็จ", data = result2 });
                         }
                         else
                         {
@@ -487,6 +493,78 @@ namespace DeMobile.Controllers
                 mlog.url = "api/customer/sms";
                 log.logRequest(mlog);
                 monitor.sendMessage(url, IPAddress, new { id = id }, new { Type = "Error", Message = e.Message });
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
+            }
+        }
+        #endregion
+
+        #region ดูข้อมูล SMS ของลูกค้าแบบ Offset2
+        [Route("api/customer/sms/offset2")]
+        public IHttpActionResult PostSmsOffset2(m_SmsOffset value)
+        {
+            m_LogActivity mlog;
+            string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string url = HttpContext.Current.Request.Path;
+            try
+            {
+                var result = _user.getProfileById(value.cust_no);
+                var app_version = _user.getAppVersionByCust_no(value.cust_no);
+                //app_version = 3.2;
+                if (result != null && result.CUST_NO != 0)
+                {
+                    mlog = new m_LogActivity();
+                    mlog.cust_no = value.cust_no;
+                    mlog.device_id = value.device_id;
+                    mlog.tel = result.TEL;
+                    // mlog.serial_sim = serial_sim;
+                    mlog.ip_addr = IPAddress;
+                    mlog.action = "RETRIEVE SMS";
+                    mlog.status = "SUCCESS";
+                    mlog.note = "ดึงข้อมูล SMS สำเร็จ";
+                    mlog.brand = value.brand;
+                    mlog.model = value.model;
+                    mlog.app_version = value.app_version;
+                    mlog.api_version = value.api_version;
+                    var sms = _user.getNotification(value.cust_no);
+                    _user.updateReadSms(value.cust_no);
+                    if (sms.Count > 0)
+                    {
+                        if (app_version < 3.2)
+                        {
+                            sms.RemoveAll(s => s.MSG_TYPE == "IMAGE");
+                        }
+
+                        if (value.skip != 0)
+                            value.skip = value.skip - 5;
+                        sms = sms.OrderByDescending(p => p.SMS010_PK).Skip(value.skip).Take(5).ToList();
+                        if (value.skip == 0)
+                            sms = sms.OrderBy(p => p.SMS010_PK).ToList();
+                    }
+                    log.logActivity(mlog);
+                    monitor.sendMessage(url, IPAddress, new { id = value.cust_no, skip = value.skip, take = value.take }, new { data = sms });
+                    return Ok(new { code = 200, message = "ดึงข้อมูล Sms สำเร็จ", data = sms });
+                }
+                else
+                {
+                    //mlog = new m_LogReq();
+                    //mlog.cust_no = id;
+                    //mlog.tel = result.TEL;
+                    //mlog.ip_addr = IPAddress;
+                    //mlog.action = "RETRIEVE SMS";
+                    //mlog.status = "FAIL";
+                    //mlog.note = "ไม่พบข้อมูลลูกค้าในระบบ";
+                    monitor.sendMessage(url, IPAddress, new { id = value.cust_no, skip = value.skip, take = value.take }, new { Message = "Not found customer!" });
+                    return Ok(new { code = 400, message = "ไม่พบข้อมูลลูกค้าในระบบ", data = result });
+                }
+            }
+            catch (Exception e)
+            {
+                mlog = new m_LogActivity();
+                mlog.ip_addr = IPAddress;
+                mlog.note = e.Message;
+                mlog.url = "api/customer/sms";
+                log.logRequest2(mlog);
+                monitor.sendMessage(url, IPAddress, new { id = value.cust_no }, new { Type = "Error", Message = e.Message });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });
             }
         }
