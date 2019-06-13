@@ -125,19 +125,20 @@ namespace DeMobile.Controllers
                 sms.SMS_NOTE = value.message;
                 sms.SENDER = value.cust_no;
                 sms.SENDER_TYPE = "CUST";
-                Notification noti = new Notification();
-                ////////// insert ข้อความของลูกค้าลง sms010 ////////////
-                var lastSms = noti.createSms(sms);
-                sms.SMS010_PK = lastSms;
-                sms.READ_STATUS = "UNREAD";
-                sms.SMS_TIME = DateTime.Now;
 
+                var lastMsg = user.getLastNotification(value.cust_no);
+                if (lastMsg.SMS_NOTE != value.message)
+                {
+                    Notification noti = new Notification();
+                    var lastSms = noti.createSms(sms);
+                    sms.SMS010_PK = lastSms;
+                    sms.READ_STATUS = "UNREAD";
+                    sms.SMS_TIME = DateTime.Now;
 
-                //var banks = payment.getChannelCode();
-                //chat.SendSmsByConnId(sms);
-                var cust = user.getProfileById(value.cust_no);
-                payment.sendMessageToLine($"[{cust.CUST_NO.ToString()}] คุณ{cust.CUST_NAME} => {value.message}");
-                monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "ลูกค้าส่งข้อความ", data = sms });
+                    var cust = user.getProfileById(value.cust_no);
+                    payment.sendMessageToLine($"[{cust.CUST_NO.ToString()}] คุณ{cust.CUST_NAME} => {value.message}");
+                    monitor.sendMessage(url, clientHostname, value, new { request_status = "SUCCESS", desc = "ลูกค้าส่งข้อความ", data = sms });
+                }           
                 return Ok(new { code = 200, message = "ส่งข้อความสำเร็จ", data = sms });
             }
             catch (Exception e)

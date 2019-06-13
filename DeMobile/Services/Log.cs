@@ -163,6 +163,11 @@ namespace DeMobile.Services
                         cmd.Parameters.Add(new OracleParameter("status", log.status));
                         cmd.Parameters.Add(new OracleParameter("note", log.note));
 
+                        cmd.Parameters.Add(new OracleParameter("brand", log.brand));
+                        cmd.Parameters.Add(new OracleParameter("model", log.model));
+                        cmd.Parameters.Add(new OracleParameter("app_version", log.app_version));
+                        cmd.Parameters.Add(new OracleParameter("api", log.api_version));
+
                         cmd.ExecuteNonQueryAsync();
                         cmd.Dispose();
                     }

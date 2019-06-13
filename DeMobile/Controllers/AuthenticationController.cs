@@ -95,6 +95,10 @@ namespace DeMobile.Controllers
                     mlog.action = "REGISTER";
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ";
+                    mlog.brand = data.brand;
+                    mlog.model = data.model;
+                    mlog.app_version = data.app_version;
+                    mlog.api_version = data.api_version;
                     //mlog.brand = data.brand;
                     //mlog.model = data.model;
                     //mlog.api_version = data.api_version;
@@ -128,6 +132,10 @@ namespace DeMobile.Controllers
                     mlog.action = "REGISTER";
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบหมายเลขโทรศัพท์ลูกค้าในระบบ";
+                    mlog.brand = data.brand;
+                    mlog.model = data.model;
+                    mlog.api_version = data.api_version;
+                    mlog.app_version = data.app_version;
                     //mlog.brand = data.brand;
                     //mlog.model = data.model;
                     //mlog.api_version = data.api_version;
@@ -157,6 +165,10 @@ namespace DeMobile.Controllers
                         mlog.action = "REGISTER CURRENT DEVICE";
                         mlog.status = "SUCCESS";
                         mlog.note = "ลงทะเบียนสำเร็จ";
+                        mlog.brand = data.brand;
+                        mlog.model = data.model;
+                        mlog.app_version = data.app_version;
+                        mlog.api_version = data.api_version;
                         //mlog.brand = data.brand;
                         //mlog.model = data.model;
                         //mlog.api_version = data.api_version;
@@ -180,9 +192,10 @@ namespace DeMobile.Controllers
                             mlog.action = "REGISTER NEW DEVICE";
                             mlog.status = "SUCCESS";
                             mlog.note = "ลงทะเบียนสำเร็จ";
-                            //mlog.brand = data.brand;
-                            //mlog.model = data.model;
-                            //mlog.api_version = data.api_version;
+                            mlog.brand = data.brand;
+                            mlog.model = data.model;
+                            mlog.app_version = data.app_version;
+                            mlog.api_version = data.api_version;
                             //log.logSignup(mlog);
                             log.logSignin(mlog);
                             payment.sendMessageToLine($"[{result2.CUST_NO.ToString()}] คุณ{result2.CUST_NAME} => ลงทะเบียนสำเร็จ");
@@ -203,9 +216,10 @@ namespace DeMobile.Controllers
                             mlog.action = "REGISTER NEW DEVICE";
                             mlog.status = "SUCCESS";
                             mlog.note = "ลงทะเบียนสำเร็จ";
-                            //mlog.brand = data.brand;
-                            //mlog.model = data.model;
-                            //mlog.api_version = data.api_version;
+                            mlog.brand = data.brand;
+                            mlog.model = data.model;
+                            mlog.app_version = data.app_version;
+                            mlog.api_version = data.api_version;
                             //log.logSignup(mlog);
                             log.logSignin(mlog);
                             payment.sendMessageToLine($"[{result2.CUST_NO.ToString()}] คุณ{result2.CUST_NAME} => ลงทะเบียนสำเร็จ");
@@ -239,9 +253,10 @@ namespace DeMobile.Controllers
                 mlog.action = "REGISTER";
                 mlog.status = "FAIL";
                 mlog.note = e.Message;
-                //mlog.brand = data.brand;
-                //mlog.model = data.model;
-                //mlog.api_version = data.api_version;
+                mlog.brand = data.brand;
+                mlog.model = data.model;
+                mlog.app_version = data.app_version;
+                mlog.api_version = data.api_version;
                 //log.logSignup(mlog);
                 log.logSignin(mlog);
                 monitor.sendMessage(url, IPAddress, data, new { code = 500, message = e.Message, data = data });
@@ -294,6 +309,7 @@ namespace DeMobile.Controllers
                                 mlog.action = "IDENTIFY";
                                 mlog.status = "SUCCESS";
                                 mlog.note = "ระบุตัวตนสำเร็จ";
+                                mlog.app_version = app_version;
                                 log.logSignin(mlog);
                                 monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 200, message = "ระบุตัวตนสำเร็จ", data = result });
                                 return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = new m_identify { CUST_NO = result.CUST_NO, CUST_NAME = result.CUST_NAME, CITIZEN_NO = result.CITIZEN_NO, TEL = result.TEL, PERMIT = result.PERMIT, CHAT = chat, APP_VERSION = version, BROADCAST = broadcast } });
@@ -307,7 +323,8 @@ namespace DeMobile.Controllers
                                 mlog.ip_addr = IPAddress;
                                 mlog.action = "IDENTIFY";
                                 mlog.status = "FAIL";
-                                mlog.note = "ลูกค้าเปลี่ยนหมายเลขโทรศัพท์"; 
+                                mlog.note = "ลูกค้าเปลี่ยนหมายเลขโทรศัพท์";
+                                mlog.app_version = app_version;
                                 log.logSignin(mlog);
                                 monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 402, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์", data = result });
                                 return Ok(new { code = 402, message = "กรุณาใช้หมายเลขโทรศัพท์ใหม่", data = result });
@@ -322,6 +339,7 @@ namespace DeMobile.Controllers
                                 mlog.action = "IDENTIFY";
                                 mlog.status = "FAIL";
                                 mlog.note = "เครื่องลูกค้าถูกระงับการใช้งาน";
+                                mlog.app_version = app_version;
                                 //log.logSignin(mlog);
                                 monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version= app_version */}, new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
                                 return Ok(new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
@@ -337,6 +355,7 @@ namespace DeMobile.Controllers
                             mlog.action = "IDENTIFY";
                             mlog.status = "FAIL";
                             mlog.note = "ไม่พบเครื่องลูกค้าในระบบ";
+                            mlog.app_version = app_version;
                             log.logSignin(mlog);
                             monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/}, new { code = 404, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
                             return Ok(new { code = 404, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
@@ -352,6 +371,7 @@ namespace DeMobile.Controllers
                         mlog.action = "IDENTIFY";
                         mlog.status = "FAIL";
                         mlog.note = "ลูกค้าถูกระงับบริการ SMS";
+                        mlog.app_version = app_version;
                         log.logSignin(mlog);
                         monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 401, message = "ลูกค้าถูกระงับบริการ SMS!", data = result });
                         return Ok(new { code = 401, message = "ลูกค้าถูกระงับบริการ SMS!", data = result });
@@ -367,6 +387,7 @@ namespace DeMobile.Controllers
                     mlog.action = "IDENTIFY";
                     mlog.status = "FAIL";
                     mlog.note = "ไม่พบเครื่องของลูกค้าในระบบ";
+
                     //log.logSignin(mlog);
                     monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 407, message = "ไม่พบเลขซิมการ์ดของลูกค้าในระบบ!", data = result });
                     return Ok(new { code = 409, message = "ไม่พบเครื่องของลูกค้าในระบบ!", data = result });
@@ -382,6 +403,171 @@ namespace DeMobile.Controllers
                 mlog.action = "IDENTIFY";
                 mlog.status = "FAIL";
                 mlog.note = e.Message;
+                mlog.app_version = app_version;
+                log.logSignin(mlog);
+                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version */}, new { Message = e.Message });
+                return Ok(new { code = 500, message = e.Message, data = string.Empty });
+            }
+        }
+        #endregion
+
+        #region ระบุตัวตนก่อนเข้าใช้งาน Application2
+        [Route("api/authen/identify2")]
+        public IHttpActionResult GetCheckPhone2(string serial_sim, string deviceId, string brand, string model, double app_version, string api_version)
+        {
+            //var setting = (AppSettingsSection)WebConfigurationManager.OpenWebConfiguration("~").GetSection("appSettings");
+            //var appService = setting.Settings["AppService"].Value;
+            //if (appService == "False")
+            //    return Unauthorized();
+            m_LogReq mlog = new m_LogReq();
+            string IPAddress = HttpContext.Current.Request.UserHostAddress;
+            string url = HttpContext.Current.Request.Path;
+            try
+            {
+                m_Customer result = new m_Customer();
+                if (serial_sim == "1111111111" || serial_sim == "2222222222")
+                    result = _user.getProfileByDeviceId(deviceId);
+                //else
+                //result = _user.getProfileBySerialSim(serial_sim);
+
+                if (result != null && result.CUST_NO != 0)
+                {
+                    if (result.PERMIT == "SMS" || result.PERMIT == "BOTH")
+                    {
+                        var device = _user.checkCurrentDevice(deviceId);
+                        if (device != null)
+                        {
+                            if (app_version != device.app_version)
+                                _user.updateAppVersion(app_version, deviceId);
+
+                            _user.updateIdentify(deviceId);
+                            var chat = _user.getChatOn();
+                            if (device.device_status == "ACT")
+                            {
+                                var version = _user.getAppVersion(serial_sim);
+                                var broadcast = _user.getBroadcast();
+
+                                mlog.cust_no = result.CUST_NO;
+                                mlog.device_id = deviceId;
+                                mlog.tel = result.TEL;
+                                mlog.serial_sim = serial_sim;
+                                mlog.ip_addr = IPAddress;
+                                mlog.action = "IDENTIFY";
+                                mlog.status = "SUCCESS";
+                                mlog.note = "ระบุตัวตนสำเร็จ";
+                                mlog.brand = brand;
+                                mlog.model = model;
+                                mlog.app_version = app_version;
+                                mlog.api_version = api_version;
+                                log.logSignin(mlog);
+                                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 200, message = "ระบุตัวตนสำเร็จ", data = result });
+                                return Ok(new { code = 200, message = "ข้อมูลถูกต้อง", data = new m_identify { CUST_NO = result.CUST_NO, CUST_NAME = result.CUST_NAME, CITIZEN_NO = result.CITIZEN_NO, TEL = result.TEL, PERMIT = result.PERMIT, CHAT = chat, APP_VERSION = version, BROADCAST = broadcast } });
+                            }
+                            else if (device.device_status == "CHANGE_TEL")
+                            {
+                                mlog.cust_no = result.CUST_NO;
+                                mlog.device_id = deviceId;
+                                mlog.tel = result.TEL;
+                                mlog.serial_sim = serial_sim;
+                                mlog.ip_addr = IPAddress;
+                                mlog.action = "IDENTIFY";
+                                mlog.status = "FAIL";
+                                mlog.note = "ลูกค้าเปลี่ยนหมายเลขโทรศัพท์";
+                                mlog.brand = brand;
+                                mlog.model = model;
+                                mlog.app_version = app_version;
+                                mlog.api_version = api_version;
+                                log.logSignin(mlog);
+                                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 402, message = "ข้อมูลลูกค้าอยู่ในขั้นตอนการเปลี่ยนหมายเลขโทรศัพท์", data = result });
+                                return Ok(new { code = 402, message = "กรุณาใช้หมายเลขโทรศัพท์ใหม่", data = result });
+                            }
+                            else
+                            {
+                                mlog.cust_no = result.CUST_NO;
+                                mlog.device_id = deviceId;
+                                mlog.tel = result.TEL;
+                                mlog.serial_sim = serial_sim;
+                                mlog.ip_addr = IPAddress;
+                                mlog.action = "IDENTIFY";
+                                mlog.status = "FAIL";
+                                mlog.note = "เครื่องลูกค้าถูกระงับการใช้งาน";
+                                mlog.brand = brand;
+                                mlog.model = model;
+                                mlog.app_version = app_version;
+                                mlog.api_version = api_version;
+                                //log.logSignin(mlog);
+                                monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version= app_version */}, new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
+                                return Ok(new { code = 403, message = "เครื่องลูกค้าถูกระงับการใช้งาน!", data = result });
+                            }
+                        }
+                        else
+                        {
+                            mlog.cust_no = result.CUST_NO;
+                            mlog.device_id = deviceId;
+                            mlog.tel = result.TEL;
+                            mlog.serial_sim = serial_sim;
+                            mlog.ip_addr = IPAddress;
+                            mlog.action = "IDENTIFY";
+                            mlog.status = "FAIL";
+                            mlog.note = "ไม่พบเครื่องลูกค้าในระบบ";
+                            mlog.brand = brand;
+                            mlog.model = model;
+                            mlog.app_version = app_version;
+                            mlog.api_version = api_version;
+                            log.logSignin(mlog);
+                            monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/}, new { code = 404, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
+                            return Ok(new { code = 404, message = "ไม่พบเครื่องลูกค้าในระบบ!", data = result });
+                        }
+                    }
+                    else
+                    {
+                        mlog.cust_no = result.CUST_NO;
+                        mlog.device_id = deviceId;
+                        mlog.tel = result.TEL;
+                        mlog.serial_sim = serial_sim;
+                        mlog.ip_addr = IPAddress;
+                        mlog.action = "IDENTIFY";
+                        mlog.status = "FAIL";
+                        mlog.note = "ลูกค้าถูกระงับบริการ SMS";
+                        mlog.brand = brand;
+                        mlog.model = model;
+                        mlog.app_version = app_version;
+                        mlog.api_version = api_version;
+                        log.logSignin(mlog);
+                        monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 401, message = "ลูกค้าถูกระงับบริการ SMS!", data = result });
+                        return Ok(new { code = 401, message = "ลูกค้าถูกระงับบริการ SMS!", data = result });
+                    }
+                }
+                else
+                {
+                    mlog.cust_no = 0;
+                    mlog.device_id = deviceId;
+                    mlog.tel = string.Empty;
+                    mlog.serial_sim = serial_sim;
+                    mlog.ip_addr = IPAddress;
+                    mlog.action = "IDENTIFY";
+                    mlog.status = "FAIL";
+                    mlog.note = "ไม่พบเครื่องของลูกค้าในระบบ";
+
+                    //log.logSignin(mlog);
+                    monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version*/ }, new { code = 407, message = "ไม่พบเลขซิมการ์ดของลูกค้าในระบบ!", data = result });
+                    return Ok(new { code = 409, message = "ไม่พบเครื่องของลูกค้าในระบบ!", data = result });
+                }
+            }
+            catch (Exception e)
+            {
+                mlog.cust_no = 0;
+                mlog.device_id = deviceId;
+                mlog.tel = string.Empty;
+                mlog.serial_sim = serial_sim;
+                mlog.ip_addr = IPAddress;
+                mlog.action = "IDENTIFY";
+                mlog.status = "FAIL";
+                mlog.note = e.Message;
+                mlog.brand = brand;
+                mlog.model = model;
+                mlog.app_version = app_version;
+                mlog.api_version = api_version;
                 log.logSignin(mlog);
                 monitor.sendMessage(url, IPAddress, new { serial_sim = serial_sim, deviceId = deviceId/*, app_version = app_version */}, new { Message = e.Message });
                 return Ok(new { code = 500, message = e.Message, data = string.Empty });

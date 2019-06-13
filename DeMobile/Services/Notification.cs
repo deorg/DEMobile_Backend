@@ -47,6 +47,7 @@ namespace DeMobile.Services
             oracle.OracleDisconnect();
             return lastSms;
         }
+
         public List<m_Notification> genNotification(m_SMS010[] value)
         {
             oracle = new Database();

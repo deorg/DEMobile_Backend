@@ -13,6 +13,52 @@ namespace DeMobile.Services
     {
         private Database oracle;
       
+        public m_SMS010 getLastNotification(int id)
+        {
+            using (OracleConnection conn = new OracleConnection(Database.conString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (var cmd = new OracleCommand(SqlCmd.User.getLastSms, conn) { CommandType = System.Data.CommandType.Text })
+                    {
+                        //cmd.CommandTimeout = 30;
+                        cmd.Parameters.Add(new OracleParameter("cust_no", id));
+                        var reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if (reader.HasRows) {
+                            var data = new m_SMS010
+                            {
+                                SMS010_PK = Int32.Parse(reader["SMS010_PK"].ToString()),
+                                CUST_NO = Int32.Parse(reader["CUST_NO"].ToString()),
+                                CON_NO = reader["CON_NO"] == DBNull.Value ? string.Empty : (string)reader["CON_NO"],
+                                SMS_NOTE = reader["SMS_NOTE"] == DBNull.Value ? string.Empty : reader["SMS_NOTE"].ToString().Replace("\r", "\n"),
+                                SMS_TIME = (DateTime)reader["SMS_TIME"],
+                                SENDER = reader["SENDER"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SENDER"].ToString()),
+                                SENDER_TYPE = (string)reader["SENDER_TYPE"],
+                                SMS010_REF = reader["SMS010_REF"] == DBNull.Value ? null : (int?)Int32.Parse(reader["SMS010_REF"].ToString()),
+                                READ_STATUS = (string)reader["READ_STATUS"],
+                                MSG_TYPE = reader["MSG_TYPE"] == DBNull.Value ? string.Empty : reader["MSG_TYPE"].ToString()
+                            };
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return data;
+                        }
+                        else
+                        {
+                            cmd.Dispose();
+                            reader.Dispose();
+                            return null;
+                        }
+                    }
+                }
+                finally
+                {
+                    conn.Close();
+                    conn.Dispose();
+                }
+            }
+        }
         public List<m_SMS010> getNotification(int id)
         {
             using (OracleConnection conn = new OracleConnection(Database.conString))

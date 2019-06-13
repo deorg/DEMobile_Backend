@@ -15,6 +15,10 @@ namespace DeMobile.Models.AppModel
         public string ip_addr { get; set; }
         public string action { get; set; }
         public string status { get; set; }
+        public string brand { get; set; }
+        public string model { get; set; }
+        public double app_version { get; set; }
+        public string api_version { get; set; }
         public string url { get; set; }
     }
     public class m_LogActivity
